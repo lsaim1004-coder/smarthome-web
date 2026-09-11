@@ -137,7 +137,7 @@ button { font: inherit; }
   gap: 12px;
   margin-bottom: 14px;
 }
-.step {
+.card .step {
   display: grid; place-items: center;
   width: 34px; height: 34px; border-radius: 50%;
   background: var(--navy); color: var(--amber);
@@ -302,4 +302,146 @@ button { font: inherit; }
 @media (max-width: 420px) {
   .nav-link { display: none; }
   .nav-link.nav-user { display: inline-block; max-width: 34vw; }
+}
+
+/* ===== service flow (대문 페이지 서비스 흐름 그림) ===== */
+.flow { width: min(1040px, 100%); margin: 0 auto; padding: clamp(36px, 6vw, 64px) clamp(16px, 4vw, 32px) clamp(40px, 6vw, 72px); }
+.flow-head { max-width: 720px; margin-bottom: 26px; }
+.flow-head .kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber-2); margin-bottom: 8px; }
+.flow-head h2 { font-size: clamp(22px, 4.5vw, 30px); font-weight: 800; letter-spacing: -0.02em; }
+.flow-head p { margin-top: 10px; font-size: 15px; color: var(--ink-2); }
+
+.actors { display: grid; grid-template-columns: 1fr; gap: 18px; }
+.actor {
+  position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+  padding: 20px; box-shadow: 0 10px 30px rgba(11, 27, 52, 0.08);
+}
+.actor.main { border: 2px solid var(--amber); background: linear-gradient(180deg, #fff9ec, #fff); }
+.actor-tag {
+  display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: 0.04em;
+  padding: 4px 10px; border-radius: 999px; background: #e2e8f0; color: var(--ink-2); margin-bottom: 10px;
+}
+.actor.main .actor-tag { background: var(--navy); color: var(--amber); }
+.actor.customer .actor-tag { background: #ccfbf1; color: #0f766e; }
+.actor h3 { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+.actor p { margin-top: 6px; font-size: 13px; color: var(--muted); }
+.actor ul { margin-top: 12px; display: grid; gap: 6px; }
+.actor li { position: relative; padding-left: 16px; font-size: 14px; color: var(--ink-2); }
+.actor li::before { content: ""; position: absolute; left: 0; top: 9px; width: 7px; height: 7px; border-radius: 2px; background: #94a3b8; }
+.actor.main li::before { background: var(--amber); }
+.actor.customer li::before { background: #14b8a6; }
+/* 모바일: 아래 방향 화살표 */
+.actor + .actor::before {
+  content: ""; position: absolute; left: 50%; top: -18px; width: 2px; height: 18px;
+  background: var(--amber-2); transform: translateX(-50%);
+}
+.actor + .actor::after {
+  content: ""; position: absolute; left: 50%; top: -6px; transform: translateX(-50%);
+  border: 6px solid transparent; border-top-color: var(--amber-2);
+}
+.arrow-label { display: none; }
+
+.steps-title { margin: 34px 0 12px; font-size: 16px; font-weight: 800; }
+.steps { display: grid; grid-template-columns: 1fr; gap: 10px; counter-reset: s; }
+.step {
+  position: relative; display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 10px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+}
+.step b { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; font-size: 13px; font-weight: 800; background: #e2e8f0; color: var(--ink-2); }
+.step span { font-weight: 700; font-size: 14px; }
+.step em { font-style: normal; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.step.ours { border-color: rgba(245, 181, 68, 0.8); background: linear-gradient(180deg, #fff9ec, #fff); }
+.step.ours b { background: var(--amber); color: var(--navy); }
+.step.customer b { background: #ccfbf1; color: #0f766e; }
+.step.both b { background: linear-gradient(135deg, var(--amber) 50%, #e2e8f0 50%); color: var(--navy); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; }
+.legend .l-int i { background: #e2e8f0; }
+.legend .l-our i { background: var(--amber); }
+.legend .l-cus i { background: #ccfbf1; }
+
+.aftercare { margin-top: 26px; display: grid; grid-template-columns: 1fr; gap: 12px; }
+.care {
+  background: var(--navy); color: #fff; border-radius: 14px; padding: 18px;
+}
+.care .care-tag { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber); font-weight: 800; }
+.care h4 { margin-top: 6px; font-size: 16px; font-weight: 800; }
+.care p { margin-top: 6px; font-size: 13px; color: #cbd5e1; }
+
+@media (min-width: 720px) {
+  .actors { grid-template-columns: 1fr 1.25fr 1fr; gap: 34px; align-items: stretch; }
+  .actor + .actor::before { left: -34px; top: 50%; width: 34px; height: 2px; transform: translateY(-50%); }
+  .actor + .actor::after { left: -10px; top: 50%; transform: translateY(-50%); border: 6px solid transparent; border-left-color: var(--amber-2); }
+  .arrow-label {
+    display: block; position: absolute; left: -34px; width: 34px; top: calc(50% - 26px);
+    text-align: center; font-size: 11px; color: var(--amber-2); font-weight: 700; white-space: nowrap; transform: translateX(-2px);
+  }
+  .steps { grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .step { grid-template-columns: 1fr; text-align: center; gap: 6px; padding: 14px 10px; }
+  .step b { margin: 0 auto; }
+  .step em { white-space: normal; }
+  .aftercare { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ===== IoT architecture diagram ===== */
+.iot { width: min(1040px, 100%); margin: 0 auto; padding: clamp(36px, 6vw, 64px) clamp(16px, 4vw, 32px) 8px; }
+.iot-diagram { display: flex; flex-direction: column; align-items: stretch; }
+.iot-sources { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.iot-box {
+  position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+  padding: 20px; box-shadow: 0 10px 30px rgba(11, 27, 52, 0.08);
+}
+.iot-box h3 { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+.iot-tag {
+  display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: 0.04em;
+  padding: 4px 10px; border-radius: 999px; margin-bottom: 10px; background: #e2e8f0; color: var(--ink-2);
+}
+.iot-box.owned .iot-tag { background: #e0f2fe; color: #075985; }
+.iot-box.added { border-color: rgba(245, 181, 68, 0.8); background: linear-gradient(180deg, #fff9ec, #fff); }
+.iot-box.added .iot-tag { background: var(--amber); color: var(--navy); }
+.devices { margin-top: 12px; display: grid; gap: 8px; }
+.devices li {
+  display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start;
+  padding: 8px 10px; border-radius: 10px; background: #f8fafc; border: 1px solid var(--line);
+}
+.iot-box.added .devices li { background: #fffdf7; border-color: #fde9bd; }
+.dev-ico { font-size: 18px; text-align: center; line-height: 1.3; }
+.dev-name { font-size: 14px; font-weight: 700; }
+.dev-via { grid-column: 2; font-size: 12px; color: var(--muted); }
+.iot-link {
+  margin-top: 12px; font-size: 12px; font-weight: 700; color: var(--amber-2); text-align: center;
+  padding-top: 10px; border-top: 1px dashed var(--line);
+}
+.iot-box.owned .iot-link { color: #0369a1; }
+
+.iot-merge { position: relative; height: 34px; }
+.iot-merge-line { position: absolute; left: 50%; top: 0; width: 2px; height: 26px; background: var(--amber-2); transform: translateX(-50%); }
+.iot-merge-arrow { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); border: 7px solid transparent; border-top-color: var(--amber-2); }
+
+.iot-box.hub { background: var(--navy); color: #fff; border-color: var(--navy); }
+.iot-box.hub .iot-tag { background: rgba(255, 255, 255, 0.12); color: var(--amber); }
+.iot-features { margin-top: 12px; display: grid; gap: 8px; }
+.iot-features li { position: relative; padding-left: 18px; font-size: 14px; color: #e2e8f0; }
+.iot-features li::before { content: ""; position: absolute; left: 0; top: 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); }
+
+.iot-down { position: relative; height: 44px; }
+.iot-down-line { position: absolute; left: 50%; top: 0; width: 2px; height: 36px; background: var(--amber-2); transform: translateX(-50%); }
+.iot-down-arrow { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); border: 7px solid transparent; border-top-color: var(--amber-2); }
+.iot-down-label { position: absolute; left: calc(50% + 12px); top: 10px; font-size: 12px; font-weight: 700; color: var(--amber-2); white-space: nowrap; }
+
+.iot-box.daily { border-color: #99f6e4; background: linear-gradient(180deg, #f0fdfa, #fff); }
+.iot-box.daily .iot-tag { background: #ccfbf1; color: #0f766e; }
+.daily-items { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.daily-items span { font-size: 14px; font-weight: 700; padding: 8px 12px; border-radius: 999px; background: #fff; border: 1px solid #99f6e4; color: var(--ink); }
+.iot-note { margin-top: 20px; font-size: 14px; color: var(--ink-2); max-width: 760px; }
+
+@media (min-width: 720px) {
+  .iot-sources { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .iot-box.hub, .iot-box.daily { width: min(720px, 100%); margin: 0 auto; }
+  .iot-merge { height: 44px; }
+  /* 두 입력 박스에서 내려오는 선을 하나로 모으는 가로 바 */
+  .iot-merge::before { content: ""; position: absolute; left: 25%; right: 25%; top: 14px; height: 2px; background: var(--amber-2); }
+  .iot-sources .iot-box::after { content: ""; position: absolute; left: 50%; bottom: -14px; width: 2px; height: 14px; background: var(--amber-2); transform: translateX(-50%); }
+  .iot-merge-line { top: 14px; height: 22px; }
+  .iot-down-label { left: calc(50% + 14px); }
 }
