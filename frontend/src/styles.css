@@ -302,6 +302,7 @@ button { font: inherit; }
 @media (max-width: 420px) {
   .nav-link { display: none; }
   .nav-link.nav-user { display: inline-block; max-width: 34vw; }
+  .nav-link.nav-docs { display: inline-block; }
 }
 
 /* ===== service flow (대문 페이지 서비스 흐름 그림) ===== */
