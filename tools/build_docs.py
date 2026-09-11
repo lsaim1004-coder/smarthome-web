@@ -5,7 +5,6 @@
 입력
   docs/견적.md                          → /docs/estimate.html   (markdown → HTML, 목차 포함)
   docs/site/estimate-brief.fragment.html → /docs/estimate-brief.html (Artifact 조각을 완전한 문서로 감싼다)
-  docs/site/herdr-eli5.fragment.html     → /docs/herdr.html
 출력은 커밋해서 Docker 빌드에 Python 이 필요 없게 한다.
 """
 from __future__ import annotations
@@ -28,7 +27,6 @@ NAV_LINKS = [
     ("/docs/", "자료"),
     ("/docs/estimate-brief.html", "견적 브리프"),
     ("/docs/estimate.html", "견적 상세"),
-    ("/docs/herdr.html", "herdr"),
     ("/login", "로그인"),
 ]
 
@@ -198,7 +196,7 @@ h1{font-size:clamp(24px,5vw,32px);letter-spacing:-.02em;margin:6px 0 8px}
 .card h2{margin:0 0 6px;font-size:19px;letter-spacing:-.01em}
 .card p{margin:0;font-size:14px;color:#64748b}
 .card .meta{margin-top:12px;font-size:12px;color:#94a3b8}
-@media (min-width:720px){.cards{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:720px){.cards{grid-template-columns:repeat(2,1fr)}}
 """
 
 
@@ -212,8 +210,6 @@ def build_index() -> None:
       <p>5단계 가격(99~699만원), 원가와 시장 위치, 한 건당 순이익, 월 시나리오를 그림으로 한 장에 정리한 요약본.</p><span class="meta">8개 섹션 · 읽는 시간 5분</span></a>
     <a class="card" href="/docs/estimate.html"><span class="tag">견적 상세</span><h2>시장 조사 및 구성 원가 전문</h2>
       <p>기존 시공업체 견적, 다나와·쿠팡·공식몰 품목 단가, 세대 HA·중앙 관제 서버 2트랙, 패키지별 원가·수익표, 조사 한계.</p><span class="meta">5장 · 표 30여 개 · 출처 링크 포함</span></a>
-    <a class="card" href="/docs/herdr.html"><span class="tag aside">참고 · 도구</span><h2>에이전트 목동 herdr</h2>
-      <p>여러 AI 에이전트를 한 화면에서 몰고 다니는 도구 herdr 를 쉬운 말로 설명한 글. 스마트홈 서비스와는 별개의 참고 자료.</p><span class="meta">8개 섹션</span></a>
   </div>
 </div>"""
     out = page("자료 · Smart Home Option", f"<style>{INDEX_CSS}</style>", body, "/docs/", "Smart Home Option Service · 시범 운영 중")
@@ -226,8 +222,6 @@ def main() -> None:
         build_markdown(ROOT / "docs" / "견적.md", "estimate.html", "/docs/estimate.html"),
         wrap_fragment(ROOT / "docs" / "site" / "estimate-brief.fragment.html", "estimate-brief.html", "/docs/estimate-brief.html",
                       "원문 docs/견적.md · 계산 tools/estimate.py · 가격은 조사 시점(2026-09-11) 값"),
-        wrap_fragment(ROOT / "docs" / "site" / "herdr-eli5.fragment.html", "herdr.html", "/docs/herdr.html",
-                      "참고 자료 · 스마트홈 서비스와 별개의 도구 설명"),
     ]
     build_index()
     for name in made + ["index.html"]:
