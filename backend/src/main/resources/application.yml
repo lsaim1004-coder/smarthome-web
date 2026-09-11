@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: smarthome-backend
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/smarthome}
+    username: ${SPRING_DATASOURCE_USERNAME:smarthome}
+    password: ${SPRING_DATASOURCE_PASSWORD:smarthome}
+    hikari:
+      maximum-pool-size: 5
+      initialization-fail-timeout: 60000
+  sql:
+    init:
+      mode: always
+      continue-on-error: false
+  session:
+    jdbc:
+      initialize-schema: always
+    timeout: 7d
+  jackson:
+    time-zone: Asia/Seoul
+
+server:
+  port: 8080
+  shutdown: graceful
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        name: SHSESSION
+        http-only: true
+        same-site: lax
+        secure: false
+        path: /
+
+app:
+  service-name: Smart Home Option Service
+  welcome-message: "입주하는 날, 스마트홈이 완성되어 있습니다."
+  base-url: ${APP_BASE_URL:http://localhost}
+  mail:
+    # log  : 메일을 보내지 않고 백엔드 로그와 API 응답(devCode)에 인증번호 표시 (개발용)
+    # smtp : 아래 SMTP 설정으로 실제 발송
+    mode: ${APP_MAIL_MODE:log}
+    host: ${APP_MAIL_HOST:}
+    port: ${APP_MAIL_PORT:587}
+    username: ${APP_MAIL_USERNAME:}
+    password: ${APP_MAIL_PASSWORD:}
+    from: ${APP_MAIL_FROM:no-reply@kiwan.kr}
+    starttls: ${APP_MAIL_STARTTLS:true}
+  verification:
+    code-ttl-minutes: 10
+    max-attempts: 5
+    resend-cooldown-seconds: 60
+
+logging:
+  level:
+    kr.kiwan.smarthome: INFO

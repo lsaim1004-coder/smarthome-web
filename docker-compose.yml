@@ -1,0 +1,69 @@
+name: smarthome-web
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: smarthome-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: smarthome
+      POSTGRES_USER: smarthome
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      TZ: Asia/Seoul
+      PGTZ: Asia/Seoul
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smarthome -d smarthome"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  backend:
+    build: ./backend
+    image: smarthome-web/backend:0.2.0
+    container_name: smarthome-backend
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/smarthome
+      SPRING_DATASOURCE_USERNAME: smarthome
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      TZ: Asia/Seoul
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=60 -Duser.timezone=Asia/Seoul"
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost}
+      # 메일: log(개발, 인증번호를 로그·응답에 표시) | smtp(실제 발송)
+      APP_MAIL_MODE: ${APP_MAIL_MODE:-log}
+      APP_MAIL_HOST: ${APP_MAIL_HOST:-}
+      APP_MAIL_PORT: ${APP_MAIL_PORT:-587}
+      APP_MAIL_USERNAME: ${APP_MAIL_USERNAME:-}
+      APP_MAIL_PASSWORD: ${APP_MAIL_PASSWORD:-}
+      APP_MAIL_FROM: ${APP_MAIL_FROM:-no-reply@example.com}
+      APP_MAIL_STARTTLS: ${APP_MAIL_STARTTLS:-true}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/api/health >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    networks: [internal]
+
+  frontend:
+    build: ./frontend
+    image: smarthome-web/frontend:0.2.0
+    container_name: smarthome-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks: [internal]
+
+volumes:
+  dbdata:
+
+networks:
+  internal:

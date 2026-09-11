@@ -1,0 +1,189 @@
+package kr.kiwan.smarthome.auth;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.util.HexFormat;
+import java.util.Locale;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.mail.MailException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import kr.kiwan.smarthome.AppProperties;
+import kr.kiwan.smarthome.auth.AuthDtos.AuthUser;
+import kr.kiwan.smarthome.auth.AuthDtos.CodeIssued;
+import kr.kiwan.smarthome.auth.UserRepository.UserRow;
+import kr.kiwan.smarthome.auth.VerificationRepository.CodeRow;
+import kr.kiwan.smarthome.common.ApiException;
+
+@Service
+public class AuthService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+    private static final SecureRandom RANDOM = new SecureRandom();
+
+    private final UserRepository users;
+    private final VerificationRepository codes;
+    private final MailService mail;
+    private final PasswordEncoder encoder;
+    private final AppProperties.Verification policy;
+    /** 존재하지 않는 이메일로 로그인할 때도 같은 시간이 걸리도록 비교에 쓰는 더미 해시. */
+    private final String dummyHash;
+
+    public AuthService(UserRepository users, VerificationRepository codes, MailService mail,
+                       PasswordEncoder encoder, AppProperties props) {
+        this.users = users;
+        this.codes = codes;
+        this.mail = mail;
+        this.encoder = encoder;
+        this.policy = props.verification();
+        this.dummyHash = encoder.encode("dummy-password-for-timing");
+    }
+
+    // ---------- 회원가입 ----------
+
+    @Transactional
+    public CodeIssued register(String rawEmail, String password, String rawName) {
+        String email = normalizeEmail(rawEmail);
+        String name = rawName == null || rawName.isBlank() ? null : rawName.trim();
+        String hash = encoder.encode(password);
+
+        Optional<UserRow> existing = users.findByEmail(email);
+        long userId;
+        if (existing.isPresent()) {
+            if (existing.get().verified()) {
+                throw new ApiException(HttpStatus.CONFLICT, "EMAIL_TAKEN", "이미 가입된 이메일입니다. 로그인해 주세요.");
+            }
+            // 인증을 마치지 않은 계정: 비밀번호를 새로 설정하고 인증번호를 다시 보낸다
+            userId = existing.get().id();
+            users.updateCredentials(userId, hash, name);
+        } else {
+            userId = users.insert(email, hash, name);
+        }
+        return issueCode(userId, email, "가입이 접수되었습니다. 이메일로 보낸 인증번호를 입력해 주세요.");
+    }
+
+    // ---------- 인증번호 ----------
+
+    @Transactional
+    public CodeIssued resend(String rawEmail) {
+        String email = normalizeEmail(rawEmail);
+        Optional<UserRow> user = users.findByEmail(email);
+        String generic = "가입된 이메일이면 인증번호를 보냈습니다.";
+        if (user.isEmpty()) {
+            // 가입 여부를 드러내지 않기 위해 성공처럼 응답
+            return new CodeIssued(email, generic, null, policy.codeTtlMinutes());
+        }
+        if (user.get().verified()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "ALREADY_VERIFIED", "이미 인증된 이메일입니다. 로그인해 주세요.");
+        }
+        return issueCode(user.get().id(), email, generic);
+    }
+
+    private CodeIssued issueCode(long userId, String email, String message) {
+        OffsetDateTime now = OffsetDateTime.now();
+        Optional<CodeRow> latest = codes.findLatest(userId);
+        if (latest.isPresent()) {
+            long elapsed = Duration.between(latest.get().createdAt(), now).getSeconds();
+            long wait = policy.resendCooldownSeconds() - elapsed;
+            if (wait > 0) {
+                throw new ApiException(HttpStatus.TOO_MANY_REQUESTS, "RESEND_COOLDOWN",
+                        wait + "초 후에 다시 요청할 수 있습니다.");
+            }
+        }
+        codes.closeOpen(userId);
+        String code = String.format(Locale.ROOT, "%06d", RANDOM.nextInt(1_000_000));
+        codes.insert(userId, sha256(code), now.plusMinutes(policy.codeTtlMinutes()));
+        try {
+            mail.sendVerificationCode(email, code, policy.codeTtlMinutes());
+        } catch (MailException e) {
+            log.error("verification mail failed for {}: {}", email, e.getMessage());
+            throw new ApiException(HttpStatus.BAD_GATEWAY, "MAIL_FAILED",
+                    "인증 메일을 보내지 못했습니다. 잠시 후 다시 시도해 주세요.");
+        }
+        String devCode = mail.smtpEnabled() ? null : code;
+        return new CodeIssued(email, message, devCode, policy.codeTtlMinutes());
+    }
+
+    @Transactional
+    public void verify(String rawEmail, String code) {
+        String email = normalizeEmail(rawEmail);
+        UserRow user = users.findByEmail(email)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "CODE_INVALID", "인증번호가 올바르지 않습니다."));
+        if (user.verified()) {
+            return; // 이미 인증됨: 멱등 처리
+        }
+        CodeRow row = codes.findLatest(user.id()).filter(CodeRow::open)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "CODE_INVALID",
+                        "유효한 인증번호가 없습니다. 다시 요청해 주세요."));
+
+        if (row.expiresAt().isBefore(OffsetDateTime.now())) {
+            codes.consume(row.id());
+            throw new ApiException(HttpStatus.BAD_REQUEST, "CODE_EXPIRED", "인증번호가 만료되었습니다. 다시 요청해 주세요.");
+        }
+        if (row.attempts() >= policy.maxAttempts()) {
+            codes.consume(row.id());
+            throw new ApiException(HttpStatus.TOO_MANY_REQUESTS, "TOO_MANY_ATTEMPTS",
+                    "입력 횟수를 초과했습니다. 인증번호를 다시 요청해 주세요.");
+        }
+        if (!MessageDigest.isEqual(row.codeHash().getBytes(StandardCharsets.US_ASCII),
+                sha256(code).getBytes(StandardCharsets.US_ASCII))) {
+            codes.incrementAttempts(row.id());
+            int remaining = policy.maxAttempts() - row.attempts() - 1;
+            throw new ApiException(HttpStatus.BAD_REQUEST, "CODE_INVALID",
+                    "인증번호가 올바르지 않습니다." + (remaining > 0 ? " (남은 횟수 " + remaining + "회)" : ""));
+        }
+        codes.consume(row.id());
+        users.markVerified(user.id());
+        log.info("email verified: {}", email);
+    }
+
+    // ---------- 로그인 ----------
+
+    @Transactional
+    public AuthUser login(String rawEmail, String password) {
+        String email = normalizeEmail(rawEmail);
+        Optional<UserRow> user = users.findByEmail(email);
+        boolean ok = user.isPresent()
+                ? encoder.matches(password, user.get().passwordHash())
+                : encoder.matches(password, dummyHash) && false;
+        if (!ok) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "이메일 또는 비밀번호가 올바르지 않습니다.");
+        }
+        UserRow u = user.get();
+        if (!u.verified()) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "EMAIL_NOT_VERIFIED",
+                    "이메일 인증이 완료되지 않았습니다. 인증번호를 입력해 주세요.");
+        }
+        users.touchLogin(u.id());
+        return new AuthUser(u.id(), u.email(), u.name());
+    }
+
+    public Optional<UserRow> findById(long id) {
+        return users.findById(id);
+    }
+
+    // ---------- util ----------
+
+    static String normalizeEmail(String email) {
+        return email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private static String sha256(String value) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            return HexFormat.of().formatHex(md.digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+}
