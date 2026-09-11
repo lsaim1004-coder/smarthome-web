@@ -46,6 +46,20 @@ NAV_CSS = """
 @media (max-width:480px){.site-nav .brand span{display:none}}
 """
 
+NAV_JS = """
+(function(){
+  var login=document.querySelector('.site-nav nav a[href="/login"]'); if(!login) return;
+  fetch('/api/auth/me',{credentials:'same-origin',headers:{Accept:'application/json'}}).then(function(r){return r.json()}).then(function(me){
+    if(!me||!me.authenticated||!me.user) return;
+    var u=me.user, name=u.name||u.email;
+    var a=document.createElement('a'); a.href='/me'; a.textContent=name; a.title=u.email;
+    var b=document.createElement('a'); b.href='#'; b.textContent='로그아웃';
+    b.addEventListener('click',function(e){e.preventDefault();fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'}).then(function(){location.href='/';});});
+    login.replaceWith(a); a.after(b);
+  }).catch(function(){});
+})();
+"""
+
 LOGO = ('<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 15.5 16 5l12 10.5" fill="none" stroke="currentColor" stroke-width="2.4" '
         'stroke-linecap="round" stroke-linejoin="round"/><path d="M7.5 13.5V27h17V13.5" fill="none" stroke="currentColor" stroke-width="2.4" '
         'stroke-linejoin="round"/><path d="M11.5 20a6.4 6.4 0 0 1 9 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'
@@ -86,6 +100,7 @@ def page(title: str, head_extra: str, body: str, current: str, note: str, body_c
 {nav_html(current)}
 {body}
 {foot_html(note)}
+<script>{NAV_JS}</script>
 </body>
 </html>
 """

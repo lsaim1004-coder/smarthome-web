@@ -1601,5 +1601,18 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <!-- /SECTION:LIMITS --></article>
 </div>
 <footer class="site-foot"><span>가격은 조사 시점(2026-09-11) 값이며 수시로 바뀝니다.</span><span><a href="/docs/">자료 목록</a> · <a href="https://github.com/lsaim1004-coder/smarthome-web">GitHub</a></span></footer>
+<script>
+(function(){
+  var login=document.querySelector('.site-nav nav a[href="/login"]'); if(!login) return;
+  fetch('/api/auth/me',{credentials:'same-origin',headers:{Accept:'application/json'}}).then(function(r){return r.json()}).then(function(me){
+    if(!me||!me.authenticated||!me.user) return;
+    var u=me.user, name=u.name||u.email;
+    var a=document.createElement('a'); a.href='/me'; a.textContent=name; a.title=u.email;
+    var b=document.createElement('a'); b.href='#'; b.textContent='로그아웃';
+    b.addEventListener('click',function(e){e.preventDefault();fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'}).then(function(){location.href='/';});});
+    login.replaceWith(a); a.after(b);
+  }).catch(function(){});
+})();
+</script>
 </body>
 </html>

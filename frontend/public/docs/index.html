@@ -63,5 +63,18 @@ h1{font-size:clamp(24px,5vw,32px);letter-spacing:-.02em;margin:6px 0 8px}
   </div>
 </div>
 <footer class="site-foot"><span>Smart Home Option Service · 시범 운영 중</span><span><a href="/docs/">자료 목록</a> · <a href="https://github.com/lsaim1004-coder/smarthome-web">GitHub</a></span></footer>
+<script>
+(function(){
+  var login=document.querySelector('.site-nav nav a[href="/login"]'); if(!login) return;
+  fetch('/api/auth/me',{credentials:'same-origin',headers:{Accept:'application/json'}}).then(function(r){return r.json()}).then(function(me){
+    if(!me||!me.authenticated||!me.user) return;
+    var u=me.user, name=u.name||u.email;
+    var a=document.createElement('a'); a.href='/me'; a.textContent=name; a.title=u.email;
+    var b=document.createElement('a'); b.href='#'; b.textContent='로그아웃';
+    b.addEventListener('click',function(e){e.preventDefault();fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'}).then(function(){location.href='/';});});
+    login.replaceWith(a); a.after(b);
+  }).catch(function(){});
+})();
+</script>
 </body>
 </html>
