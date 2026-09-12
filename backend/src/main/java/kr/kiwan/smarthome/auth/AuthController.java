@@ -101,6 +101,12 @@ public class AuthController {
                 .orElseGet(() -> new MeResponse(false, null));
     }
 
+    /** nginx auth_request 가 호출. 필터에서 인증을 요구하므로 여기 도달하면 로그인 상태. 2xx 만 돌려준다. */
+    @GetMapping("/check")
+    public ResponseEntity<Void> check() {
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/logout")
     public Map<String, Object> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);

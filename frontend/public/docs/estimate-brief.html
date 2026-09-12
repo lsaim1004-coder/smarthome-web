@@ -1,0 +1,858 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>34평 스마트홈 견적</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=Gothic+A1:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --paper: #EDF1F5;
+    --paper-2: #E2E8EE;
+    --surface: #FFFFFF;
+    --ink: #14212E;
+    --ink-soft: #586878;
+    --line: #C7D1DB;
+    --grid: #DFE6EC;
+    --accent: #1D5BA6;
+    --accent-fill: #D9E6F6;
+    --seal: #C1372B;
+    --seal-fill: #F7E0DD;
+    --profit: #1F7A4D;
+    --profit-fill: #D6EDDF;
+    --amber: #B7791F;
+    --amber-fill: #F4E7CC;
+
+    --seg-device: #8AA4BE;
+    --seg-install: #6787A6;
+    --seg-design: #4A6B8C;
+    --seg-misc: #B9C7D4;
+    --seg-reserve: #D4A54A;
+    --seg-partner: #C77F3F;
+    --seg-profit: #2E8B5A;
+
+    --num: "Barlow Condensed", "Gothic A1", system-ui, sans-serif;
+    --label: "Barlow", "Gothic A1", system-ui, sans-serif;
+    --body: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+
+    --f-h1: clamp(1.9rem, 6.2vw, 3rem);
+    --f-h2: clamp(1.3rem, 4.4vw, 1.75rem);
+    --f-cap: 0.74rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0F161D;
+      --paper-2: #151F28;
+      --surface: #182330;
+      --ink: #E5EBF1;
+      --ink-soft: #9AA9B8;
+      --line: #2B3947;
+      --grid: #21303E;
+      --accent: #72A6E6;
+      --accent-fill: #1B2F47;
+      --seal: #E56A5E;
+      --seal-fill: #3A1F1C;
+      --profit: #5AB987;
+      --profit-fill: #173627;
+      --amber: #D9A24A;
+      --amber-fill: #3A2E17;
+      --seg-device: #5F7A96;
+      --seg-install: #4B6684;
+      --seg-design: #3B5472;
+      --seg-misc: #4A5B6C;
+      --seg-reserve: #B58A3A;
+      --seg-partner: #B06E35;
+      --seg-profit: #3C9C68;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #0F161D;
+    --paper-2: #151F28;
+    --surface: #182330;
+    --ink: #E5EBF1;
+    --ink-soft: #9AA9B8;
+    --line: #2B3947;
+    --grid: #21303E;
+    --accent: #72A6E6;
+    --accent-fill: #1B2F47;
+    --seal: #E56A5E;
+    --seal-fill: #3A1F1C;
+    --profit: #5AB987;
+    --profit-fill: #173627;
+    --amber: #D9A24A;
+    --amber-fill: #3A2E17;
+    --seg-device: #5F7A96;
+    --seg-install: #4B6684;
+    --seg-design: #3B5472;
+    --seg-misc: #4A5B6C;
+    --seg-reserve: #B58A3A;
+    --seg-partner: #B06E35;
+    --seg-profit: #3C9C68;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 1rem;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    padding-inline: 20px;
+    padding-block: 0;
+  }
+
+  .sheet {
+    max-width: 820px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(48px, 8vw, 76px);
+    padding-block: clamp(36px, 7vw, 68px) clamp(56px, 10vw, 96px);
+  }
+
+  p, h1, h2, h3, dl, dd, figure { margin: 0; }
+  h1, h2, h3 { text-wrap: balance; }
+
+  .num { font-family: var(--num); font-variant-numeric: tabular-nums; }
+  .lbl {
+    font-family: var(--label);
+    font-size: var(--f-cap);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- header ---------- */
+
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 22px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .head-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    font-family: var(--label);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+  .head-meta b { color: var(--ink); font-weight: 600; }
+  h1 {
+    font-weight: 700;
+    font-size: var(--f-h1);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  .answer {
+    font-size: clamp(1.05rem, 2.8vw, 1.25rem);
+    color: var(--ink-soft);
+    max-width: 34ch;
+  }
+  .answer strong { color: var(--ink); font-weight: 700; }
+
+  /* ---------- section frame ---------- */
+
+  section { display: grid; grid-template-columns: 120px 1fr; gap: 12px 28px; align-items: start; }
+  section > .lbl { padding-top: 8px; }
+  .sec-body { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  h2 { font-weight: 700; font-size: var(--f-h2); line-height: 1.35; }
+  .gloss { color: var(--ink-soft); max-width: 48ch; font-size: 0.96rem; }
+  .gloss strong { color: var(--ink); font-weight: 700; }
+
+  /* ---------- chart shells ---------- */
+
+  .draft {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 18px 14px;
+    background-image:
+      repeating-linear-gradient(to bottom, transparent 0 23px, var(--grid) 23px 24px);
+    background-origin: content-box;
+    background-clip: content-box;
+  }
+  .draft.plain { background-image: none; }
+  figcaption {
+    margin-top: 10px;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  /* ---------- old prices + seal ---------- */
+
+  .old {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 16px;
+    border: 1px dashed var(--line);
+    border-radius: 6px;
+    color: var(--ink-soft);
+  }
+  .old-item { display: flex; flex-direction: column; gap: 2px; }
+  .old-item .lbl { color: var(--ink-soft); }
+  .old-item .num { font-size: 1.5rem; font-weight: 600; text-decoration: line-through; text-decoration-color: var(--seal); text-decoration-thickness: 2px; }
+  .seal {
+    position: absolute;
+    right: 14px;
+    top: -14px;
+    transform: rotate(-8deg);
+    border: 3px double var(--seal);
+    color: var(--seal);
+    background: var(--surface);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    padding: 4px 10px 4px 13px;
+    border-radius: 4px;
+    line-height: 1.4;
+  }
+
+  /* ---------- price ladder ---------- */
+
+  .ladder {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    align-items: end;
+    height: 300px;
+  }
+  .col { display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; height: 100%; min-width: 0; }
+  .col .val { text-align: center; font-size: 1.55rem; font-weight: 700; line-height: 1.1; padding-bottom: 4px; }
+  .col .val small { font-size: 0.9rem; font-weight: 500; color: var(--ink-soft); }
+  .col .bar { background: var(--accent-fill); border-top: 3px solid var(--accent); border-radius: 3px 3px 0 0; }
+  .col .nm { text-align: center; padding-top: 8px; font-family: var(--label); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); line-height: 1.3; height: 40px; }
+  .col.main .bar { background: var(--accent); border-top-color: var(--accent); }
+  .col.main .nm { color: var(--accent); font-weight: 600; }
+  .col.main .val { color: var(--accent); }
+
+  /* ---------- range rows (old vs cost, market) ---------- */
+
+  .rows { display: flex; flex-direction: column; gap: 12px; }
+  .row { display: grid; grid-template-columns: 84px 1fr; gap: 12px; align-items: center; }
+  .row .nm { font-family: var(--label); font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+  .row.main .nm { color: var(--accent); font-weight: 600; }
+  .track { position: relative; height: 26px; background: var(--paper-2); border-radius: 3px; }
+  .band { position: absolute; top: 5px; height: 16px; border-radius: 3px; background: var(--line); }
+  .band.old { background: var(--seal-fill); border: 1px dashed var(--seal); }
+  .band.mkt { background: var(--accent-fill); }
+  .mark { position: absolute; top: 0; height: 26px; width: 3px; border-radius: 2px; background: var(--ink); transform: translateX(-50%); }
+  .mark.cost { background: var(--seal); }
+  .dot { position: absolute; top: 5px; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); border: 3px solid var(--surface); transform: translateX(-50%); box-shadow: 0 0 0 1px var(--accent); }
+  .tag { position: absolute; top: -2px; font-size: 0.9rem; font-weight: 600; line-height: 26px; white-space: nowrap; padding-left: 8px; }
+  .tag.cost { color: var(--seal); }
+  .tag.ours { color: var(--accent); }
+  .axis { position: relative; height: 18px; margin-left: 96px; font-family: var(--label); font-size: 0.7rem; color: var(--ink-soft); }
+  .axis span { position: absolute; transform: translateX(-50%); }
+  .axis span:first-child { transform: none; }
+  .axis span:last-child { transform: translateX(-100%); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.8rem; color: var(--ink-soft); }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+
+  /* ---------- reasons ---------- */
+
+  .two { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
+  .callout {
+    background: var(--accent-fill);
+    border-radius: 6px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+  }
+  .callout .big { font-size: clamp(1.9rem, 5vw, 2.6rem); font-weight: 700; line-height: 1; color: var(--accent); }
+  .callout .big small { font-size: 0.55em; font-weight: 600; }
+  .callout p { font-size: 0.86rem; color: var(--ink); line-height: 1.5; }
+
+  /* ---------- stairs ---------- */
+
+  .stairs { display: flex; flex-direction: column; gap: 0; }
+  .step {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 14px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+    align-items: baseline;
+  }
+  .step:last-child { border-bottom: 1px solid var(--line); }
+  .step .who { display: flex; flex-direction: column; }
+  .step .who .nm { font-family: var(--label); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .step .who .num { font-size: 1.35rem; font-weight: 700; line-height: 1.1; }
+  .step .what { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill {
+    font-size: 0.8rem;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--paper-2);
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .pill.new { background: var(--accent-fill); color: var(--accent); font-weight: 500; }
+  .step.main { background: linear-gradient(to right, var(--accent-fill), transparent 70%); margin-inline: -10px; padding-inline: 10px; }
+  .step.main .who .num, .step.main .who .nm { color: var(--accent); }
+
+  /* ---------- stacked ---------- */
+
+  .stack-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .stack-title { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 0.86rem; color: var(--ink-soft); }
+  .stack-title b { color: var(--ink); font-weight: 700; }
+  .stack { display: flex; height: 44px; border-radius: 4px; overflow: hidden; }
+  .seg { display: grid; place-items: center; color: #fff; font-family: var(--num); font-weight: 600; font-size: 0.92rem; min-width: 0; overflow: hidden; white-space: nowrap; }
+  .seg.mute { color: transparent; }
+  .seg.dev { background: var(--seg-device); }
+  .seg.ins { background: var(--seg-install); }
+  .seg.des { background: var(--seg-design); }
+  .seg.msc { background: var(--seg-misc); }
+  .seg.res { background: var(--seg-reserve); }
+  .seg.par { background: var(--seg-partner); }
+  .seg.pro { background: var(--seg-profit); }
+  .seg.pro.wide { font-size: 1.05rem; font-weight: 700; }
+
+  /* ---------- grouped bars ---------- */
+
+  .groups { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; align-items: end; height: 270px; }
+  .group { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; min-width: 0; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; align-items: end; }
+  .gbar { display: flex; flex-direction: column; justify-content: flex-end; }
+  .gbar .v { text-align: center; font-size: 0.95rem; font-weight: 600; line-height: 1.1; padding-bottom: 3px; }
+  .gbar .b { border-radius: 3px 3px 0 0; }
+  .gbar.out .b { background: var(--paper-2); border-top: 3px solid var(--ink-soft); }
+  .gbar.out .v { color: var(--ink-soft); }
+  .gbar.self .b { background: var(--profit-fill); border-top: 3px solid var(--profit); }
+  .gbar.self .v { color: var(--profit); }
+  .group .nm { text-align: center; padding-top: 8px; font-family: var(--label); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); height: 34px; }
+  .group.main .nm { color: var(--accent); font-weight: 600; }
+
+  /* ---------- month tile ---------- */
+
+  .month { display: grid; grid-template-columns: 1fr 1.2fr; gap: 12px; align-items: stretch; }
+  .tile {
+    background: var(--profit-fill);
+    border-radius: 6px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+  }
+  .tile .big { font-size: clamp(2.4rem, 7vw, 3.4rem); font-weight: 700; line-height: 1; color: var(--profit); }
+  .tile .big small { font-size: 0.45em; font-weight: 600; }
+  .tile p { font-size: 0.86rem; }
+  .recipe { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; }
+  .recipe .r { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+  .recipe .r:last-child { border-bottom: 0; }
+  .recipe .r .num { font-weight: 600; }
+  .recipe .r.sum { border-top: 2px solid var(--ink); border-bottom: 0; margin-top: 2px; font-weight: 700; }
+
+  /* ---------- stack of parts ---------- */
+
+  .parts { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .part {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .part .role { font-size: 0.72rem; color: var(--ink-soft); letter-spacing: 0.04em; }
+  .part .name { font-size: 0.86rem; font-weight: 500; line-height: 1.4; }
+  .part .price { font-size: 1.2rem; font-weight: 700; line-height: 1.1; }
+  .part .price small { font-size: 0.7em; font-weight: 500; color: var(--ink-soft); }
+
+  /* ---------- open questions ---------- */
+
+  .qs { display: flex; flex-direction: column; gap: 8px; }
+  .q {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 12px;
+    align-items: start;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--amber);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+  .q .box { width: 18px; height: 18px; border: 2px solid var(--amber); border-radius: 3px; margin-top: 3px; }
+  .q b { font-weight: 700; }
+  .q span.sub { color: var(--ink-soft); }
+
+  .todo { display: flex; flex-direction: column; gap: 6px; counter-reset: t; }
+  .todo .t {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: 12px;
+    align-items: baseline;
+    font-size: 0.92rem;
+  }
+  .todo .t::before {
+    counter-increment: t;
+    content: counter(t);
+    font-family: var(--num);
+    font-weight: 700;
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* ---------- footer ---------- */
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+  footer code { font-family: var(--label); font-size: 0.78rem; background: var(--paper-2); padding: 1px 6px; border-radius: 3px; color: var(--ink); }
+
+  a { color: var(--accent); text-underline-offset: 3px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  @media (max-width: 640px) {
+    section { grid-template-columns: 1fr; gap: 6px; }
+    section > .lbl { padding-top: 0; }
+    .two, .month { grid-template-columns: 1fr; }
+    .old { grid-template-columns: 1fr; gap: 8px; }
+    .seal { top: -12px; right: 10px; font-size: 0.9rem; }
+    .row { grid-template-columns: 64px 1fr; gap: 8px; }
+    .axis { margin-left: 72px; }
+    .step { grid-template-columns: 92px 1fr; gap: 10px; }
+    .ladder { height: 260px; }
+    .groups { height: 240px; }
+    .col .val { font-size: 1.3rem; }
+    .seg { font-size: 0.8rem; }
+  }
+</style>
+<style>body{margin:0}</style>
+<style>
+.site-nav{position:sticky;top:0;z-index:100;background:#0b1b34;color:#fff;font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;border-bottom:1px solid rgba(255,255,255,.08)}
+.site-nav .in{max-width:1040px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:0 16px;height:54px}
+.site-nav .brand{display:inline-flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-weight:700;font-size:15px;white-space:nowrap}
+.site-nav .brand b{color:#f5b544}
+.site-nav .brand svg{width:22px;height:22px;color:#f5b544}
+.site-nav nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin-left:auto}
+.site-nav nav::-webkit-scrollbar{display:none}
+.site-nav nav a{color:#e2e8f0;text-decoration:none;font-size:13.5px;font-weight:600;padding:8px 10px;border-radius:8px;white-space:nowrap}
+.site-nav nav a:hover{background:rgba(255,255,255,.08)}
+.site-nav nav a.on{background:rgba(245,181,68,.18);color:#f5b544}
+.site-foot{max-width:1040px;margin:0 auto;padding:22px 16px 34px;font-size:12px;color:#64748b;display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between;font-family:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif}
+.site-foot a{color:inherit}
+@media (max-width:480px){.site-nav .brand span{display:none}}
+</style>
+</head>
+<body>
+<header class="site-nav"><div class="in">
+    <a class="brand" href="/"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 15.5 16 5l12 10.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.5 13.5V27h17V13.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M11.5 20a6.4 6.4 0 0 1 9 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="16" cy="25.2" r="1.4" fill="currentColor"/></svg><span>Smart Home <b>Option</b></span></a>
+    <nav aria-label="사이트 메뉴">
+      <a href="/">홈</a>
+      <a href="/docs/">자료</a>
+      <a href="/docs/estimate-brief.html" class=on>견적 브리프</a>
+      <a href="/docs/estimate.html">견적 상세</a>
+      <a href="/login">로그인</a>
+    </nav>
+</div></header>
+<div class="sheet">
+
+  <header class="head">
+    <div class="head-meta">
+      <span>조사일 <b class="num">2026-09-11</b></span>
+      <span>기준 <b>34평 아파트</b></span>
+      <span>채널 <b>인테리어 업체 옵션 판매</b></span>
+      <span>가격 <b>다나와 최저가 · 쿠팡 · 공식몰</b></span>
+    </div>
+    <h1>34평 스마트홈, 얼마에 팔아야 남을까</h1>
+    <p class="answer">답은 <strong>5단계, 99만원부터 699만원</strong>. 처음 기획했던 세 가격은 원가에 못 미쳐 버렸습니다.</p>
+  </header>
+
+  <!-- 결론 -->
+  <section>
+    <p class="lbl">결론</p>
+    <div class="sec-body">
+      <h2>옛 가격은 버리고, 다섯 칸으로 다시 짰습니다</h2>
+
+      <div class="old" aria-label="폐기한 기획안 원문 가격">
+        <span class="seal">폐기</span>
+        <div class="old-item"><span class="lbl">Basic</span><span class="num">30~50<small>만</small></span></div>
+        <div class="old-item"><span class="lbl">Standard</span><span class="num">100~180<small>만</small></span></div>
+        <div class="old-item"><span class="lbl">Premium</span><span class="num">250~500<small>만</small></span></div>
+      </div>
+
+      <figure class="draft">
+        <div class="ladder" role="img" aria-label="5단계 판매가: START 99만, BASIC 149만, STANDARD 249만, PREMIUM 449만, FULL HOME 699만원">
+          <div class="col"><span class="val num">99<small>만</small></span><div class="bar" style="height: 31px;"></div><span class="nm">Start</span></div>
+          <div class="col"><span class="val num">149<small>만</small></span><div class="bar" style="height: 47px;"></div><span class="nm">Basic</span></div>
+          <div class="col main"><span class="val num">249<small>만</small></span><div class="bar" style="height: 78px;"></div><span class="nm">Standard<br>주력</span></div>
+          <div class="col"><span class="val num">449<small>만</small></span><div class="bar" style="height: 141px;"></div><span class="nm">Premium<br>세대 서버 포함</span></div>
+          <div class="col"><span class="val num">699<small>만</small></span><div class="bar" style="height: 220px;"></div><span class="nm">Full Home</span></div>
+        </div>
+        <figcaption>부가세 포함 고객가. 막대 높이는 가격에 비례합니다.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 이유 -->
+  <section>
+    <p class="lbl">왜 바꿨나</p>
+    <div class="sec-body">
+      <h2>원가가 옛 가격보다 컸습니다</h2>
+
+      <div class="two">
+        <figure class="draft plain">
+          <div class="rows">
+            <div class="row">
+              <span class="nm">Basic</span>
+              <div class="track">
+                <div class="band old" style="left: 6%; width: 4%;"></div>
+                <div class="mark cost" style="left: 18.7%;"></div>
+                <span class="tag cost num" style="left: 18.7%;">원가 93만</span>
+              </div>
+            </div>
+            <div class="row">
+              <span class="nm">Standard</span>
+              <div class="track">
+                <div class="band old" style="left: 20%; width: 16%;"></div>
+                <div class="mark cost" style="left: 23.7%;"></div>
+                <span class="tag cost num" style="left: 36%;">원가 119만</span>
+              </div>
+            </div>
+            <div class="row">
+              <span class="nm">Premium</span>
+              <div class="track">
+                <div class="band old" style="left: 50%; width: 50%;"></div>
+                <div class="mark cost" style="left: 59.4%;"></div>
+                <span class="tag cost num" style="left: 59.4%;">297만</span>
+              </div>
+            </div>
+          </div>
+          <div class="axis"><span>0</span><span style="left: 50%;">250만</span><span style="left: 100%;">500만</span></div>
+          <figcaption>점선 상자가 옛 가격, 빨간 선이 외주 시공 기준 원가(부가세 포함). BASIC은 원가에도 못 미치고, 나머지는 업체 몫을 주면 남는 게 없습니다.</figcaption>
+        </figure>
+
+        <div class="callout">
+          <span class="lbl">시장은 이미</span>
+          <span class="big num">150~400<small>만원</small></span>
+          <p>24~34평 전문 구축에 고객이 실제로 내는 돈. 싸게 갈 이유가 없었습니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 구성 -->
+  <section>
+    <p class="lbl">무엇이 들어가나</p>
+    <div class="sec-body">
+      <h2>위로 갈수록 한 가지씩 더 붙습니다</h2>
+      <p class="gloss">거실·주방·현관·안방·침실 2개 기준. 파란 칸이 그 단계에서 새로 들어오는 것.</p>
+
+      <div class="stairs">
+        <div class="step">
+          <div class="who"><span class="nm">Start</span><span class="num">99만</span></div>
+          <div class="what">
+            <span class="pill new">허브 1</span><span class="pill new">스위치 3</span><span class="pill new">센서 5</span><span class="pill new">플러그 2</span><span class="pill new">가전 연동 1종</span><span class="pill new">자동화 2개</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="who"><span class="nm">Basic</span><span class="num">149만</span></div>
+          <div class="what">
+            <span class="pill">스위치 5</span><span class="pill">센서 9</span><span class="pill">플러그 3</span><span class="pill new">누수 센서</span><span class="pill">가전 연동 2종</span><span class="pill">자동화 3개</span>
+          </div>
+        </div>
+        <div class="step main">
+          <div class="who"><span class="nm">Standard · 주력</span><span class="num">249만</span></div>
+          <div class="what">
+            <span class="pill">스위치 6</span><span class="pill">센서 11</span><span class="pill">플러그 3</span><span class="pill new">도어락 · 에어컨 · 로봇청소기 연동</span><span class="pill">자동화 4개</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="who"><span class="nm">Premium</span><span class="num">449만</span></div>
+          <div class="what">
+            <span class="pill">스위치 10</span><span class="pill">센서 14</span><span class="pill new">전동커튼 2</span><span class="pill new">CCTV 1</span><span class="pill new">메시 Wi-Fi</span><span class="pill new">Aqara 허브 M3</span><span class="pill new">세대 서버 N100</span><span class="pill new">TV · 냉장고 · 세탁기 연동</span><span class="pill">자동화 6개</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="who"><span class="nm">Full Home</span><span class="num">699만</span></div>
+          <div class="what">
+            <span class="pill">스위치 12</span><span class="pill">센서 17</span><span class="pill">커튼 4</span><span class="pill">CCTV 2</span><span class="pill new">도어락 새로 설치</span><span class="pill new">음성 (빅스비 · Google)</span><span class="pill">자동화 8개</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 돈 흐름 -->
+  <section>
+    <p class="lbl">돈은 어디로</p>
+    <div class="sec-body">
+      <h2>STANDARD 한 건, 226만원이 이렇게 나뉩니다</h2>
+      <p class="gloss">고객가 249만원에서 부가세를 뺀 공급가 기준. 인테리어 업체 몫은 20%로 잡았습니다.</p>
+
+      <figure class="draft plain">
+        <div class="stack-wrap">
+          <div>
+            <div class="stack-title"><span>설치·설계를 <b>외주</b>로 맡길 때</span><span class="num">합계 226만</span></div>
+            <div class="stack" role="img" aria-label="기기 49만, 설치 32만, 설계·세팅 24만, 소모품 3만, A/S 준비금 11만, 업체 몫 45만, 내 몫 62만">
+              <div class="seg dev" style="width: 21.6%;">49</div>
+              <div class="seg ins" style="width: 14.1%;">32</div>
+              <div class="seg des" style="width: 10.6%;">24</div>
+              <div class="seg msc mute" style="width: 1.2%;">3</div>
+              <div class="seg res" style="width: 5%;">11</div>
+              <div class="seg par" style="width: 20%;">45</div>
+              <div class="seg pro" style="width: 27.4%;">62</div>
+            </div>
+          </div>
+          <div>
+            <div class="stack-title"><span>설치·설계를 <b>내가 직접</b> 할 때</span><span class="num">합계 226만</span></div>
+            <div class="stack" role="img" aria-label="기기 49만, 소모품 3만, A/S 준비금 11만, 업체 몫 45만, 내 몫 118만">
+              <div class="seg dev" style="width: 21.6%;">49</div>
+              <div class="seg msc mute" style="width: 1.2%;">3</div>
+              <div class="seg res" style="width: 5%;">11</div>
+              <div class="seg par" style="width: 20%;">45</div>
+              <div class="seg pro wide" style="width: 52.2%;">118</div>
+            </div>
+          </div>
+          <div class="legend">
+            <span><i style="background: var(--seg-device);"></i>기기</span>
+            <span><i style="background: var(--seg-install);"></i>설치</span>
+            <span><i style="background: var(--seg-design);"></i>설계·세팅·교육</span>
+            <span><i style="background: var(--seg-misc);"></i>소모품·이동 3</span>
+            <span><i style="background: var(--seg-reserve);"></i>A/S 준비금 5%</span>
+            <span><i style="background: var(--seg-partner);"></i>인테리어 업체 20%</span>
+            <span><i style="background: var(--seg-profit);"></i>내 몫</span>
+          </div>
+        </div>
+        <figcaption>단위 만원. 직접 시공하면 설치·설계 인건비 56만원이 그대로 내 수입이 됩니다.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 순이익 -->
+  <section>
+    <p class="lbl">얼마나 남나</p>
+    <div class="sec-body">
+      <h2>STANDARD가 가장 잘 남고, PREMIUM 외주는 얇습니다</h2>
+
+      <figure class="draft">
+        <div class="groups" role="img" aria-label="한 건당 순이익. 외주 시공: START 10, BASIC 17, STANDARD 62, PREMIUM 36, FULL 79만원. 직접 시공: 38, 57, 118, 140, 231만원">
+          <div class="group">
+            <div class="pair">
+              <div class="gbar out"><span class="v num">10</span><div class="b" style="height: 9px;"></div></div>
+              <div class="gbar self"><span class="v num">38</span><div class="b" style="height: 33px;"></div></div>
+            </div>
+            <span class="nm">Start</span>
+          </div>
+          <div class="group">
+            <div class="pair">
+              <div class="gbar out"><span class="v num">17</span><div class="b" style="height: 15px;"></div></div>
+              <div class="gbar self"><span class="v num">57</span><div class="b" style="height: 49px;"></div></div>
+            </div>
+            <span class="nm">Basic</span>
+          </div>
+          <div class="group main">
+            <div class="pair">
+              <div class="gbar out"><span class="v num">62</span><div class="b" style="height: 54px;"></div></div>
+              <div class="gbar self"><span class="v num">118</span><div class="b" style="height: 102px;"></div></div>
+            </div>
+            <span class="nm">Standard</span>
+          </div>
+          <div class="group">
+            <div class="pair">
+              <div class="gbar out"><span class="v num">36</span><div class="b" style="height: 31px;"></div></div>
+              <div class="gbar self"><span class="v num">140</span><div class="b" style="height: 121px;"></div></div>
+            </div>
+            <span class="nm">Premium</span>
+          </div>
+          <div class="group">
+            <div class="pair">
+              <div class="gbar out"><span class="v num">79</span><div class="b" style="height: 68px;"></div></div>
+              <div class="gbar self"><span class="v num">231</span><div class="b" style="height: 200px;"></div></div>
+            </div>
+            <span class="nm">Full Home</span>
+          </div>
+        </div>
+        <div class="legend" style="margin-top: 10px;">
+          <span><i style="background: var(--paper-2); border-top: 3px solid var(--ink-soft);"></i>외주 시공</span>
+          <span><i style="background: var(--profit-fill); border-top: 3px solid var(--profit);"></i>직접 시공</span>
+        </div>
+        <figcaption>한 건당 순이익, 단위 만원. 업체 몫 20%, A/S 준비금 5%를 뺀 뒤 남는 돈입니다. 외주 인건비가 시간당 6만원으로 오르면 START·BASIC 외주는 0이 됩니다.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 월 -->
+  <section>
+    <p class="lbl">한 달이면</p>
+    <div class="sec-body">
+      <h2>업체 한 곳, 다섯 집, 내가 직접 시공하면</h2>
+
+      <div class="month">
+        <div class="tile">
+          <span class="lbl">월 총수입</span>
+          <span class="big num">약 471<small>만원</small></span>
+          <p>매출 1,086만원 중 기기값·업체 몫을 뺀 마진 187만원에 내 인건비 284만원을 더한 값.</p>
+        </div>
+        <div class="draft plain">
+          <div class="recipe">
+            <div class="r"><span>Start × 1</span><span class="num">38만</span></div>
+            <div class="r"><span>Basic × 1</span><span class="num">57만</span></div>
+            <div class="r"><span>Standard × 2</span><span class="num">236만</span></div>
+            <div class="r"><span>Premium × 1</span><span class="num">140만</span></div>
+            <div class="r sum"><span>5건</span><span class="num">471만</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 시장 위치 -->
+  <section>
+    <p class="lbl">시장에서 어디쯤</p>
+    <div class="sec-body">
+      <h2>모두 시장 가격대의 아래쪽 3분의 1 안에 있습니다</h2>
+
+      <figure class="draft plain">
+        <div class="rows">
+          <div class="row">
+            <span class="nm">Start</span>
+            <div class="track">
+              <div class="band mkt" style="left: 5.3%; width: 4.7%;"></div>
+              <div class="dot" style="left: 6.6%;"></div>
+              <span class="tag ours num" style="left: 10%;">99만</span>
+            </div>
+          </div>
+          <div class="row">
+            <span class="nm">Basic</span>
+            <div class="track">
+              <div class="band mkt" style="left: 10%; width: 6.7%;"></div>
+              <div class="dot" style="left: 9.9%;"></div>
+              <span class="tag ours num" style="left: 16.7%;">149만</span>
+            </div>
+          </div>
+          <div class="row main">
+            <span class="nm">Standard</span>
+            <div class="track">
+              <div class="band mkt" style="left: 13.3%; width: 10%;"></div>
+              <div class="dot" style="left: 16.6%;"></div>
+              <span class="tag ours num" style="left: 23.3%;">249만</span>
+            </div>
+          </div>
+          <div class="row">
+            <span class="nm">Premium</span>
+            <div class="track">
+              <div class="band mkt" style="left: 23.3%; width: 23.4%;"></div>
+              <div class="dot" style="left: 29.9%;"></div>
+              <span class="tag ours num" style="left: 46.7%;">449만</span>
+            </div>
+          </div>
+          <div class="row">
+            <span class="nm">Full Home</span>
+            <div class="track">
+              <div class="band mkt" style="left: 46.7%; width: 53.3%;"></div>
+              <div class="dot" style="left: 46.6%;"></div>
+              <span class="tag ours num" style="left: 48%;">699만</span>
+            </div>
+          </div>
+        </div>
+        <div class="axis"><span>0</span><span style="left: 33.3%;">500만</span><span style="left: 66.7%;">1,000만</span><span style="left: 100%;">1,500만</span></div>
+        <figcaption>파란 띠는 공개된 시장 가격대(미소 견적 가이드·참고 조사), 점이 우리 판매가. 정가를 공개한 시공사가 거의 없어 가격 공개 자체가 차별점입니다.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 부품 -->
+  <section>
+    <p class="lbl">부품은 이것만</p>
+    <div class="sec-body">
+      <h2>브랜드 다섯 개 안에서 고정합니다</h2>
+      <p class="gloss">종류를 늘리면 A/S가 지옥이 됩니다. 저가 표준 스택의 조달 단가입니다.</p>
+
+      <div class="parts">
+        <div class="part"><span class="role">허브</span><span class="name">SmartThings Station</span><span class="price num">3.6<small>만</small></span></div>
+        <div class="part"><span class="role">조명 스위치 2구 · 무중성선</span><span class="name">Aqara</span><span class="price num">5.5<small>만</small></span></div>
+        <div class="part"><span class="role">센서 4종 · Matter</span><span class="name">IKEA MYGGSPRAY 등</span><span class="price num">0.99~1.49<small>만</small></span></div>
+        <div class="part"><span class="role">플러그 · 전력측정</span><span class="name">Tapo P110M</span><span class="price num">1.5<small>만</small></span></div>
+        <div class="part"><span class="role">전동 커튼 모터</span><span class="name">SwitchBot 커튼 3</span><span class="price num">12.7<small>만</small></span></div>
+        <div class="part"><span class="role">도어락</span><span class="name">직방(삼성SDS) DP960</span><span class="price num">34.2<small>만</small></span></div>
+        <div class="part"><span class="role">세대 서버 · Home Assistant</span><span class="name">N100 미니PC 16GB</span><span class="price num">21.9<small>만</small></span></div>
+        <div class="part"><span class="role">Matter · IR 허브</span><span class="name">Aqara M3</span><span class="price num">17.2<small>만</small></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 미확인 -->
+  <section>
+    <p class="lbl">아직 모르는 것</p>
+    <div class="sec-body">
+      <h2>이 네 가지가 틀리면 숫자가 바뀝니다</h2>
+
+      <div class="qs">
+        <div class="q"><span class="box"></span><span><b>IKEA 센서가 Station에 바로 붙는가.</b> <span class="sub">공식 보증 없음. 안 되면 DIRIGERA 14.9만 추가, BASIC 기기 원가 +10~15만.</span></span></div>
+        <div class="q"><span class="box"></span><span><b>외주 인건비가 시간당 4만원에 맞는가.</b> <span class="sub">조사치는 5~10만. 6만이면 START·BASIC 외주 마진 0.</span></span></div>
+        <div class="q"><span class="box"></span><span><b>스위치 박스에 중성선이 있는가.</b> <span class="sub">국내 아파트 대부분 없음. 추가 공사 개소당 5~10만, 견적표 미포함.</span></span></div>
+        <div class="q"><span class="box"></span><span><b>경쟁사는 실제로 얼마를 부르는가.</b> <span class="sub">헤이홈·한샘·삼성·LG 전부 가격 비공개. 34평 도면으로 견적 요청 필요.</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 다음 -->
+  <section>
+    <p class="lbl">다음 순서</p>
+    <div class="sec-body">
+      <h2>다섯 가지를 이 순서로</h2>
+      <div class="todo">
+        <div class="t"><span>34평 도면 기준 방별 배치도와 영업용 견적서 양식</span></div>
+        <div class="t"><span>경쟁사 3곳 미스터리 쇼핑</span></div>
+        <div class="t"><span>IKEA 센서와 Station 직접 연결 실측</span></div>
+        <div class="t"><span>인테리어 업체 1곳과 PoC 가격 협의(업체 몫 20% 제안)</span></div>
+        <div class="t"><span>웹사이트 패키지 화면에 5단계 가격 반영</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>원문 <code>D:/_privateDev/smarthome-web/docs/견적.md</code> 440줄</span>
+    <span>계산 <code>tools/estimate.py</code></span>
+    <span>가격은 조사 시점 값이며 수시로 바뀝니다</span>
+  </footer>
+
+</div>
+<footer class="site-foot"><span>원문 docs/견적.md · 계산 tools/estimate.py · 가격은 조사 시점(2026-09-11) 값</span><span><a href="/docs/">자료 목록</a> · <a href="https://github.com/lsaim1004-coder/smarthome-web">GitHub</a></span></footer>
+<script>
+(function(){
+  var login=document.querySelector('.site-nav nav a[href="/login"]'); if(!login) return;
+  fetch('/api/auth/me',{credentials:'same-origin',headers:{Accept:'application/json'}}).then(function(r){return r.json()}).then(function(me){
+    if(!me||!me.authenticated||!me.user) return;
+    var u=me.user, name=u.name||u.email;
+    var a=document.createElement('a'); a.href='/me'; a.textContent=name; a.title=u.email;
+    var b=document.createElement('a'); b.href='#'; b.textContent='로그아웃';
+    b.addEventListener('click',function(e){e.preventDefault();fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'}).then(function(){location.href='/';});});
+    login.replaceWith(a); a.after(b);
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>

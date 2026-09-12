@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .securityContext(sc -> sc.securityContextRepository(repository))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/check").authenticated()   // nginx auth_request 용: 세션 없으면 401
                         .requestMatchers("/api/auth/**", "/api/welcome", "/api/health").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())

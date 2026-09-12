@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { api, errorMessage, isApiError } from '../api'
 import { useAuth, type MeResponse } from '../auth/AuthContext'
 
@@ -10,6 +10,10 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const initial = (location.state as LoginState) ?? null
+  const [params] = useSearchParams()
+  const rawNext = params.get('next') ?? ''
+  // 같은 사이트 안의 경로만 허용 (// 로 시작하는 외부 이동 차단)
+  const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : ''
 
   const [email, setEmail] = useState(initial?.email ?? '')
   const [password, setPassword] = useState('')
@@ -18,7 +22,13 @@ export default function LoginPage() {
   const [needVerify, setNeedVerify] = useState(false)
   const [busy, setBusy] = useState(false)
 
-  if (user) return <Navigate to="/me" replace />
+  if (user) {
+    if (next.startsWith('/docs/')) {
+      window.location.assign(next)
+      return null
+    }
+    return <Navigate to={next || '/me'} replace />
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
@@ -28,7 +38,11 @@ export default function LoginPage() {
     try {
       const me = await api<MeResponse>('/api/auth/login', { method: 'POST', json: { email: email.trim(), password } })
       setUser(me.user)
-      navigate('/me', { replace: true })
+      if (next.startsWith('/docs/')) {
+        window.location.assign(next) // 정적 자료 페이지는 React 라우터 밖이라 전체 이동
+        return
+      }
+      navigate(next || '/me', { replace: true })
     } catch (err) {
       if (isApiError(err) && err.error === 'EMAIL_NOT_VERIFIED') {
         setNeedVerify(true)
@@ -44,7 +58,9 @@ export default function LoginPage() {
       <div className="auth-card">
         <p className="kicker">로그인</p>
         <h1>다시 만나서 반갑습니다</h1>
-        <p className="auth-sub">이메일 인증을 마친 계정만 로그인할 수 있습니다.</p>
+        <p className="auth-sub">
+          {next.startsWith('/docs/') ? '자료 문서는 로그인한 회원만 볼 수 있습니다. 로그인하면 원래 페이지로 이동합니다.' : '이메일 인증을 마친 계정만 로그인할 수 있습니다.'}
+        </p>
 
         {info ? <p className="alert ok">{info}</p> : null}
 

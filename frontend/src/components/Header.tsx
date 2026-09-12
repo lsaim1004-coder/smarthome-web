@@ -30,7 +30,10 @@ export default function Header() {
           Smart Home <b>Option</b>
         </span>
       </Link>
-      <nav className="top-nav" aria-label="계정">
+      <nav className="top-nav" aria-label="메뉴">
+        <a href="/docs/" className="nav-link nav-docs">
+          자료
+        </a>
         {loading ? null : user ? (
           <>
             <NavLink to="/me" className="nav-link nav-user" title={user.email}>
