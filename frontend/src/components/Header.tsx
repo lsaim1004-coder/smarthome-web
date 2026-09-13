@@ -31,28 +31,34 @@ export default function Header() {
         </span>
       </Link>
       <nav className="top-nav" aria-label="메뉴">
+        <NavLink to="/packages" className="nav-link">
+          패키지
+        </NavLink>
         <a href="/docs/" className="nav-link nav-docs">
           자료
         </a>
+        {user?.admin ? (
+          <NavLink to="/admin/inquiries" className="nav-link nav-admin">
+            신청관리
+          </NavLink>
+        ) : null}
         {loading ? null : user ? (
           <>
             <NavLink to="/me" className="nav-link nav-user" title={user.email}>
               {user.name || user.email}
             </NavLink>
-            <button type="button" className="nav-btn" onClick={() => void onLogout()}>
+            <button type="button" className="nav-btn ghost" onClick={() => void onLogout()}>
               로그아웃
             </button>
           </>
         ) : (
-          <>
-            <NavLink to="/login" className="nav-link">
-              로그인
-            </NavLink>
-            <NavLink to="/register" className="nav-btn">
-              회원가입
-            </NavLink>
-          </>
+          <NavLink to="/login" className="nav-link">
+            로그인
+          </NavLink>
         )}
+        <NavLink to="/contact" className="nav-btn">
+          상담 신청
+        </NavLink>
       </nav>
     </header>
   )

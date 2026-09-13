@@ -2,7 +2,7 @@
 
 **Smart Home Option Service** 소개 웹. 인테리어 공사에 스마트홈 옵션을 더해 "입주하는 날 완성된 스마트홈"을 제공하는 서비스의 웹사이트입니다.
 
-현재 v0.2 — 연결 상태를 보여주는 **웰컴 페이지**와 **이메일 인증 기반 회원가입·로그인**이 있습니다.
+현재 v0.3 — **패키지 5단계 소개**와 **상담 신청 접수**(관리자 목록 포함), 이메일 인증 기반 회원가입 · 로그인이 있습니다.
 
 ## 서비스 구상
 
@@ -71,6 +71,7 @@ backend/               # Spring Boot 앱 + Dockerfile
 frontend/              # React 앱 + Dockerfile + nginx/default.conf
 deploy/                # 서버(Debian 12 LXC) 준비·배포 스크립트
 docs/landing-draft/    # 다음 단계용 상세 랜딩페이지 초안(정적 HTML)
+frontend/src/data/     # 패키지 5단계 가격·구성 (docs/견적.md 4장과 동기화)
 ```
 
 ## 실행
@@ -109,6 +110,25 @@ curl http://localhost/api/health
 - **메일 발송**: `.env` 의 `APP_MAIL_MODE` 가 `log` 면 메일을 보내지 않고 백엔드 로그와 API 응답(`devCode`)에 인증번호를 표시합니다(개발용). `smtp` 로 바꾸고 `APP_MAIL_HOST/PORT/USERNAME/PASSWORD/FROM` 을 채우면 실제 발송합니다.
 - 화면: `/register` → `/verify` → `/login` → `/me`. 로그인하면 헤더에 이름(이메일)과 로그아웃 버튼이 보입니다.
 
+## 패키지 · 상담 신청
+
+패키지 가격과 구성은 `frontend/src/data/packages.ts` 한 곳에 있습니다. 숫자는 [docs/견적.md](docs/견적.md) 4장에서 가져온 것이라 **둘을 같이 고쳐야** 합니다.
+
+- `/packages` — 34평 기준 5단계 카드 + 구성 비교표 + 미리 알려드리는 것(중성선·가전 연동 범위·투입 시점)
+- `/contact` — 상담 신청 폼. `/packages` 의 카드에서 오면 `?package=STANDARD` 로 해당 구성이 선택된 상태로 열립니다
+- `/admin/inquiries` — 접수 목록. 상태 변경과 메모를 인라인으로 저장합니다
+
+| 메서드 | 경로 | 인증 | 설명 |
+| --- | --- | --- | --- |
+| POST | `/api/inquiries` | 없음 | 상담 신청 접수. 로그인 상태면 `user_id` 를 함께 남김 |
+| GET | `/api/admin/inquiries?status=&limit=&offset=` | 관리자 | 접수 목록 + 상태별 건수 |
+| PATCH | `/api/admin/inquiries/{id}` | 관리자 | `{status?, memo?}` 변경 |
+
+- **관리자 지정**: `.env` 의 `APP_ADMIN_EMAILS` 에 콤마로 나열합니다. 세션에 권한을 굽지 않고 **요청마다 설정을 확인**하므로 목록을 바꿔도 재로그인할 필요가 없습니다. 이 계정으로 로그인하면 헤더에 `신청관리` 가 보입니다.
+- **접수 알림**: 신청이 들어오면 관리자 이메일로 내용 전체를, 신청자에게는 접수 확인 메일을 보냅니다. 메일 발송이 실패해도 접수 자체는 성공 처리합니다(로그에만 남김).
+- **스팸·중복 방어**: nginx 에서 IP 당 분당 5회(`inquiry` zone), 폼의 숨김 필드(honeypot)가 채워지면 저장하지 않고 성공으로 응답, 같은 번호로 10분 안에 다시 보내면 `409 DUPLICATE`.
+- 상태는 `NEW → CONTACTED → QUOTED → WON / LOST` 입니다.
+
 ## 배포
 
 Proxmox 위 Debian 12 LXC(Docker 설치)에서 운영합니다.
@@ -121,8 +141,9 @@ Proxmox 위 Debian 12 LXC(Docker 설치)에서 운영합니다.
 
 ## 로드맵
 
-- [ ] 랜딩페이지 이식: 패키지 3종, 자동화 장면, 진행 절차, 인테리어 파트너 제안, FAQ (`docs/landing-draft/` 참고)
+- [x] 패키지 5단계 가격 · 구성 비교 화면 (v0.3)
+- [x] 상담 신청 폼 + `POST /api/inquiries` + 관리자 목록 (v0.3)
 - [x] 이메일 인증 회원가입·로그인 (v0.2)
-- [ ] 상담 신청 폼 + `POST /api/inquiries` + 관리자 목록
+- [ ] 랜딩 상세: 자동화 장면 시연, 진행 절차, 인테리어 파트너 제안, FAQ (`docs/landing-draft/` 참고)
 - [ ] 비밀번호 재설정(이메일 인증번호 재사용)
 - [ ] DB 마이그레이션 도구(Flyway) 도입

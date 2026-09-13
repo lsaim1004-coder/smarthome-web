@@ -24,6 +24,7 @@ import kr.kiwan.smarthome.auth.AuthDtos.CodeIssued;
 import kr.kiwan.smarthome.auth.UserRepository.UserRow;
 import kr.kiwan.smarthome.auth.VerificationRepository.CodeRow;
 import kr.kiwan.smarthome.common.ApiException;
+import kr.kiwan.smarthome.common.MailService;
 
 @Service
 public class AuthService {

@@ -2,7 +2,10 @@
 set -euo pipefail
 DB_PASS="$1"
 mkdir -p /opt/smarthome-web
-rm -rf /opt/smarthome-web/smarthome-web; tar xzf /root/smarthome-web.tgz -C /opt/smarthome-web --strip-components=1 --no-same-owner
+# 이전 배포본을 먼저 치운다. 남겨 두면 파일을 옮기거나 지운 변경이 반영되지 않고
+# 옛 소스가 같이 빌드된다 (예: 패키지를 옮긴 클래스가 빈 이름 충돌을 일으킴). .env 는 보존.
+find /opt/smarthome-web -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} +
+tar xzf /root/smarthome-web.tgz -C /opt/smarthome-web --strip-components=1 --no-same-owner
 cd /opt/smarthome-web
 if [ ! -f .env ]; then printf 'DB_PASSWORD=%s\n' "$DB_PASS" > .env; chmod 600 .env; fi
 # 새로 추가된 설정 키는 기본값으로 채운다 (기존 값은 건드리지 않음)
@@ -15,6 +18,8 @@ ensure_env APP_MAIL_USERNAME ""
 ensure_env APP_MAIL_PASSWORD ""
 ensure_env APP_MAIL_FROM no-reply@kiwan.kr
 ensure_env APP_MAIL_STARTTLS true
+# 관리자 이메일은 서버 .env 에서 직접 채운다 (공개 저장소에 주소를 넣지 않음)
+ensure_env APP_ADMIN_EMAILS ""
 grep -q 'LANG=' /etc/default/locale 2>/dev/null || echo 'LANG=C.UTF-8' > /etc/default/locale
 echo "== build start $(date)"
 if ! docker compose build --progress=plain > /var/log/smarthome-build.log 2>&1; then

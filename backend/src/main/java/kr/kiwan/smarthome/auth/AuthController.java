@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import kr.kiwan.smarthome.AppProperties;
 import kr.kiwan.smarthome.auth.AuthDtos.AuthUser;
 import kr.kiwan.smarthome.auth.AuthDtos.CodeIssued;
 import kr.kiwan.smarthome.auth.AuthDtos.EmailRequest;
@@ -38,10 +39,12 @@ public class AuthController {
 
     private final AuthService auth;
     private final SecurityContextRepository contextRepository;
+    private final AppProperties props;
 
-    public AuthController(AuthService auth, SecurityContextRepository contextRepository) {
+    public AuthController(AuthService auth, SecurityContextRepository contextRepository, AppProperties props) {
         this.auth = auth;
         this.contextRepository = contextRepository;
+        this.props = props;
     }
 
     /** 1) 가입: 계정 생성(미인증) + 인증번호 발급 */
@@ -117,8 +120,8 @@ public class AuthController {
         return Map.of("ok", true);
     }
 
-    private static UserResponse toResponse(UserRow row) {
-        return new UserResponse(row.id(), row.email(), row.name(), row.emailVerifiedAt(),
+    private UserResponse toResponse(UserRow row) {
+        return new UserResponse(row.id(), row.email(), row.name(), props.isAdmin(row.email()), row.emailVerifiedAt(),
                 row.createdAt(), row.lastLoginAt());
     }
 }

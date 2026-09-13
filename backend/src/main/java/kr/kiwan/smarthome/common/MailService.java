@@ -1,4 +1,4 @@
-package kr.kiwan.smarthome.auth;
+package kr.kiwan.smarthome.common;
 
 import java.util.Properties;
 
@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 
 import kr.kiwan.smarthome.AppProperties;
+
 
 /**
  * 인증 메일 발송.
@@ -74,5 +75,31 @@ public class MailService {
         message.setText(body);
         sender.send(message);
         log.info("verification mail sent to {}", to);
+    }
+
+    /**
+     * 일반 알림 메일. 발송 실패가 호출자의 작업(예: 상담 접수)을 막으면 안 되므로 예외를 삼키고 false 를 돌려준다.
+     */
+    public boolean send(String to, String subject, String body) {
+        if (to == null || to.isBlank()) {
+            return false;
+        }
+        if (sender == null) {
+            log.info("[MAIL:LOG] to={} subject={}\n{}", to, subject, body);
+            return false;
+        }
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(mail.from());
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(body);
+            sender.send(message);
+            log.info("mail sent to {} subject={}", to, subject);
+            return true;
+        } catch (RuntimeException e) {
+            log.warn("mail send failed to={} subject={}: {}", to, subject, e.toString());
+            return false;
+        }
     }
 }

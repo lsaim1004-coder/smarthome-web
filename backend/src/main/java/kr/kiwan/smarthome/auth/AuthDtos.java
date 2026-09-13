@@ -53,7 +53,7 @@ public final class AuthDtos {
     /** 인증번호 발급 결과. devCode 는 메일 모드가 log 일 때만 채워진다. */
     public record CodeIssued(String email, String message, String devCode, int expiresInMinutes) {}
 
-    public record UserResponse(long id, String email, String name, OffsetDateTime emailVerifiedAt,
+    public record UserResponse(long id, String email, String name, boolean admin, OffsetDateTime emailVerifiedAt,
                                OffsetDateTime createdAt, OffsetDateTime lastLoginAt) {}
 
     public record MeResponse(boolean authenticated, UserResponse user) {}

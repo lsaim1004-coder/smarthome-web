@@ -5,6 +5,7 @@ export type User = {
   id: number
   email: string
   name: string | null
+  admin: boolean
   emailVerifiedAt: string | null
   createdAt: string | null
   lastLoginAt: string | null
