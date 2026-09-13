@@ -19,8 +19,9 @@ function Shot({ children }: { children: ReactNode }) {
   return (
     <svg className="shot" viewBox="0 0 120 100" role="img" aria-hidden="true">
       <rect width="120" height="100" rx="14" fill="#eef2f7" />
-      <ellipse cx="60" cy="84" rx="30" ry="4.5" fill="#0f172a" opacity="0.07" />
-      {children}
+      <ellipse cx="60" cy="90" rx="30" ry="4" fill="#0f172a" opacity="0.07" />
+      {/* 제품이 배경 대비 작아 보여 가운데 기준으로 키운다 */}
+      <g transform="translate(60 50) scale(1.25) translate(-60 -50)">{children}</g>
     </svg>
   )
 }
