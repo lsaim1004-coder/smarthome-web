@@ -446,3 +446,167 @@ button { font: inherit; }
   .iot-merge-line { top: 14px; height: 22px; }
   .iot-down-label { left: calc(50% + 14px); }
 }
+
+/* ── v0.3: 패키지 · 상담 신청 · 신청 관리 ───────────────────────── */
+
+.nav-btn.ghost { background: transparent; color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: none; }
+.nav-btn.ghost:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+.nav-admin { color: var(--amber); }
+.btn-outline.dark { color: var(--navy); border-color: rgba(11, 27, 52, 0.3); }
+.btn-outline.dark:hover { background: #f1f5f9; }
+.muted-line { font-size: 14px; color: var(--muted); padding: 8px 0; }
+
+/* 대문의 가격 띠 */
+.teaser { width: min(1040px, 100%); margin: 0 auto; padding: clamp(28px, 5vw, 44px) clamp(16px, 4vw, 32px) 0; }
+.teaser-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
+.teaser-head h2 { font-size: clamp(19px, 3.6vw, 24px); font-weight: 800; letter-spacing: -0.02em; }
+.teaser-more { font-size: 13px; font-weight: 700; color: var(--navy-2); text-decoration: none; }
+.teaser-more:hover { text-decoration: underline; }
+.teaser-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.teaser-list li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+}
+.teaser-list li.on { border-color: var(--amber); background: linear-gradient(180deg, #fff9ec, #fff); }
+.teaser-list b { font-size: 14px; font-weight: 800; letter-spacing: -0.01em; }
+.teaser-list span { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.teaser-list em { font-style: normal; font-size: 15px; font-weight: 800; color: var(--navy); white-space: nowrap; }
+.teaser-note { margin-top: 10px; font-size: 12px; color: var(--muted); }
+
+/* 패키지 카드 */
+.pkg-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.pkg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.pkg.featured { border: 2px solid var(--amber); background: linear-gradient(180deg, #fff9ec, #fff); }
+.pkg-flag {
+  position: absolute;
+  top: -11px;
+  left: 20px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--navy);
+  color: var(--amber);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.pkg h3 { font-size: 19px; font-weight: 800; letter-spacing: -0.01em; }
+.pkg-tagline { margin-top: 2px; font-size: 13px; color: var(--muted); }
+.pkg-price { margin-top: 12px; font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: var(--navy); }
+.pkg-summary { margin-top: 8px; font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+.pkg-label { margin-top: 16px; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber-2); }
+.pkg-list { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+.pkg-list li { position: relative; padding-left: 15px; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
+.pkg-list li::before { content: ""; position: absolute; left: 0; top: 8px; width: 6px; height: 6px; border-radius: 2px; background: #94a3b8; }
+.pkg-list.scenes li::before { background: var(--amber); border-radius: 50%; }
+.pkg-hours { margin-top: 14px; font-size: 12px; color: var(--muted); }
+.pkg .btn-pkg { margin-top: 14px; align-self: stretch; }
+
+/* 구성 비교표 */
+.compare-title { margin: 36px 0 12px; font-size: 18px; font-weight: 800; }
+.compare-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+.compare { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 13px; }
+.compare th, .compare td { padding: 10px 12px; text-align: center; border-bottom: 1px solid var(--line); }
+.compare thead th { background: #f8fafc; font-weight: 800; color: var(--navy); white-space: nowrap; }
+.compare thead th small { display: block; margin-top: 2px; font-size: 11px; font-weight: 600; color: var(--muted); }
+.compare tbody th { text-align: left; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+.compare tbody tr:last-child th, .compare tbody tr:last-child td { border-bottom: 0; }
+.compare .is-featured { background: rgba(245, 181, 68, 0.09); }
+.cell-none { color: #cbd5e1; }
+
+/* 패키지 안내 문구 */
+.pkg-notes { margin-top: 34px; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+.pkg-notes h3 { font-size: 16px; font-weight: 800; }
+.pkg-notes ul { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.pkg-notes li { position: relative; padding-left: 15px; font-size: 14px; line-height: 1.65; color: var(--ink-2); }
+.pkg-notes li::before { content: ""; position: absolute; left: 0; top: 9px; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
+.pkg-cta { margin-top: 18px; }
+
+/* 상담 신청 폼 */
+.contact-card {
+  width: min(680px, 100%);
+  padding: clamp(20px, 4vw, 28px);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+.contact-card.form { margin-top: 0; }
+.contact-card.done .kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber-2); }
+.contact-card.done h2 { margin-top: 6px; font-size: clamp(21px, 4.5vw, 26px); font-weight: 800; letter-spacing: -0.02em; }
+.contact-sub { margin-top: 10px; font-size: 14px; line-height: 1.7; color: var(--ink-2); }
+.field-row { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.field select, .field textarea {
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  font-size: 15px;
+  color: var(--ink);
+}
+.field textarea { resize: vertical; line-height: 1.6; }
+.field select:focus, .field textarea:focus { outline: none; border-color: var(--amber); box-shadow: 0 0 0 3px rgba(245, 181, 68, 0.25); }
+.check { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; line-height: 1.6; color: var(--ink-2); }
+.check input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--amber-2); flex: none; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* 신청 관리 */
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.chip {
+  padding: 6px 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.chip.on { border-color: var(--navy); background: var(--navy); color: #fff; }
+.inq-list { display: grid; gap: 12px; }
+.inq { padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+.inq-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.inq h3 { font-size: 16px; font-weight: 800; }
+.inq-phone { margin-left: 8px; font-size: 14px; font-weight: 600; color: var(--ink-2); }
+.inq-meta { margin-top: 3px; font-size: 12px; color: var(--muted); }
+.status-select { padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; background: #f8fafc; font: inherit; font-size: 13px; font-weight: 700; color: var(--ink-2); }
+.status-select.s-NEW { background: #fffbeb; color: #92400e; border-color: #fcd34d; }
+.status-select.s-CONTACTED { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+.status-select.s-QUOTED { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+.status-select.s-WON { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+.status-select.s-LOST { background: #f8fafc; color: var(--muted); }
+.inq-grid { display: grid; grid-template-columns: 1fr; gap: 6px; margin-top: 14px; font-size: 13px; }
+.inq-grid > div { display: grid; grid-template-columns: 96px 1fr; gap: 10px; }
+.inq-grid dt { color: var(--muted); }
+.inq-grid dd { color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }
+.inq-message { margin-top: 12px; padding: 11px 13px; border-radius: 10px; background: #f8fafc; font-size: 13.5px; line-height: 1.65; color: var(--ink-2); white-space: pre-wrap; }
+.field.memo { margin-top: 12px; }
+
+@media (min-width: 720px) {
+  .pkg-grid { grid-template-columns: repeat(3, 1fr); }
+  .field-row { grid-template-columns: 1fr 1fr; }
+  .inq-grid { grid-template-columns: 1fr 1fr; }
+  .teaser-list { grid-template-columns: repeat(5, 1fr); }
+  .teaser-list li { grid-template-columns: 1fr; gap: 3px; }
+  .teaser-list span { white-space: normal; font-size: 12px; }
+}
+@media (min-width: 1000px) {
+  .pkg-grid { grid-template-columns: repeat(5, 1fr); }
+  .pkg { padding: 18px 16px; }
+  .pkg-price { font-size: 23px; }
+}

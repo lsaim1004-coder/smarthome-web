@@ -28,3 +28,25 @@ CREATE TABLE IF NOT EXISTS email_verifications (
 );
 CREATE INDEX IF NOT EXISTS idx_email_verifications_user_created
   ON email_verifications (user_id, created_at DESC);
+-- 상담 신청. 비로그인도 접수할 수 있고, 로그인 상태면 user_id 를 남긴다.
+-- status: NEW(접수) → CONTACTED(연락함) → QUOTED(견적발송) → WON(계약) / LOST(무산)
+CREATE TABLE IF NOT EXISTS inquiries (
+  id           BIGSERIAL PRIMARY KEY,
+  name         TEXT NOT NULL,
+  phone        TEXT NOT NULL,
+  email        TEXT,
+  region       TEXT,
+  area_pyeong  INTEGER,
+  package_code TEXT,
+  move_in      TEXT,
+  channel      TEXT,
+  message      TEXT,
+  status       TEXT NOT NULL DEFAULT 'NEW',
+  memo         TEXT,
+  user_id      BIGINT REFERENCES users(id) ON DELETE SET NULL,
+  client_ip    TEXT,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_inquiries_created ON inquiries (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_inquiries_status ON inquiries (status, created_at DESC);

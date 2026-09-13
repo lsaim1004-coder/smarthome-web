@@ -22,7 +22,7 @@ services:
 
   backend:
     build: ./backend
-    image: smarthome-web/backend:0.2.0
+    image: smarthome-web/backend:0.3.0
     container_name: smarthome-backend
     restart: unless-stopped
     environment:
@@ -32,6 +32,8 @@ services:
       TZ: Asia/Seoul
       JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=60 -Duser.timezone=Asia/Seoul"
       APP_BASE_URL: ${APP_BASE_URL:-http://localhost}
+      # 관리자 이메일(콤마 구분). 상담 신청 알림을 받고 /admin/inquiries 목록을 볼 수 있다
+      APP_ADMIN_EMAILS: ${APP_ADMIN_EMAILS:-}
       # 메일: log(개발, 인증번호를 로그·응답에 표시) | smtp(실제 발송)
       APP_MAIL_MODE: ${APP_MAIL_MODE:-log}
       APP_MAIL_HOST: ${APP_MAIL_HOST:-}
@@ -53,7 +55,7 @@ services:
 
   frontend:
     build: ./frontend
-    image: smarthome-web/frontend:0.2.0
+    image: smarthome-web/frontend:0.3.0
     container_name: smarthome-frontend
     restart: unless-stopped
     ports:

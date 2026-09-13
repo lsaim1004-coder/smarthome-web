@@ -2,6 +2,9 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthContext'
 import Header from './components/Header'
 import WelcomePage from './pages/WelcomePage'
+import PackagesPage from './pages/PackagesPage'
+import ContactPage from './pages/ContactPage'
+import AdminInquiriesPage from './pages/AdminInquiriesPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import VerifyPage from './pages/VerifyPage'
@@ -15,6 +18,9 @@ export default function App() {
         <main>
           <Routes>
             <Route path="/" element={<WelcomePage />} />
+            <Route path="/packages" element={<PackagesPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/admin/inquiries" element={<AdminInquiriesPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify" element={<VerifyPage />} />

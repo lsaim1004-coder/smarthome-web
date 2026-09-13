@@ -36,6 +36,8 @@ app:
   service-name: Smart Home Option Service
   welcome-message: "입주하는 날, 스마트홈이 완성되어 있습니다."
   base-url: ${APP_BASE_URL:http://localhost}
+  # 관리자 이메일(콤마 구분). 이 계정으로 로그인하면 /admin/inquiries 목록을 볼 수 있고 상담 접수 알림을 받는다.
+  admin-emails: ${APP_ADMIN_EMAILS:}
   mail:
     # log  : 메일을 보내지 않고 백엔드 로그와 API 응답(devCode)에 인증번호 표시 (개발용)
     # smtp : 아래 SMTP 설정으로 실제 발송
