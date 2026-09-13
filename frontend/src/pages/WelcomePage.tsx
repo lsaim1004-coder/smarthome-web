@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import DeviceIcon from '../components/DeviceIcon'
+import ProductShot from '../components/ProductShot'
 import IotArchitecture from '../components/IotArchitecture'
 import ServiceFlow from '../components/ServiceFlow'
-import { DEVICES, PACKAGES, priceLabel } from '../data/packages'
+import { PACKAGES, priceLabel } from '../data/packages'
+import { PRODUCTS } from '../data/products'
 
 export function formatTime(iso: string | Date): string {
   const date = typeof iso === 'string' ? new Date(iso) : iso
@@ -148,26 +149,38 @@ function Roles() {
   )
 }
 
-function Devices() {
+function Products() {
   return (
-    <section className="devices">
+    <section className="products">
       <div className="devices-head">
-        <p className="kicker">기기 라인업</p>
-        <h2>고정된 여덟 가지</h2>
+        <p className="kicker">제품 라인업</p>
+        <h2>실제로 들어가는 제품들</h2>
         <p>
-          모든 브랜드를 다 다루지 않습니다. 표준을 정해 두면 설치가 빨라지고, 고장이 줄고, 몇 년 뒤 부품을 구하기도
-          쉽습니다.
+          모든 브랜드를 다 다루지 않습니다. 아래 열두 가지로 고정해 두면 설치가 빨라지고, 고장이 줄고, 몇 년 뒤 부품을
+          구하기도 쉽습니다. 기기값과 서비스비는 견적서에서 분리해 보여 드립니다.
         </p>
       </div>
-      <div className="dev-grid">
-        {DEVICES.map((d) => (
-          <article key={d.kind} className="dev">
-            <DeviceIcon kind={d.kind} />
-            <h3>{d.name}</h3>
-            <p>{d.note}</p>
+      <div className="prod-grid">
+        {PRODUCTS.map((p) => (
+          <article key={p.kind} className="prod">
+            <ProductShot kind={p.kind} />
+            <div className="prod-body">
+              <p className="prod-brand">
+                {p.brand}
+                <span className="prod-from">{p.from} 이상</span>
+              </p>
+              <h3>{p.model}</h3>
+              <p className="prod-role">{p.role}</p>
+              <p className="prod-link">{p.link}</p>
+              <p className="prod-note">{p.note}</p>
+            </div>
           </article>
         ))}
       </div>
+      <p className="prod-foot">
+        제품 그림은 실물 사진이 아니라 직접 그린 것입니다. 모델명과 규격은 2026년 9월 기준이며, 단종이나 품절이 생기면
+        같은 급으로 대체하고 견적서에 명시합니다.
+      </p>
     </section>
   )
 }
@@ -218,7 +231,7 @@ export default function WelcomePage() {
       <Facts />
       <Problem />
       <Roles />
-      <Devices />
+      <Products />
       <PackageTeaser />
       <IotArchitecture />
       <ServiceFlow />

@@ -176,20 +176,6 @@ export const COMPARISON: { label: string; values: (number | string)[] }[] = [
   { label: '생활 장면 자동화', values: ['2개', '3개', '4개', '6개', '8개'] },
 ]
 
-/** 우리가 공급하는 기기 라인업. 브랜드를 5개 이내로 고정해 A/S 를 줄인다. */
-export type DeviceKind = 'hub' | 'switch' | 'motion' | 'door' | 'plug' | 'curtain' | 'leak' | 'server'
-
-export const DEVICES: { kind: DeviceKind; name: string; note: string }[] = [
-  { kind: 'hub', name: 'SmartThings 허브', note: '집 전체의 중심. Matter · Zigbee · Thread 를 한곳에서 받습니다.' },
-  { kind: 'switch', name: '무중성선 조명 스위치', note: '기존 벽 스위치를 대체합니다. 중성선이 없는 세대에도 들어갑니다.' },
-  { kind: 'motion', name: '모션 센서', note: '사람이 있는지 없는지로 조명과 공조를 움직입니다.' },
-  { kind: 'door', name: '문 · 창문 센서', note: '현관이 열리면 귀가, 창이 열려 있으면 에어컨을 멈춥니다.' },
-  { kind: 'plug', name: '전력 측정 플러그', note: '대기전력을 끊고, 세탁 종료 같은 상태를 전력으로 감지합니다.' },
-  { kind: 'curtain', name: '전동 커튼 모터', note: '기존 레일에 붙습니다. 일출·일몰 시각에 맞춰 움직입니다.' },
-  { kind: 'leak', name: '누수 센서', note: '싱크대 밑, 세탁기 뒤. 새는 걸 바닥이 젖기 전에 알립니다.' },
-  { kind: 'server', name: '세대 서버 (미니 PC)', note: '브랜드가 다른 가전을 한 화면으로 묶고, 인터넷이 끊겨도 자동화를 돌립니다.' },
-]
-
 export function priceLabel(won: number): string {
   return (won / 10_000).toLocaleString('ko-KR') + '만원'
 }

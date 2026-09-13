@@ -744,3 +744,36 @@ button { font: inherit; }
 /* 패키지 카드: 내용 길이가 달라도 CTA 는 바닥에 정렬 */
 .pkg .btn-pkg { margin-top: auto; align-self: stretch; }
 .pkg .pkg-hours { margin-top: 14px; margin-bottom: 12px; }
+
+/* ── v0.5: 제품 라인업 (실제 모델 + 직접 그린 제품 그림) ───────────── */
+
+.products { width: min(1040px, 100%); margin: 0 auto; padding: clamp(44px, 7vw, 80px) clamp(16px, 4vw, 32px) 0; }
+.prod-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.prod {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 14px;
+  align-items: start;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+}
+.shot { width: 96px; height: 80px; display: block; }
+.prod-body { min-width: 0; }
+.prod-brand { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--amber-2); }
+.prod-from { padding: 2px 7px; border-radius: 999px; background: #f1f5f9; color: var(--muted); font-size: 10.5px; font-weight: 700; letter-spacing: 0; text-transform: none; }
+.prod h3 { margin-top: 4px; font-size: 14.5px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.35; overflow-wrap: anywhere; }
+.prod-role { margin-top: 5px; font-size: 13px; font-weight: 700; color: var(--navy-2); }
+.prod-link { margin-top: 3px; font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.prod-note { margin-top: 8px; font-size: 12.5px; line-height: 1.65; color: var(--ink-2); }
+.prod-foot { margin-top: 16px; font-size: 12px; line-height: 1.6; color: var(--muted); }
+
+@media (min-width: 720px) {
+  .prod-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1000px) {
+  .prod-grid { grid-template-columns: repeat(3, 1fr); }
+  .prod { grid-template-columns: 1fr; gap: 10px; }
+  .shot { width: 100%; height: 112px; }
+}
