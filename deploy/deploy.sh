@@ -15,6 +15,8 @@ ensure_env APP_MAIL_USERNAME ""
 ensure_env APP_MAIL_PASSWORD ""
 ensure_env APP_MAIL_FROM no-reply@kiwan.kr
 ensure_env APP_MAIL_STARTTLS true
+# 관리자 이메일은 서버 .env 에서 직접 채운다 (공개 저장소에 주소를 넣지 않음)
+ensure_env APP_ADMIN_EMAILS ""
 grep -q 'LANG=' /etc/default/locale 2>/dev/null || echo 'LANG=C.UTF-8' > /etc/default/locale
 echo "== build start $(date)"
 if ! docker compose build --progress=plain > /var/log/smarthome-build.log 2>&1; then
