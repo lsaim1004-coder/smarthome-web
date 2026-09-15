@@ -119,6 +119,43 @@ export default function ProductShot({ kind }: { kind: ShotKind }) {
       </Shot>
     )
   }
+  if (kind === 'blind') {
+    return (
+      <Shot>
+        <rect x="26" y="24" width="68" height="5" rx="2.4" fill="#94a3b8" />
+        <rect x="30" y="29" width="60" height="30" rx="2" fill={FACE} stroke={DEEP} strokeWidth="1.2" />
+        <path d="M30 37h60M30 45h60M30 53h60" stroke={DEEP} strokeWidth="1.4" strokeLinecap="round" />
+        <rect x="30" y="59" width="60" height="3.4" rx="1.7" fill="#94a3b8" />
+        <rect x="76" y="20" width="14" height="10" rx="4" fill={BODY} stroke={EDGE} strokeWidth="1.3" />
+        <circle cx="83" cy="25" r="1.8" fill={ACCENT} />
+      </Shot>
+    )
+  }
+  if (kind === 'irhub') {
+    return (
+      <Shot>
+        <rect x="42" y="34" width="36" height="32" rx="9" fill={BODY} stroke={EDGE} strokeWidth="1.4" />
+        <circle cx="60" cy="47" r="7.5" fill={FACE} stroke={DEEP} strokeWidth="1.2" />
+        <circle cx="60" cy="47" r="2.8" fill="#94a3b8" />
+        <circle cx="60" cy="60" r="1.7" fill={ACCENT} />
+        <path d="M84 40a13 13 0 0 1 0 14M89 36a19 19 0 0 1 0 22" fill="none" stroke={ACCENT} strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M36 40a13 13 0 0 0 0 14M31 36a19 19 0 0 0 0 22" fill="none" stroke={ACCENT} strokeWidth="1.5" strokeLinecap="round" opacity="0.55" />
+      </Shot>
+    )
+  }
+  if (kind === 'tablet') {
+    return (
+      <Shot>
+        <rect x="26" y="26" width="68" height="46" rx="6" fill={BODY} stroke={EDGE} strokeWidth="1.5" />
+        <rect x="31" y="31" width="58" height="36" rx="3" fill={FACE} stroke={DEEP} strokeWidth="1" />
+        <rect x="35" y="35" width="22" height="13" rx="3" fill={BODY} stroke={DEEP} strokeWidth="1" />
+        <rect x="61" y="35" width="24" height="13" rx="3" fill={BODY} stroke={DEEP} strokeWidth="1" />
+        <rect x="35" y="52" width="50" height="4" rx="2" fill={DEEP} />
+        <rect x="35" y="59" width="30" height="4" rx="2" fill={ACCENT} opacity="0.75" />
+        <circle cx="46" cy="41.5" r="2.4" fill={ACCENT} />
+      </Shot>
+    )
+  }
   if (kind === 'hubm3') {
     return (
       <Shot>
