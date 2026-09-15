@@ -1,5 +1,5 @@
 /**
- * 34평 아파트 기준 패키지 5단계.
+ * 패키지 5단계 (거실 · 주방 · 현관 · 안방 · 침실 2 구성 기준).
  * 가격·구성·시간은 docs/견적.md 4장(2026-09-11 시장 조사)에서 가져왔다.
  * 숫자를 고칠 때는 견적.md 와 함께 고칠 것.
  */
@@ -39,7 +39,7 @@ export const PACKAGES: Package[] = [
   {
     code: 'BASIC',
     name: 'BASIC',
-    tagline: '34평 기본 자동화',
+    tagline: '기본 자동화',
     price: 149,
     summary: '전실은 아니지만 생활 동선 전체를 덮습니다. 누수 감지가 들어갑니다.',
     highlights: [
@@ -47,6 +47,7 @@ export const PACKAGES: Package[] = [
       '조명 스위치 5개',
       '모션 3 · 문열림 3 · 온습도 2 · 누수 1',
       '스마트 플러그 3개',
+      '구형 가전 리모컨 허브 (Tapo H110) — 앱 등록이 안 되는 에어컨·TV도 연동',
       '보유 가전 2종 계정 연동',
     ],
     scenes: [
@@ -59,7 +60,7 @@ export const PACKAGES: Package[] = [
   {
     code: 'STANDARD',
     name: 'STANDARD',
-    tagline: '34평 표준',
+    tagline: '표준 구성',
     price: 249,
     featured: true,
     summary: '가장 많이 선택하는 구성. 도어락·에어컨·로봇청소기까지 하나로 묶습니다.',
@@ -68,6 +69,7 @@ export const PACKAGES: Package[] = [
       '조명 스위치 6개',
       '모션 4 · 문열림 3 · 온습도 2 · 누수 2',
       '스마트 플러그 3개',
+      '구형 가전 리모컨 허브 (Tapo H110) — 앱 등록이 안 되는 에어컨·TV도 연동',
       '도어락 · 에어컨 · 로봇청소기 연동',
     ],
     scenes: [
@@ -82,15 +84,18 @@ export const PACKAGES: Package[] = [
     code: 'PREMIUM',
     name: 'PREMIUM',
     tagline: '풀 스마트홈 + 세대 서버',
-    price: 449,
-    summary: '집 안에 서버를 두어 클라우드가 끊겨도 자동화가 돕니다. 브랜드가 섞여 있어도 한 화면에서 씁니다.',
+    price: 529,
+    summary: '집 안에 서버를 두어 클라우드가 끊겨도 자동화가 돕니다. 브랜드가 섞여 있어도 벽면 태블릿 한 화면에서 씁니다.',
     highlights: [
       '전실 조명 스위치 10개',
       '모션 5 · 문열림 4 · 온습도 3 · 누수 2 · 플러그 5',
-      '전동 커튼 2대 · 실내 CCTV 1대',
+      '전동 커튼 2창 (마마바 맞춤 레일 + 모터) · 실내 CCTV 1대',
+      '구형 가전 리모컨 허브 (IR, RF 가전은 교체 대응)',
       'Aqara 허브 M3 · 메시 Wi-Fi 1세트',
       '세대 서버(미니 PC, Home Assistant) 포함',
       'TV · 냉장고 · 세탁기까지 계정 연동',
+      '기기별 에너지 모니터링 — 플러그·가전 사용량을 한 화면에',
+      '벽면 태블릿 · 스마트폰 통합 제어 화면',
     ],
     scenes: [
       '외출 · 귀가 · 취침 · 청소',
@@ -103,15 +108,17 @@ export const PACKAGES: Package[] = [
     code: 'FULL',
     name: 'FULL HOME',
     tagline: '전실 + 커튼 4 + 도어락 신규',
-    price: 699,
-    summary: '조명·커튼·도어락까지 새로 놓는 구성. 음성으로도 장면을 부릅니다.',
+    price: 799,
+    summary: '조명·커튼·블라인드·도어락까지 새로 놓는 구성. 음성으로도 장면을 부릅니다.',
     highlights: [
       '전실 조명 스위치 12개',
       '모션 6 · 문열림 5 · 온습도 3 · 누수 3 · 플러그 6',
-      '전동 커튼 4대 · 실내 CCTV 2대',
+      '전동 커튼 4창 · 전동 블라인드 1창 (마마바) · 실내 CCTV 2대',
+      '구형 가전 리모컨 허브 2대 — 거실 · 안방 (IR, RF 가전은 교체 대응)',
       '스마트 도어락 신규 설치',
       'Aqara 허브 M3 · 메시 Wi-Fi · 세대 서버',
       '빅스비 · Google 음성 연동',
+      '기기별 에너지 리포트 · 벽면 태블릿 대시보드',
     ],
     scenes: [
       '외출 · 귀가 · 취침 · 청소 · 아침 · 보안',
@@ -131,12 +138,16 @@ export const COMPARISON: { label: string; values: (number | string)[] }[] = [
   { label: '온습도 센서', values: [1, 2, 2, 3, 3] },
   { label: '누수 센서', values: [0, 1, 2, 2, 3] },
   { label: '스마트 플러그', values: [2, 3, 3, 5, 6] },
-  { label: '전동 커튼 모터', values: [0, 0, 0, 2, 4] },
+  { label: '구형 가전 리모컨 허브 (IR · RF 옵션)', values: [0, 1, 1, 1, 2] },
+  { label: '전동 커튼 (마마바)', values: [0, 0, 0, 2, 4] },
+  { label: '전동 블라인드 (마마바)', values: [0, 0, 0, 0, 1] },
   { label: '실내 CCTV', values: [0, 0, 0, 1, 2] },
   { label: '스마트 도어락 신규', values: [0, 0, 0, 0, 1] },
   { label: 'Aqara 허브 M3', values: [0, 0, 0, 1, 1] },
   { label: '메시 Wi-Fi', values: [0, 0, 0, 1, 1] },
   { label: '세대 서버 (Home Assistant)', values: [0, 0, 0, 1, 1] },
+  { label: '기기별 에너지 모니터링', values: [0, 0, 0, '✓', '✓'] },
+  { label: '태블릿 · 스마트폰 통합 화면', values: [0, 0, 0, '✓', '✓'] },
   {
     label: '보유 가전 연동',
     values: ['1종', '2종', '도어락·에어컨·청소기', '+ TV·냉장고·세탁기', '+ 음성'],

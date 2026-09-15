@@ -13,7 +13,7 @@ function PackageTeaser() {
   return (
     <section className="teaser">
       <div className="teaser-head">
-        <h2>34평 기준 5단계</h2>
+        <h2>패키지 5단계</h2>
         <Link to="/packages" className="teaser-more">
           구성 자세히 보기
         </Link>

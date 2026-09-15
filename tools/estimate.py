@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""34평 아파트 기준 패키지 원가·판매가·사업자 수익 계산 → 마크다운 출력.
+"""패키지(거실·주방·현관·안방·침실 2 구성 기준) 원가·판매가·사업자 수익 계산 → 마크다운 출력.
 
 사용: python tools/estimate.py > /tmp/estimate.md
 단가(원, 부가세 포함 소비자가)는 docs/견적.md 2·3장 조사 결과(2026-09-11) 기준. 값이 바뀌면 여기만 고친다.
@@ -24,18 +24,26 @@ PRICE: dict[str, tuple[int, int]] = {
     "temp":        (14_900, 28_600),     # IKEA TIMMERFLOTTE / Aqara 온습도 T1
     "leak":        (9_900, 44_000),      # IKEA KLIPPBOK(Matter, 신형) / Aqara 누수 T1(공식몰 44,000·품절). BADRING 12,900 은 구형 Zigbee → DIRIGERA 필수라 제외
     "plug":        (15_210, 42_900),     # Tapo P110M(Matter, 전력측정, 다나와 15,210·쿠팡 15,390) / Aqara 플러그
-    "curtain":     (126_940, 138_900),   # SwitchBot 커튼3 / 헤이홈 컨트롤러 Pro (레일 미포함)
+    "curtain":     (160_000, 230_000),   # 마마바 전동커튼 1창: 맞춤 레일 49,000 + 길이 추가(2m +8,000 · 3.5m +36,000) + 유선 Wi-Fi 모터 89,000 → 창당 14.6~17.4만(평균 16만) / 무선 모터(159,000) 기준 23만. 커튼 원단 제외, 2026-09-15 mamaba.co.kr
+    "blind":       (109_000, 154_500),   # 마마바 전동 블라인드 1창: 무선모터20 79,000 + 롤스크린 ~30,000 / 매터 블라인드 모터25 119,000(SmartThings Station 직접 페어링) + 방염 스크린 35,500
+    "ir_rf_hub":   (38_800, 58_740),     # 구형 가전용 리모컨 허브: 저가 = Tapo H110(IR 학습·Matter 인증·SmartThings 지원, 티피링크몰 38,800·공식 39,900) / 일반 = Broadlink RM4 Pro(IR+RF 433/315MHz, RF 리모컨 가전이 있을 때, 58,740). 대안 SwitchBot Hub 2 89,800
     "cctv":        (92_000, 92_000),     # ThingsOne T1 — 국내 리스팅 확인 불가(참고치). 대체 후보 Tapo C210 등 재확인 필요
     "doorlock":    (342_000, 426_310),   # 직방(삼성SDS) SHP-DP960 Plus (설치비 별도)
     "hub_m3":      (172_190, 253_000),   # Aqara 허브 M3 (Matter · IR)
     "mesh_wifi":   (210_000, 259_000),   # ipTIME AX3000M x2 / Deco X50 3팩
     "minipc_n100": (219_000, 329_000),   # GMKtec G3 N100 16GB/512GB / G3 Plus N150 16GB/1TB
     "ups":         (184_000, 188_000),   # APC BE550-KR
+    "tablet":      (199_640, 360_030),   # 벽면 대시보드 태블릿: 레노버 탭 M11 128GB Wi-Fi(다나와 199,640) / 갤럭시탭 A9+ 11" 64GB(360,030, 20곳). 2026-09-15
+    "tablet_mount": (25_600, 42_500),    # 벽걸이 거치대: 쿠팡 접이식 벽걸이(25,600) / 엔산마운트 PAD-W02 자석형 7~12.9"(42,500)
+    "tablet_power": (38_000, 64_000),    # 태블릿 상시 전원용 USB 매립 콘센트: 인채널 노바 1구(38,000) / 인채널 회전 USB 2구 IBC-22M(64,000). 전기공사 단계에 시공
+    "kiosk_lic":   (12_000, 12_000),     # Fully Kiosk Browser PLUS 기기당 1회 €7.90(≈12,000원)
 }
 LABEL = {
     "hub_station": "SmartThings 허브(Station)", "switch_2gang": "조명 스위치 2구", "motion": "모션 센서", "door": "문·창문 센서",
-    "temp": "온습도 센서", "leak": "누수 센서", "plug": "스마트 플러그(전력측정)", "curtain": "전동 커튼 모터", "cctv": "실내 CCTV",
+    "temp": "온습도 센서", "leak": "누수 센서", "plug": "스마트 플러그(전력측정)", "curtain": "전동 커튼 1창(마마바 레일+모터)", "blind": "전동 블라인드 1창(마마바)",
+    "ir_rf_hub": "구형 가전 리모컨 허브(IR, RF 필요 시 교체)", "cctv": "실내 CCTV",
     "doorlock": "스마트 도어락(삼성SDS)", "hub_m3": "Aqara 허브 M3", "mesh_wifi": "메시 Wi-Fi 1세트", "minipc_n100": "N100 미니PC(세대 HA)", "ups": "UPS",
+    "tablet": "벽면 태블릿(11인치)", "tablet_mount": "태블릿 벽 거치대", "tablet_power": "USB 매립 콘센트(태블릿 전원)", "kiosk_lic": "키오스크 앱 라이선스",
 }
 
 # ---------------------------------------------------------------------------
@@ -142,7 +150,9 @@ UNITS: list[tuple[str, str | None, int, int, int]] = [
     ("온습도 센서", "temp", 10_000, 5_000, 5_000),
     ("누수 센서", "leak", 10_000, 10_000, 5_000),
     ("스마트 플러그 (전력측정)", "plug", 10_000, 10_000, 5_000),
-    ("전동 커튼 모터 (레일 기존)", "curtain", 140_000, 20_000, 10_000),
+    ("전동 커튼 1창 (마마바 맞춤 레일 + 유선 Wi-Fi 모터, 커튼 원단 별도)", "curtain", 100_000, 20_000, 10_000),   # 마마바 방문설치 9~14만 → 자체 시공 10만
+    ("전동 블라인드 1창 (마마바 모터 + 롤스크린)", "blind", 60_000, 20_000, 10_000),
+    ("구형 가전 리모컨 허브 (Tapo H110 IR 학습, RF 리모컨 가전은 Broadlink RM4 Pro 로 교체)", "ir_rf_hub", 10_000, 30_000, 10_000),
     ("실내 CCTV", "cctv", 30_000, 10_000, 10_000),
     ("스마트 도어락 (신규 설치)", "doorlock", 80_000, 20_000, 10_000),   # 시장: 설치비 포함가 − 별도가 = 약 10.8만
     ("도어락 · 가전 계정 연동 (보유 기기 1종)", None, 0, 25_000, 5_000),
@@ -150,6 +160,10 @@ UNITS: list[tuple[str, str | None, int, int, int]] = [
     ("Aqara 허브 M3 (Matter · IR 리모컨 통합)", "hub_m3", 30_000, 30_000, 10_000),
     ("메시 Wi-Fi 1세트 설치 · 최적화", "mesh_wifi", 80_000, 20_000, 10_000),
     ("세대 HA 서버 (N100 미니PC) 구축", "minipc_n100", 100_000, 100_000, 20_000),
+    ("벽면 태블릿 대시보드 — 태블릿 본체 + 키오스크·방별 화면 구성", "tablet", 20_000, 60_000, 10_000),
+    ("벽면 태블릿 — 벽 거치대 설치", "tablet_mount", 20_000, 0, 0),
+    ("벽면 태블릿 — USB 매립 콘센트 (전기공사 단계)", "tablet_power", 30_000, 0, 0),
+    ("벽면 태블릿 — 키오스크 앱 라이선스", "kiosk_lic", 0, 0, 0),
 ]
 
 
@@ -167,8 +181,9 @@ def render(pk: list[Package]) -> str:
     out: list[str] = []
 
     # 구성표
-    out.append("### 4-1. 34평 아파트 기준 패키지 구성 (거실 · 주방 · 현관 · 안방 · 침실 2)")
-    keys = ["hub_station", "switch_2gang", "motion", "door", "temp", "leak", "plug", "curtain", "cctv", "doorlock", "hub_m3", "mesh_wifi", "minipc_n100"]
+    out.append("### 4-1. 패키지 구성 (거실 · 주방 · 현관 · 안방 · 침실 2 기준)")
+    keys = ["hub_station", "switch_2gang", "motion", "door", "temp", "leak", "plug", "ir_rf_hub", "curtain", "blind", "cctv", "doorlock",
+            "hub_m3", "mesh_wifi", "minipc_n100", "tablet", "tablet_mount", "tablet_power", "kiosk_lic"]
     rows = []
     for k in keys:
         rows.append([LABEL[k]] + [str(p.bom.get(k, 0)) if p.bom.get(k, 0) else "-" for p in pk])
@@ -247,20 +262,22 @@ PACKAGES: list[Package] = [
     Package("START", "외출·귀가 자동화 입문", 990_000, 800_000, 1_500_000, "원룸·소형 기본 구축 공개가 80~150만",
             bom={"hub_station": 1, "motion": 2, "door": 2, "plug": 2, "switch_2gang": 3, "temp": 1},
             labor_hours=4, setup_hours=3, integrations=["가전 1종"], automations=2),
-    Package("BASIC", "34평 기본 자동화", 1_490_000, 1_500_000, 2_500_000, "24~34평 기본 구축 150~250만(참고 조사) / 미소 30평대 200~400만 하단",
-            bom={"hub_station": 1, "motion": 3, "door": 3, "plug": 3, "switch_2gang": 5, "temp": 2, "leak": 1},
-            labor_hours=6, setup_hours=4, integrations=["가전 2종"], automations=3),
-    Package("STANDARD", "34평 표준 (주력)", 2_490_000, 2_000_000, 3_500_000, "20평대 표준 200~350만 / 30평대 200~400만",
-            bom={"hub_station": 1, "motion": 4, "door": 3, "plug": 3, "switch_2gang": 6, "temp": 2, "leak": 2},
-            labor_hours=8, setup_hours=6, integrations=["도어락", "에어컨", "로봇청소기"], automations=4, include_design_in_comp=True),
-    Package("PREMIUM", "34평 풀 스마트홈 + 세대 HA", 4_490_000, 3_500_000, 7_000_000, "30~40평 아파트 350~700만 / 강남 시작·표준형 300~1,200만",
-            bom={"hub_station": 1, "motion": 5, "door": 4, "plug": 5, "switch_2gang": 10, "temp": 3, "leak": 2, "curtain": 2, "cctv": 1,
-                 "hub_m3": 1, "mesh_wifi": 1, "minipc_n100": 1},
-            labor_hours=16, setup_hours=10, integrations=["도어락", "에어컨", "로봇청소기", "TV·냉장고·세탁기"], automations=6, misc=50_000, include_design_in_comp=True),
-    Package("FULL HOME", "전실 조명·커튼·도어락 신규 + HA", 6_990_000, 7_000_000, 15_000_000, "프리미엄 700~1,500만 / 강남 확장·프리미엄형 1,000~2,000만",
-            bom={"hub_station": 1, "motion": 6, "door": 5, "plug": 6, "switch_2gang": 12, "temp": 3, "leak": 3, "curtain": 4, "cctv": 2,
-                 "doorlock": 1, "hub_m3": 1, "mesh_wifi": 1, "minipc_n100": 1},
-            labor_hours=24, setup_hours=14, integrations=["도어락", "에어컨", "로봇청소기", "TV·냉장고·세탁기", "음성(빅스비·Google)"], automations=8, misc=80_000, include_design_in_comp=True),
+    # ir_rf_hub: Wi-Fi·앱 등록이 안 되는 구형 에어컨·TV·선풍기를 리모컨 학습으로 묶는 허브. BASIC 이상 기본 포함(거실 1대), FULL 은 안방까지 2대.
+    #            START 는 단가표(4-8) 항목으로 선택 추가. 기본은 Tapo H110(IR, Tapo 앱 → SmartThings 연동·Matter), RF 리모컨 가전이 있으면 Broadlink RM4 Pro(HA 로컬 통합).
+    Package("BASIC", "기본 자동화", 1_490_000, 1_500_000, 2_500_000, "24~34평 기본 구축 150~250만(참고 조사) / 미소 30평대 200~400만 하단",
+            bom={"hub_station": 1, "motion": 3, "door": 3, "plug": 3, "switch_2gang": 5, "temp": 2, "leak": 1, "ir_rf_hub": 1},
+            labor_hours=6, setup_hours=4, integrations=["가전 2종", "구형 가전 리모컨(IR/RF)"], automations=3),
+    Package("STANDARD", "표준 (주력)", 2_490_000, 2_000_000, 3_500_000, "20평대 표준 200~350만 / 30평대 200~400만",
+            bom={"hub_station": 1, "motion": 4, "door": 3, "plug": 3, "switch_2gang": 6, "temp": 2, "leak": 2, "ir_rf_hub": 1},
+            labor_hours=8, setup_hours=6, integrations=["도어락", "에어컨", "로봇청소기", "구형 가전 리모컨(IR/RF)"], automations=4, include_design_in_comp=True),
+    Package("PREMIUM", "풀 스마트홈 + 세대 HA", 5_290_000, 3_500_000, 7_000_000, "30~40평 아파트 350~700만 / 강남 시작·표준형 300~1,200만",
+            bom={"hub_station": 1, "motion": 5, "door": 4, "plug": 5, "switch_2gang": 10, "temp": 3, "leak": 2, "ir_rf_hub": 1, "curtain": 2, "cctv": 1,
+                 "hub_m3": 1, "mesh_wifi": 1, "minipc_n100": 1, "tablet": 1, "tablet_mount": 1, "tablet_power": 1, "kiosk_lic": 1},
+            labor_hours=17, setup_hours=12, integrations=["도어락", "에어컨", "로봇청소기", "TV·냉장고·세탁기", "구형 가전 리모컨(IR/RF)"], automations=6, misc=50_000, include_design_in_comp=True),
+    Package("FULL HOME", "전실 조명·커튼·도어락 신규 + HA", 7_990_000, 7_000_000, 15_000_000, "프리미엄 700~1,500만 / 강남 확장·프리미엄형 1,000~2,000만",
+            bom={"hub_station": 1, "motion": 6, "door": 5, "plug": 6, "switch_2gang": 12, "temp": 3, "leak": 3, "ir_rf_hub": 2, "curtain": 4, "blind": 1, "cctv": 2,
+                 "doorlock": 1, "hub_m3": 1, "mesh_wifi": 1, "minipc_n100": 1, "tablet": 1, "tablet_mount": 1, "tablet_power": 1, "kiosk_lic": 1},
+            labor_hours=26, setup_hours=16, integrations=["도어락", "에어컨", "로봇청소기", "TV·냉장고·세탁기", "구형 가전 리모컨(IR/RF)", "음성(빅스비·Google)"], automations=8, misc=80_000, include_design_in_comp=True),
 ]
 
 if __name__ == "__main__":

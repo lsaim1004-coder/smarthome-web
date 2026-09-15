@@ -97,6 +97,7 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <li><a href="#2-8-home-assistant">2-8. Home Assistant 공식 하드웨어 (참고)</a></li>
 <li><a href="#2-9">2-9. 관찰과 조달 시 주의</a></li>
 <li><a href="#2-10-ikea-tapo-aqara-p2-2026-09-11">2-10. 저가 표준 스택 단가 검증 (IKEA · Tapo · Aqara P2, 2026-09-11 공식몰·다나와 재확인)</a></li>
+<li><a href="#2-11-2026-09-15">2-11. 벽면 태블릿 대시보드 세트 (2026-09-15 다나와·공식몰)</a></li>
 </ul>
 </li>
 <li><a href="#3-pc-ha">3. 서버 PC — 세대용 HA 와 중앙 관제</a><ul>
@@ -110,9 +111,9 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <li><a href="#b">사업자 중앙 관제 서버 (트랙 B 초기 투자, 별도 소계)</a></li>
 </ul>
 </li>
-<li><a href="#4-34-5">4. 패키지별 원가·판매가·사업자 수익 (34평 기준 5단계)</a><ul>
+<li><a href="#4-5">4. 패키지별 원가·판매가·사업자 수익 (5단계)</a><ul>
 <li><a href="#4-0">4-0. 결론 먼저</a></li>
-<li><a href="#4-1-34-2">4-1. 34평 아파트 기준 패키지 구성 (거실 · 주방 · 현관 · 안방 · 침실 2)</a></li>
+<li><a href="#4-1-2">4-1. 패키지 구성 (거실 · 주방 · 현관 · 안방 · 침실 2 기준)</a></li>
 <li><a href="#4-2">4-2. 패키지별 원가 (부가세 제외, 설치·설계를 외주로 볼 때)</a></li>
 <li><a href="#4-3-vs">4-3. 제안 판매가 vs 시장 가격대 (부가세 포함 고객가)</a></li>
 <li><a href="#4-4-1">4-4. 사업자 순이익 — 모델 1 하도급형 (업체가 고객에게 판매, 우리는 업체에 공급)</a></li>
@@ -127,14 +128,14 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 </div>
 </aside>
   <article><blockquote>
-<p>조사일 2026-09-11. 가격은 조사 시점의 다나와 최저가·쿠팡 판매가·공식몰가이며 수시로 변동합니다. 출처 URL 은 각 표에 표기했고, 확인하지 못한 값은 "확인 불가"로 남겼습니다. 결론은 <strong>4-0</strong> 에 있습니다: 기획안 원문 가격(30~50 / 100~180 / 250~500만)은 원가 미달로 폐기하고 34평 기준 5단계(99 / 149 / 249 / 449 / 699만)로 재편.</p>
+<p>조사일 2026-09-11. 가격은 조사 시점의 다나와 최저가·쿠팡 판매가·공식몰가이며 수시로 변동합니다. 출처 URL 은 각 표에 표기했고, 확인하지 못한 값은 "확인 불가"로 남겼습니다. 결론은 <strong>4-0</strong> 에 있습니다: 기획안 원문 가격(30~50 / 100~180 / 250~500만)은 원가 미달로 폐기하고 5단계(99 / 149 / 249 / 529 / 799만)로 재편. 2026-09-15 마마바 커튼·블라인드, 벽면 태블릿 세트, 구형 가전 IR/RF 허브를 넣으며 PREMIUM·FULL 가격을 449→529, 699→799 로 올림(2-2·2-7·2-11, 4장).</p>
 </blockquote>
 <h2 id="_1">목차<a class="h-anchor" href="#_1" title="이 절 링크">#</a></h2>
 <ol>
 <li>기존 스마트홈 구축·시공 서비스 업체 견적</li>
 <li>구매 품목 가격 (다나와 · 쿠팡)</li>
 <li>서버 PC — 세대용 HA 와 중앙 관제</li>
-<li>패키지별 원가·판매가·사업자 수익 (34평 기준 5단계)</li>
+<li>패키지별 원가·판매가·사업자 수익 (5단계)</li>
 <li>조사 한계와 다음 확인 사항</li>
 </ol>
 <hr />
@@ -344,7 +345,7 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <li>24~34평 아파트 전문 스마트홈 구축은 <strong>150~400만원</strong>이 현실적 시장 구간, 자동화 범위가 커지면 <strong>350~700만원</strong>. 공개 사례: 출장 4만 + 모션센서 3만 + 스마트스위치 4.5만 = <strong>1포인트 11.5만원</strong>, SmartThings 허브 추가 시 +9.1만 = <strong>20.6만원</strong>.</li>
 <li>시장 가격대 → 적정 판매가: 원룸/소형 80~150만 → 99~149만 / 20평대 표준 200~350만 → 249~349만 / 30~40평 350~700만 → 399~599만 / 프리미엄 700~1,500만 → 699만~ / 1포인트 추가 12~15만 / 허브 포함 1포인트 20~25만.</li>
 <li>추천 표준 스택(브랜드 5개로 제한): 메인 SmartThings · 센서 Aqara/IKEA Matter · 플러그 Tapo Matter · 조명 삼성/국내 + Matter 스위치 · 커튼 국내 전동커튼 업체 · 도어락 삼성SDS.</li>
-<li>34평 패키지 제안: BASIC(외출/귀가 자동화, 원가 25~35만) 99~129만 / STANDARD(주력, 원가 60~100만) 199~299만 / PREMIUM(풀 스마트홈, 원가 150~250만) 399~599만. 5단계: START 99 · BASIC 149 · STANDARD 249 · PREMIUM 399 · FULL HOME 599만, 인테리어 업체 파트너 마진 15~25%.</li>
+<li>패키지 제안: BASIC(외출/귀가 자동화, 원가 25~35만) 99~129만 / STANDARD(주력, 원가 60~100만) 199~299만 / PREMIUM(풀 스마트홈, 원가 150~250만) 399~599만. 5단계: START 99 · BASIC 149 · STANDARD 249 · PREMIUM 399 · FULL HOME 599만, 인테리어 업체 파트너 마진 15~25%.</li>
 <li>원칙: 기기값 + 설치비 + 자동화 설정 + 테스트/A/S 를 분리 표기(스위치 1개 = 4.5 + 3.5 + 2 + 1 = 11만원). 제품 판매업이 아니라 "귀찮아서 직접 못 하는 사람"에게 자동화 결과를 판다.</li>
 <li>추가 경쟁·참고 업체: 스타트홈(SmartThings 출신 창업), 와츠매터(제품 생산~서비스, 2026 지능형 홈 실증), 서울 홈오토메이션 업체(Home, 가우디파크).</li>
 </ul>
@@ -438,20 +439,20 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <td><strong>333,300원</strong>(레일 포함)</td>
 </tr>
 <tr>
-<td><strong>SwitchBot 커튼 3 레일형</strong></td>
+<td>SwitchBot 커튼 3 레일형</td>
 <td>BLE(+허브 시 Matter/ST)</td>
 <td>미확인</td>
-<td><strong>126,940원</strong>(로켓, 폴센트 현재가), 2개월 최저 106,430원</td>
+<td>126,940원(로켓, 폴센트 현재가), 2개월 최저 106,430원</td>
 <td><a href="https://fallcent.com/product/?product_id=8542600081">폴센트</a></td>
-<td>레일 미포함(기존 U/I 레일 장착) → <strong>최저가 기준 모터로 채택</strong></td>
+<td>레일 미포함(기존 U/I 레일 장착). 2026-09-11 기준 채택안 → 09-15 마마바로 교체</td>
 </tr>
 <tr>
-<td><strong>헤이홈 전동 커튼 컨트롤러 Pro</strong></td>
+<td>헤이홈 전동 커튼 컨트롤러 Pro</td>
 <td>Wi-Fi(헤이홈 앱)</td>
 <td>미확인</td>
 <td>확인 불가</td>
 <td><a href="https://hej.life/">헤이홈 공식몰</a></td>
-<td>정상가 173,600 → <strong>138,900원</strong>. 레일 미포함, 헤이홈 클라우드 경유 → <strong>일반가 기준으로 채택</strong></td>
+<td>정상가 173,600 → 138,900원. 레일 미포함, 헤이홈 클라우드 경유</td>
 </tr>
 <tr>
 <td>헤이홈 전동 커튼 SET(레일+컨트롤러 Pro)</td>
@@ -459,7 +460,7 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <td>미확인</td>
 <td>확인 불가</td>
 <td>헤이홈 공식몰</td>
-<td>정상가 266,000 → <strong>212,900원</strong>(레일 포함, 맞춤제작). 출장설치 109,000원 별도</td>
+<td>정상가 266,000 → 212,900원(레일 포함, 맞춤제작). 출장설치 109,000원 별도</td>
 </tr>
 <tr>
 <td>시하스 / 두웰 전동커튼</td>
@@ -469,9 +470,33 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <td>—</td>
 <td>상품 특정 못 함. 오늘의집 "모터+레일세트" 147,000원(스니펫, 브랜드 미확인)</td>
 </tr>
+<tr>
+<td><strong>마마바 스마트 전동커튼 맞춤형 레일</strong> (2026-09-15)</td>
+<td>유선 Wi-Fi 모터(Tuya 앱 → SmartThings·HA) / 무선 모터</td>
+<td>공식몰</td>
+<td>공식몰</td>
+<td><a href="https://mamaba.co.kr/product/%EC%8A%A4%EB%A7%88%ED%8A%B8-%EC%A0%84%EB%8F%99%EC%BB%A4%ED%8A%BC-%EB%A7%9E%EC%B6%A4%ED%98%95-%EB%A0%88%EC%9D%BC/31/">mamaba.co.kr</a></td>
+<td>레일 <strong>49,000원</strong>(~150cm) + 길이 추가 151~200 +8,000 · 201~250 +20,000 · 301~350 +36,000 · 351~400 +43,000 … 751~800 +114,000. 모터 별도: <strong>유선 Wi-Fi 89,000</strong> / 무선 159,000. 배송 무료, 방문설치 9만~14만(선택). <strong>1창 기준 안방 2m 146,000 · 거실 3.5m 174,000 → 계산은 평균 160,000(유선), 일반가 230,000(무선)으로 채택</strong></td>
+</tr>
+<tr>
+<td>마마바 가변형 레일 3세대 / 형상기억 레일</td>
+<td>레일 단품</td>
+<td>공식몰</td>
+<td>공식몰</td>
+<td><a href="https://mamaba.co.kr/category/%EC%A0%84%EB%8F%99-%EC%BB%A4%ED%8A%BC%EB%A0%88%EC%9D%BC/51/">마마바 전동 커튼레일</a></td>
+<td>66,000 / 64,000원. 모터 단품(전동모터 카테고리) 유선 Wi-Fi 99,000</td>
+</tr>
+<tr>
+<td><strong>마마바 전동 블라인드 모터</strong> (2026-09-15)</td>
+<td>매터 모터25: Matter → SmartThings Station 직접 / 무선모터20: RF 리모컨+앱</td>
+<td>공식몰</td>
+<td>공식몰</td>
+<td><a href="https://mamaba.co.kr/category/%EC%A0%84%EB%8F%99-%EB%AA%A8%ED%84%B0/44/">마마바 전동모터</a></td>
+<td>무선모터20 <strong>79,000</strong> · 매터 블라인드 유선/무선모터25 <strong>119,000</strong> · 유선모터24 138,000 · 무선모터24 168,000 · 매터 24 유무선 149,000. 롤스크린 원단 18,200~ / 방염 썬스크린 30,800~35,500. <strong>1창 계산: 저가 109,000(무선20+스크린 3만) / 일반 154,500(매터25+방염 35,500)</strong></td>
+</tr>
 </tbody>
 </table></div>
-<p>커튼 레일까지 새로 시공하는 세대는 모터 대신 헤이홈 SET(212,900원) 또는 Aqara DIY 패키지(333,300원)로 치환 → 커튼 2개 기준 +17만~+41만원.</p>
+<p><strong>2026-09-15 결정: 전동 커튼·블라인드는 마마바에서 구매.</strong> 레일 맞춤 제작 + 모터를 한 곳에서 사고, 커튼은 유선 Wi-Fi 모터(Tuya 기반 → SmartThings Tuya 연동 또는 HA tuya 통합), 블라인드는 매터 모터25(Station 직접 페어링)를 기본으로 한다. 유선 모터는 <strong>커튼박스 안에 콘센트</strong>가 필요하므로 전기공사 단계에 반영(기획안 8장). 커튼 원단은 견적 제외(고객 선택). 마마바 방문설치(9~14만)는 쓰지 않고 자체 시공(4-8 단가표 설치 10만).</p>
 <h3 id="2-3-zigbee">2-3. 스마트 조명 스위치 (Zigbee, 무중성선)<a class="h-anchor" href="#2-3-zigbee" title="이 절 링크">#</a></h3>
 <div class="tbl"><table>
 <thead>
@@ -737,6 +762,54 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <td><a href="https://prod.danawa.com/info/?pcode=27553853">다나와</a></td>
 <td>2대 = <strong>210,000원</strong> → 최저가 기준 메시</td>
 </tr>
+<tr>
+<td><strong>Broadlink RM4 Pro</strong> (2026-09-15)</td>
+<td>Wi-Fi, <strong>IR + RF 433/315MHz</strong> 리모컨 학습</td>
+<td><strong>58,740~60,570원</strong>(국내 판매, 2~3곳) / 센서 케이블 세트 84,070</td>
+<td>확인 불가(쿠팡 봇 차단)</td>
+<td><a href="https://search.danawa.com/dsearch.php?query=BroadLink">다나와 검색 BroadLink</a></td>
+<td><strong>RF 리모컨 가전(구형 선풍기·RF 조명·RF 커튼)이 있는 세대의 교체 옵션(일반가 기준).</strong> RF 를 다루는 유일한 대중 모델. HA 는 broadlink 통합으로 로컬 제어, SmartThings 직접 연동은 없음 → HA 경유 또는 Broadlink 앱+Google Home</td>
+</tr>
+<tr>
+<td><strong>TP-Link Tapo H110 스마트 IR 리모컨 &amp; IoT 허브</strong> (2026-09-15)</td>
+<td>Wi-Fi 2.4GHz, <strong>IR 학습</strong>(8,000개 브랜드 DB + DIY 학습), <strong>Matter 인증 허브</strong>, Tapo Sub-1G 센서·버튼 허브 겸용, RF 없음</td>
+<td>미등록</td>
+<td><strong>티피링크몰 38,800원</strong> / 공식 스토어 39,900 / 11번가 58,960</td>
+<td><a href="https://kr.store.tapo.com/products/tapo-h110">Tapo 스토어</a> · <a href="https://www.tp-link.com/kr/support/faq/4128/">FAQ</a></td>
+<td><strong>구형 가전 리모컨 허브 저가 기준으로 채택.</strong> 공식 스펙에 SmartThings·Google·Alexa·Apple Home 지원 명시, 같은 Wi-Fi 안에서는 인터넷 없이 로컬 제어. 플러그(P110M)와 같은 Tapo 앱이라 브랜드 수 증가 없음. <strong>IR 로 등록한 가전이 SmartThings(Tapo 연동 서비스/Matter)에 어떤 종류로 노출되는지는 PoC 실측 필요</strong></td>
+</tr>
+<tr>
+<td>Broadlink RM4 mini</td>
+<td>Wi-Fi, IR 만</td>
+<td>24,760원 / 해외구매 11,870원</td>
+<td>—</td>
+<td>다나와 검색</td>
+<td>RF 없음. 방마다 IR 만 필요할 때 보조용</td>
+</tr>
+<tr>
+<td>SwitchBot Hub 2</td>
+<td>Wi-Fi, IR + <strong>Matter</strong>(온습도·조도 센서 내장)</td>
+<td>미등록</td>
+<td>오늘의집·G마켓 <strong>89,800원</strong>(정가 118,800)</td>
+<td><a href="https://store.ohou.se/goods/2334714">오늘의집</a></td>
+<td>대안. RF 없음. Matter 로 SmartThings Station 에 붙는데, <strong>학습한 IR 가전(에어컨 등)이 Matter 로 노출되는 범위는 PoC 실측 필요</strong></td>
+</tr>
+<tr>
+<td>SwitchBot Hub Mini</td>
+<td>Wi-Fi, IR</td>
+<td>다나와 품절</td>
+<td>하이마트·디바이스마트 리스팅</td>
+<td><a href="https://prod.danawa.com/info/?pcode=18848021">다나와</a></td>
+<td>Matter 미지원 구형</td>
+</tr>
+<tr>
+<td>Aqara 허브 M3 (IR 겸용)</td>
+<td>위 참조</td>
+<td>172,190원</td>
+<td>253,000원</td>
+<td>위 참조</td>
+<td>IR 만(RF 없음). PREMIUM 이상은 M3 가 거실 IR 을 맡고 RM4 Pro 가 안방·RF 를 맡는다</td>
+</tr>
 </tbody>
 </table></div>
 <h3 id="2-8-home-assistant">2-8. Home Assistant 공식 하드웨어 (참고)<a class="h-anchor" href="#2-8-home-assistant" title="이 절 링크">#</a></h3>
@@ -903,6 +976,88 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 </tbody>
 </table></div>
 <p><strong>IKEA 신형 센서의 SmartThings 직접 페어링</strong>: 삼성·이케아 공동 발표는 전구·플러그·버튼의 DIRIGERA 없는 직접 온보딩을 명시했고, 센서(TIMMERFLOTTE·MYGGSPRAY·MYGGBETT·KLIPPBOK)는 "Thread 보더 라우터 필요"로만 안내된다. SmartThings Station 은 Thread 보더 라우터를 내장하므로 기술적으로 가능하지만 <strong>이케아 공식 문구에 Station 이 명시되지 않아 보증 미확인</strong>. → PoC 첫 세대에서 실측하고, 실패 시 (a) DIRIGERA 149,000원 추가 또는 (b) Aqara T1 계열(Zigbee, Station 직접)로 대체. 대체 시 BASIC 기준 기기 원가 +약 10~15만원.</p>
+<h3 id="2-11-2026-09-15">2-11. 벽면 태블릿 대시보드 세트 (2026-09-15 다나와·공식몰)<a class="h-anchor" href="#2-11-2026-09-15" title="이 절 링크">#</a></h3>
+<p>세대 HA 가 들어가는 PREMIUM 이상에서 "앱 여섯 개 대신 벽에 붙은 태블릿 하나"를 파는 데 필요한 부품. 태블릿은 키오스크 앱으로 HA 대시보드를 고정하고, 전원은 전기공사 단계에 USB 매립 콘센트로 뽑는다.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>품목</th>
+<th>모델</th>
+<th>확인 가격</th>
+<th>출처</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>태블릿(저가)</strong></td>
+<td>레노버 탭 M11 128GB Wi-Fi (with Pen)</td>
+<td><strong>199,640원</strong></td>
+<td><a href="https://prod.danawa.com/info/?pcode=32467274">다나와</a></td>
+<td>11인치 90Hz, 펜 별매판 211,850. 24시간 벽면 상시 전원 사용 → 배터리 보호(충전 상한) 설정 필요</td>
+</tr>
+<tr>
+<td>태블릿(일반)</td>
+<td>삼성 갤럭시탭 A9+ Wi-Fi 64GB</td>
+<td><strong>360,030원</strong>(20곳)</td>
+<td><a href="https://prod.danawa.com/info/?pcode=29662070">다나와</a></td>
+<td>11인치. 8.7인치 A9 는 국내 B2B 전용(370,000, 3곳)이라 제외</td>
+</tr>
+<tr>
+<td>태블릿(참고)</td>
+<td>샤오미 레드미 패드 SE 8.7</td>
+<td>64GB 품절 / 128GB 324,800(1곳)</td>
+<td><a href="https://prod.danawa.com/info/?pcode=69465701">다나와</a></td>
+<td>판매처 1곳뿐이라 기준가로 쓰지 않음</td>
+</tr>
+<tr>
+<td><strong>벽 거치대(저가)</strong></td>
+<td>접이식 벽걸이 태블릿 거치대</td>
+<td><strong>25,600원</strong>(쿠팡 특가 스니펫)</td>
+<td><a href="https://zod.kr/deal/7937128">zod 특가</a></td>
+<td>스니펫 기준</td>
+</tr>
+<tr>
+<td><strong>벽 거치대(일반)</strong></td>
+<td>엔산마운트 PAD-W02 태블릿홈뷰 벽/자석형</td>
+<td><strong>42,500원</strong></td>
+<td><a href="https://www.nsan.co.kr/goods/goods_view.php?goodsNo=1000000226">엔산마운트</a></td>
+<td>7~12.9인치, 자석 탈착 → 충전·청소 편함</td>
+</tr>
+<tr>
+<td><strong>USB 매립 콘센트(저가)</strong></td>
+<td>인채널 노바 베이직 1구 매립콘센트 BDC03X</td>
+<td><strong>38,000원</strong></td>
+<td>다나와 통합검색 "매립형USB콘센트"</td>
+<td>가구매립형 USB 24,800 도 있음(가구용)</td>
+</tr>
+<tr>
+<td>USB 매립 콘센트(일반)</td>
+<td>인채널 빌트인콘센트 회전 USB 2구 IBC-22M</td>
+<td><strong>64,000원</strong></td>
+<td>다나와 통합검색</td>
+<td>하츠 무선충전 매립형 MC-R1201WCM 81,000(24곳)은 과사양</td>
+</tr>
+<tr>
+<td><strong>키오스크 앱</strong></td>
+<td>Fully Kiosk Browser PLUS</td>
+<td><strong>€7.90/기기 1회</strong>(≈12,000원)</td>
+<td><a href="https://www.fully-kiosk.com/">fully-kiosk.com</a></td>
+<td>화면 상시 켜기·모션 시 화면 켜기·HA 연동(REST)</td>
+</tr>
+<tr>
+<td>세트 합계</td>
+<td>저가 / 일반</td>
+<td><strong>275,240원 / 478,530원</strong></td>
+<td>—</td>
+<td>4장 PREMIUM·FULL 에 각 1세트 포함. 설치(거치대 2만 + 매립콘센트 전기 3만) · 화면 구성 6만은 4-8 단가표</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>태블릿 대안으로 고객 보유 구형 태블릿을 재활용하면 세트가 7.5만원대로 내려간다(견적서에 "고객 태블릿 활용 시 −20만" 옵션).</li>
+<li>Fully Kiosk 대신 HA Companion 앱만으로도 되지만, 화면 잠금·자동 켜짐·브라우저 이탈 방지는 Fully 가 낫다.</li>
+</ul>
 <!-- /SECTION:PRODUCTS -->
 
 <hr />
@@ -1194,7 +1349,7 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <!-- /SECTION:SERVERS -->
 
 <hr />
-<h2 id="4-34-5">4. 패키지별 원가·판매가·사업자 수익 (34평 기준 5단계)<a class="h-anchor" href="#4-34-5" title="이 절 링크">#</a></h2>
+<h2 id="4-5">4. 패키지별 원가·판매가·사업자 수익 (5단계)<a class="h-anchor" href="#4-5" title="이 절 링크">#</a></h2>
 <!-- SECTION:BOM -->
 <blockquote>
 <p>계산은 <code>tools/estimate.py</code> 가 생성한다(<code>python tools/estimate.py</code>). 단가·수량·가정을 바꾸면 표가 다시 나온다.</p>
@@ -1213,16 +1368,16 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <td>외주 시공·설계비를 넣으면 원가(4-2)를 넘지 못한다. 시장도 24~34평 전문 구축을 150~400만원에 받아들이고 있어 저가로 갈 이유가 없다.</td>
 </tr>
 <tr>
-<td><strong>34평 기준 5단계로 재편</strong></td>
-<td>START 99만 · BASIC 149만 · STANDARD 249만(주력) · PREMIUM 449만(세대 HA 포함) · FULL HOME 699만. 모두 공개 시장 가격대의 <strong>하단~1/3 지점</strong>(4-3).</td>
+<td><strong>5단계로 재편 (거실·주방·현관·안방·침실 2 구성 기준)</strong></td>
+<td>START 99만 · BASIC 149만 · STANDARD 249만(주력) · <strong>PREMIUM 529만</strong>(세대 HA + 벽면 태블릿) · <strong>FULL HOME 799만</strong>. 공개 시장 가격대 내 위치 START 27% · BASIC 하단 · STANDARD 33% · PREMIUM 51% · FULL 12%(4-3). 2026-09-15 마마바 커튼·태블릿 세트·IR/RF 허브 반영 전 가격(449/699)으로는 PREMIUM 이 외주 기준 −10만원대라 올렸다.</td>
 </tr>
 <tr>
-<td><strong>저가 표준 스택(브랜드 5개 이내)</strong></td>
-<td>SmartThings Station(허브) + Aqara 무중성선 스위치 + IKEA Matter 센서(MYGGSPRAY·MYGGBETT·TIMMERFLOTTE·KLIPPBOK) + Tapo P110M 플러그 + SwitchBot/헤이홈 커튼 모터 + 삼성SDS 도어락. 기기 원가: START 26.5만 · BASIC 42만 · STANDARD 49만 · PREMIUM 161만 · FULL 238만(부가세 포함 최저가 조달).</td>
+<td><strong>저가 표준 스택(브랜드 10개 이내)</strong></td>
+<td>SmartThings Station(허브) + Aqara 무중성선 스위치 + IKEA Matter 센서(MYGGSPRAY·MYGGBETT·TIMMERFLOTTE·KLIPPBOK) + Tapo P110M 플러그 + <strong>마마바 전동커튼(맞춤 레일+유선 Wi-Fi 모터)·블라인드(매터 모터)</strong> + Tapo H110 IR 리모컨 허브(RF 가전은 Broadlink RM4 Pro 로 교체) + 삼성SDS 도어락 + 레노버 탭 M11 벽면 태블릿. 기기 원가: START 29.2만 · BASIC 50.3만 · STANDARD 57.8만 · PREMIUM 215.4만 · FULL 321.3만(부가세 포함 최저가 조달).</td>
 </tr>
 <tr>
 <td><strong>사업자 순이익(4-4, 하도급형)</strong></td>
-<td>외주 시공·업체 20%: START 10만 · BASIC 17만 · STANDARD 62만 · PREMIUM 36만 · FULL 79만. <strong>본인 시공(인건비 포함)</strong>: START 38만 · BASIC 57만 · STANDARD 118만 · PREMIUM 140만 · FULL 231만.</td>
+<td>외주 시공·업체 20%: START 10만 · BASIC 13만 · STANDARD 59만 · PREMIUM 44만 · FULL 77만. <strong>본인 시공(인건비 포함)</strong>: START 38만 · BASIC 53만 · STANDARD 115만 · PREMIUM 160만 · FULL 245만. BASIC 은 IR 리모컨 허브가 들어가며 외주 마진이 얇다(4-6 손익분기 130만).</td>
 </tr>
 <tr>
 <td><strong>인테리어 업체 몫</strong></td>
@@ -1230,15 +1385,15 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 </tr>
 <tr>
 <td><strong>월 시나리오(4-7)</strong></td>
-<td>업체 1곳 월 5건(START 1 · BASIC 1 · STANDARD 2 · PREMIUM 1), 업체 20%, 본인 시공 → <strong>월 총수입 약 470만원</strong>.</td>
+<td>업체 1곳 월 5건(START 1 · BASIC 1 · STANDARD 2 · PREMIUM 1), 업체 20%, 본인 시공 → <strong>월 총수입 약 481만원</strong>.</td>
 </tr>
 <tr>
 <td><strong>경쟁 항목별 기준가 대비</strong></td>
-<td>아카라 방식(출장+항목별 설치+기기 일반가)보다 START~STANDARD 는 20~40% 높다. 차이는 설계·자동화·교육·A/S 준비금. 견적서에는 4-8 처럼 <strong>기기값과 서비스비를 분리 표기</strong>한다.</td>
+<td>아카라 방식(출장+항목별 설치+기기 일반가)보다 START +28% · BASIC +14% · STANDARD +35% · PREMIUM +13% · FULL +21% 높다. 차이는 설계·자동화·교육·A/S 준비금. 견적서에는 4-8 처럼 <strong>기기값과 서비스비를 분리 표기</strong>한다.</td>
 </tr>
 <tr>
 <td><strong>참고 조사 가격(PREMIUM 399 / FULL 599만)으로 팔 경우</strong></td>
-<td>외주 시공·업체 20% 기준 순이익이 각 약 1만 / 10만원으로 사실상 0(본인 시공은 약 105만 / 162만). PoC(본인 시공)에서는 399/599 도 가능하지만 외주 전환 시 449/699 가 필요하다.</td>
+<td>새 구성(마마바 커튼·태블릿·IR/RF)에서는 외주 시공·업체 20% 기준 <strong>각 약 −44만 / −59만원</strong>으로 적자(본인 시공은 약 72만 / 109만). 벽면 태블릿 세트(27.5만)를 선택 항목으로 빼면 PREMIUM 449만에서도 외주 마진 약 27만이 남는다 — 태블릿을 기본에 넣을지는 PoC 반응을 보고 정한다.</td>
 </tr>
 <tr>
 <td><strong>트랙 B 관제 서버 초기 투자</strong></td>
@@ -1246,15 +1401,15 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 </tr>
 </tbody>
 </table></div>
-<h3 id="4-1-34-2">4-1. 34평 아파트 기준 패키지 구성 (거실 · 주방 · 현관 · 안방 · 침실 2)<a class="h-anchor" href="#4-1-34-2" title="이 절 링크">#</a></h3>
+<h3 id="4-1-2">4-1. 패키지 구성 (거실 · 주방 · 현관 · 안방 · 침실 2 기준)<a class="h-anchor" href="#4-1-2" title="이 절 링크">#</a></h3>
 <div class="tbl"><table>
 <thead>
 <tr>
 <th>항목</th>
 <th>START<br><small>외출·귀가 자동화 입문</small></th>
-<th>BASIC<br><small>34평 기본 자동화</small></th>
-<th>STANDARD<br><small>34평 표준 (주력)</small></th>
-<th>PREMIUM<br><small>34평 풀 스마트홈 + 세대 HA</small></th>
+<th>BASIC<br><small>기본 자동화</small></th>
+<th>STANDARD<br><small>표준 (주력)</small></th>
+<th>PREMIUM<br><small>풀 스마트홈 + 세대 HA</small></th>
 <th>FULL HOME<br><small>전실 조명·커튼·도어락 신규 + HA</small></th>
 </tr>
 </thead>
@@ -1316,12 +1471,28 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <td>6</td>
 </tr>
 <tr>
-<td>전동 커튼 모터</td>
+<td>구형 가전 리모컨 허브(IR, RF 필요 시 교체)</td>
+<td>-</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>전동 커튼 1창(마마바 레일+모터)</td>
 <td>-</td>
 <td>-</td>
 <td>-</td>
 <td>2</td>
 <td>4</td>
+</tr>
+<tr>
+<td>전동 블라인드 1창(마마바)</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>1</td>
 </tr>
 <tr>
 <td>실내 CCTV</td>
@@ -1364,12 +1535,44 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <td>1</td>
 </tr>
 <tr>
+<td>벽면 태블릿(11인치)</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>태블릿 벽 거치대</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>USB 매립 콘센트(태블릿 전원)</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>키오스크 앱 라이선스</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
 <td>계정 연동(기기 없음)</td>
 <td>가전 1종</td>
-<td>가전 2종</td>
-<td>도어락, 에어컨, 로봇청소기</td>
-<td>도어락, 에어컨, 로봇청소기, TV·냉장고·세탁기</td>
-<td>도어락, 에어컨, 로봇청소기, TV·냉장고·세탁기, 음성(빅스비·Google)</td>
+<td>가전 2종, 구형 가전 리모컨(IR/RF)</td>
+<td>도어락, 에어컨, 로봇청소기, 구형 가전 리모컨(IR/RF)</td>
+<td>도어락, 에어컨, 로봇청소기, TV·냉장고·세탁기, 구형 가전 리모컨(IR/RF)</td>
+<td>도어락, 에어컨, 로봇청소기, TV·냉장고·세탁기, 구형 가전 리모컨(IR/RF), 음성(빅스비·Google)</td>
 </tr>
 <tr>
 <td>생활 장면 자동화</td>
@@ -1384,24 +1587,24 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <td>4h / 3h</td>
 <td>6h / 4h</td>
 <td>8h / 6h</td>
-<td>16h / 10h</td>
-<td>24h / 14h</td>
+<td>17h / 12h</td>
+<td>26h / 16h</td>
 </tr>
 <tr>
 <td><strong>기기 합계 (저가 스택)</strong></td>
 <td><strong>292,000</strong></td>
-<td><strong>464,000</strong></td>
-<td><strong>539,000</strong></td>
-<td><strong>1,774,000</strong></td>
-<td><strong>2,619,000</strong></td>
+<td><strong>503,000</strong></td>
+<td><strong>578,000</strong></td>
+<td><strong>2,154,000</strong></td>
+<td><strong>3,213,000</strong></td>
 </tr>
 <tr>
 <td>기기 합계 (일반)</td>
 <td>521,000</td>
-<td>854,000</td>
-<td>998,000</td>
-<td>2,674,000</td>
-<td>3,774,000</td>
+<td>912,000</td>
+<td>1,056,000</td>
+<td>3,393,000</td>
+<td>4,888,000</td>
 </tr>
 </tbody>
 </table></div>
@@ -1410,37 +1613,37 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 | 패키지 | 기기 | 설치 인건비 | 설계·세팅·교육 | 소모품·이동 | 원가 합계 | (부가세 포함) | 일반가 기기일 때 원가 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | START | 265,000 | 160,000 | 120,000 | 27,000 | <strong>572,000</strong> | 630,000 | 781,000 |
-| BASIC | 422,000 | 240,000 | 160,000 | 27,000 | <strong>849,000</strong> | 934,000 | 1,203,000 |
-| STANDARD | 490,000 | 320,000 | 240,000 | 27,000 | <strong>1,077,000</strong> | 1,185,000 | 1,494,000 |
-| PREMIUM | 1,612,000 | 640,000 | 400,000 | 45,000 | <strong>2,698,000</strong> | 2,968,000 | 3,516,000 |
-| FULL HOME | 2,381,000 | 960,000 | 560,000 | 73,000 | <strong>3,974,000</strong> | 4,371,000 | 5,023,000 |</p>
+| BASIC | 457,000 | 240,000 | 160,000 | 27,000 | <strong>885,000</strong> | 973,000 | 1,257,000 |
+| STANDARD | 525,000 | 320,000 | 240,000 | 27,000 | <strong>1,112,000</strong> | 1,224,000 | 1,548,000 |
+| PREMIUM | 1,958,000 | 680,000 | 480,000 | 45,000 | <strong>3,164,000</strong> | 3,480,000 | 4,290,000 |
+| FULL HOME | 2,921,000 | 1,040,000 | 640,000 | 73,000 | <strong>4,674,000</strong> | 5,141,000 | 6,197,000 |</p>
 <h3 id="4-3-vs">4-3. 제안 판매가 vs 시장 가격대 (부가세 포함 고객가)<a class="h-anchor" href="#4-3-vs" title="이 절 링크">#</a></h3>
 <p>'시장 가격대 내 위치' 0% = 하단, 100% = 상단. '경쟁 항목별 기준가' = 아카라라이프 공개 설치 단가(출장 5만 · 스위치 5만/개 · 커튼 14만/개, 센서 1만/개 추정 · 도어락 3만) + STANDARD 이상은 설계 검증 33만 + 동일 기기 일반가.
 | 패키지 | 제안 판매가 | 공개 시장 가격대 | 시장 가격대 내 위치 | 경쟁 항목별 기준가 | 경쟁 대비 |
 | --- | --- | --- | --- | --- | --- |
 | START | <strong>990,000</strong> | 800,000 ~ 1,500,000<br><small>원룸·소형 기본 구축 공개가 80~150만</small> | 27% 지점 | 771,000 | +28% |
-| BASIC | <strong>1,490,000</strong> | 1,500,000 ~ 2,500,000<br><small>24~34평 기본 구축 150~250만(참고 조사) / 미소 30평대 200~400만 하단</small> | -1% 지점 | 1,244,000 | +20% |
-| STANDARD | <strong>2,490,000</strong> | 2,000,000 ~ 3,500,000<br><small>20평대 표준 200~350만 / 30평대 200~400만</small> | 33% 지점 | 1,788,000 | +39% |
-| PREMIUM | <strong>4,490,000</strong> | 3,500,000 ~ 7,000,000<br><small>30~40평 아파트 350~700만 / 강남 시작·표준형 300~1,200만</small> | 28% 지점 | 3,974,000 | +13% |
-| FULL HOME | <strong>6,990,000</strong> | 7,000,000 ~ 15,000,000<br><small>프리미엄 700~1,500만 / 강남 확장·프리미엄형 1,000~2,000만</small> | -0% 지점 | 5,514,000 | +27% |</p>
+| BASIC | <strong>1,490,000</strong> | 1,500,000 ~ 2,500,000<br><small>24~34평 기본 구축 150~250만(참고 조사) / 미소 30평대 200~400만 하단</small> | -1% 지점 | 1,302,000 | +14% |
+| STANDARD | <strong>2,490,000</strong> | 2,000,000 ~ 3,500,000<br><small>20평대 표준 200~350만 / 30평대 200~400만</small> | 33% 지점 | 1,846,000 | +35% |
+| PREMIUM | <strong>5,290,000</strong> | 3,500,000 ~ 7,000,000<br><small>30~40평 아파트 350~700만 / 강남 시작·표준형 300~1,200만</small> | 51% 지점 | 4,693,000 | +13% |
+| FULL HOME | <strong>7,990,000</strong> | 7,000,000 ~ 15,000,000<br><small>프리미엄 700~1,500만 / 강남 확장·프리미엄형 1,000~2,000만</small> | 12% 지점 | 6,628,000 | +21% |</p>
 <h3 id="4-4-1">4-4. 사업자 순이익 — 모델 1 하도급형 (업체가 고객에게 판매, 우리는 업체에 공급)<a class="h-anchor" href="#4-4-1" title="이 절 링크">#</a></h3>
 <p>업체 몫 = 판매 공급가의 15 / 20 / 25 %. 괄호는 공급가 대비 순이익률.
 | 패키지 | 공급가 | 외주 시공 · 업체 15% | 외주 시공 · 업체 20% | 외주 시공 · 업체 25% | 본인 시공 · 업체 15% | 본인 시공 · 업체 20% | 본인 시공 · 업체 25% |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | START | 900,000 | 148,000 (16%) | 103,000 (11%) | 58,000 (6%) | 428,000 (48%) | 383,000 (43%) | 338,000 (38%) |
-| BASIC | 1,355,000 | 234,000 (17%) | 167,000 (12%) | 99,000 (7%) | 634,000 (47%) | 567,000 (42%) | 499,000 (37%) |
-| STANDARD | 2,264,000 | 734,000 (32%) | 621,000 (27%) | 507,000 (22%) | 1,294,000 (57%) | 1,181,000 (52%) | 1,067,000 (47%) |
-| PREMIUM | 4,082,000 | 568,000 (14%) | 363,000 (9%) | 159,000 (4%) | 1,608,000 (39%) | 1,403,000 (34%) | 1,199,000 (29%) |
-| FULL HOME | 6,355,000 | 1,110,000 (17%) | 792,000 (12%) | 474,000 (7%) | 2,630,000 (41%) | 2,312,000 (36%) | 1,994,000 (31%) |</p>
+| BASIC | 1,355,000 | 199,000 (15%) | 131,000 (10%) | 64,000 (5%) | 599,000 (44%) | 531,000 (39%) | 464,000 (34%) |
+| STANDARD | 2,264,000 | 698,000 (31%) | 585,000 (26%) | 472,000 (21%) | 1,258,000 (56%) | 1,145,000 (51%) | 1,032,000 (46%) |
+| PREMIUM | 4,809,000 | 684,000 (14%) | 443,000 (9%) | 203,000 (4%) | 1,844,000 (38%) | 1,603,000 (33%) | 1,363,000 (28%) |
+| FULL HOME | 7,264,000 | 1,137,000 (16%) | 774,000 (11%) | 411,000 (6%) | 2,817,000 (39%) | 2,454,000 (34%) | 2,091,000 (29%) |</p>
 <h3 id="4-5-2-2">4-5. 사업자 순이익 — 모델 2 직접판매형 (우리가 고객 청구, 업체에 소개수수료, 카드수수료 2% 부담)<a class="h-anchor" href="#4-5-2-2" title="이 절 링크">#</a></h3>
 <p>업체 몫 = 판매 공급가의 15 / 20 / 25 %. 괄호는 공급가 대비 순이익률.
 | 패키지 | 공급가 | 외주 시공 · 업체 15% | 외주 시공 · 업체 20% | 외주 시공 · 업체 25% | 본인 시공 · 업체 15% | 본인 시공 · 업체 20% | 본인 시공 · 업체 25% |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | START | 900,000 | 130,000 (14%) | 85,000 (9%) | 40,000 (4%) | 410,000 (46%) | 365,000 (41%) | 320,000 (36%) |
-| BASIC | 1,355,000 | 207,000 (15%) | 140,000 (10%) | 72,000 (5%) | 607,000 (45%) | 540,000 (40%) | 472,000 (35%) |
-| STANDARD | 2,264,000 | 688,000 (30%) | 575,000 (25%) | 462,000 (20%) | 1,248,000 (55%) | 1,135,000 (50%) | 1,022,000 (45%) |
-| PREMIUM | 4,082,000 | 486,000 (12%) | 282,000 (7%) | 78,000 (2%) | 1,526,000 (37%) | 1,322,000 (32%) | 1,118,000 (27%) |
-| FULL HOME | 6,355,000 | 983,000 (15%) | 665,000 (10%) | 347,000 (5%) | 2,503,000 (39%) | 2,185,000 (34%) | 1,867,000 (29%) |
+| BASIC | 1,355,000 | 172,000 (13%) | 104,000 (8%) | 37,000 (3%) | 572,000 (42%) | 504,000 (37%) | 437,000 (32%) |
+| STANDARD | 2,264,000 | 653,000 (29%) | 540,000 (24%) | 427,000 (19%) | 1,213,000 (54%) | 1,100,000 (49%) | 987,000 (44%) |
+| PREMIUM | 4,809,000 | 588,000 (12%) | 347,000 (7%) | 107,000 (2%) | 1,748,000 (36%) | 1,507,000 (31%) | 1,267,000 (26%) |
+| FULL HOME | 7,264,000 | 992,000 (14%) | 628,000 (9%) | 265,000 (4%) | 2,672,000 (37%) | 2,308,000 (32%) | 1,945,000 (27%) |
 - 순이익 = 공급가 − 원가 − A/S 준비금(5%) − 업체 몫(− 카드수수료). '본인 시공'은 설치·설계를 직접 해서 그 인건비가 본인 수입이 된 경우(순이익에 인건비 포함).</p>
 <h3 id="4-6-0">4-6. 손익분기 판매가 (순이익 0, 부가세 포함)<a class="h-anchor" href="#4-6-0" title="이 절 링크">#</a></h3>
 <div class="tbl"><table>
@@ -1470,42 +1673,42 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <tr>
 <td>BASIC</td>
 <td>1,490,000</td>
-<td>1,168,000</td>
-<td>1,246,000</td>
-<td>1,335,000</td>
-<td>618,000</td>
-<td>659,000</td>
-<td>706,000</td>
+<td>1,216,000</td>
+<td>1,297,000</td>
+<td>1,390,000</td>
+<td>666,000</td>
+<td>711,000</td>
+<td>761,000</td>
 </tr>
 <tr>
 <td>STANDARD</td>
 <td>2,490,000</td>
-<td>1,481,000</td>
-<td>1,580,000</td>
-<td>1,693,000</td>
-<td>711,000</td>
-<td>759,000</td>
-<td>813,000</td>
+<td>1,530,000</td>
+<td>1,632,000</td>
+<td>1,748,000</td>
+<td>760,000</td>
+<td>810,000</td>
+<td>868,000</td>
 </tr>
 <tr>
 <td>PREMIUM</td>
-<td>4,490,000</td>
-<td>3,710,000</td>
-<td>3,957,000</td>
-<td>4,240,000</td>
-<td>2,280,000</td>
-<td>2,432,000</td>
-<td>2,605,000</td>
+<td>5,290,000</td>
+<td>4,350,000</td>
+<td>4,640,000</td>
+<td>4,971,000</td>
+<td>2,755,000</td>
+<td>2,939,000</td>
+<td>3,148,000</td>
 </tr>
 <tr>
 <td>FULL HOME</td>
-<td>6,990,000</td>
-<td>5,464,000</td>
-<td>5,828,000</td>
-<td>6,245,000</td>
-<td>3,374,000</td>
-<td>3,599,000</td>
-<td>3,856,000</td>
+<td>7,990,000</td>
+<td>6,427,000</td>
+<td>6,855,000</td>
+<td>7,345,000</td>
+<td>4,117,000</td>
+<td>4,391,000</td>
+<td>4,705,000</td>
 </tr>
 </tbody>
 </table></div>
@@ -1534,33 +1737,33 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <td>BASIC</td>
 <td>1</td>
 <td>1,355,000</td>
-<td>167,000</td>
+<td>131,000</td>
 <td>400,000</td>
-<td>567,000</td>
+<td>531,000</td>
 </tr>
 <tr>
 <td>STANDARD</td>
 <td>2</td>
 <td>4,527,000</td>
-<td>1,241,000</td>
+<td>1,170,000</td>
 <td>1,120,000</td>
-<td>2,361,000</td>
+<td>2,290,000</td>
 </tr>
 <tr>
 <td>PREMIUM</td>
 <td>1</td>
-<td>4,082,000</td>
-<td>363,000</td>
-<td>1,040,000</td>
-<td>1,403,000</td>
+<td>4,809,000</td>
+<td>443,000</td>
+<td>1,160,000</td>
+<td>1,603,000</td>
 </tr>
 <tr>
 <td><strong>합계</strong></td>
 <td>5</td>
-<td>10,864,000</td>
-<td>1,874,000</td>
-<td>2,840,000</td>
-<td><strong>4,714,000</strong></td>
+<td>11,591,000</td>
+<td>1,848,000</td>
+<td>2,960,000</td>
+<td><strong>4,808,000</strong></td>
 </tr>
 </tbody>
 </table></div>
@@ -1575,14 +1778,20 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 | 온습도 센서 | 15,000 | 29,000 | 10,000 | 5,000 | 5,000 | <strong>35,000</strong> | 49,000 |
 | 누수 센서 | 10,000 | 44,000 | 10,000 | 10,000 | 5,000 | <strong>35,000</strong> | 69,000 |
 | 스마트 플러그 (전력측정) | 15,000 | 43,000 | 10,000 | 10,000 | 5,000 | <strong>40,000</strong> | 68,000 |
-| 전동 커튼 모터 (레일 기존) | 127,000 | 139,000 | 140,000 | 20,000 | 10,000 | <strong>297,000</strong> | 309,000 |
+| 전동 커튼 1창 (마마바 맞춤 레일 + 유선 Wi-Fi 모터, 커튼 원단 별도) | 160,000 | 230,000 | 100,000 | 20,000 | 10,000 | <strong>290,000</strong> | 360,000 |
+| 전동 블라인드 1창 (마마바 모터 + 롤스크린) | 109,000 | 154,000 | 60,000 | 20,000 | 10,000 | <strong>199,000</strong> | 244,000 |
+| 구형 가전 리모컨 허브 (Tapo H110 IR 학습, RF 리모컨 가전은 Broadlink RM4 Pro 로 교체) | 39,000 | 59,000 | 10,000 | 30,000 | 10,000 | <strong>89,000</strong> | 109,000 |
 | 실내 CCTV | 92,000 | 92,000 | 30,000 | 10,000 | 10,000 | <strong>142,000</strong> | 142,000 |
 | 스마트 도어락 (신규 설치) | 342,000 | 426,000 | 80,000 | 20,000 | 10,000 | <strong>452,000</strong> | 536,000 |
 | 도어락 · 가전 계정 연동 (보유 기기 1종) | - | - | 0 | 25,000 | 5,000 | <strong>30,000</strong> | 30,000 |
 | 생활 장면 자동화 1개 (외출·귀가·취침 등) | - | - | 0 | 30,000 | 10,000 | <strong>40,000</strong> | 40,000 |
 | Aqara 허브 M3 (Matter · IR 리모컨 통합) | 172,000 | 253,000 | 30,000 | 30,000 | 10,000 | <strong>242,000</strong> | 323,000 |
 | 메시 Wi-Fi 1세트 설치 · 최적화 | 210,000 | 259,000 | 80,000 | 20,000 | 10,000 | <strong>320,000</strong> | 369,000 |
-| 세대 HA 서버 (N100 미니PC) 구축 | 219,000 | 329,000 | 100,000 | 100,000 | 20,000 | <strong>439,000</strong> | 549,000 |</p>
+| 세대 HA 서버 (N100 미니PC) 구축 | 219,000 | 329,000 | 100,000 | 100,000 | 20,000 | <strong>439,000</strong> | 549,000 |
+| 벽면 태블릿 대시보드 — 태블릿 본체 + 키오스크·방별 화면 구성 | 200,000 | 360,000 | 20,000 | 60,000 | 10,000 | <strong>290,000</strong> | 450,000 |
+| 벽면 태블릿 — 벽 거치대 설치 | 26,000 | 42,000 | 20,000 | 0 | 0 | <strong>46,000</strong> | 62,000 |
+| 벽면 태블릿 — USB 매립 콘센트 (전기공사 단계) | 38,000 | 64,000 | 30,000 | 0 | 0 | <strong>68,000</strong> | 94,000 |
+| 벽면 태블릿 — 키오스크 앱 라이선스 | 12,000 | 12,000 | 0 | 0 | 0 | <strong>12,000</strong> | 12,000 |</p>
 <!-- /SECTION:BOM -->
 
 <hr />
@@ -1591,12 +1800,12 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <ul>
 <li><strong>가격 검증 범위</strong>: 다나와·공식몰은 직접 확인, 쿠팡은 봇 차단으로 다나와 가격비교 표·가격추적 스니펫으로 대체. IKEA·Tapo·Aqara P2 단가는 2-10 에서 공식몰로 재확인 완료. ThingsOne T1 CCTV(92,000)와 Aqara M3 137,500 · 열림 P2 39,688 참고치는 재현되지 않아 "확인 불가".</li>
 <li><strong>IKEA 센서의 SmartThings Station 직접 페어링은 공식 보증 미확인</strong>(Thread 보더 라우터 필요로만 안내). PoC 첫 세대에서 실측 후 표준 확정. 실패 시 DIRIGERA(149,000) 추가 또는 Aqara T1 계열로 대체 → BASIC 기기 원가 +10~15만.</li>
-<li><strong>경쟁사 실견적 부재</strong>: 헤이홈·한샘·삼성·LG·코맥스·코콤·스타트홈·와츠매터는 공개 가격이 없다. 미소 가격대는 SEO 가이드, 클리앙 2,000만원은 개인 사례 1건. <strong>34평 도면으로 3~4곳 미스터리 쇼핑(견적 요청)</strong> 이 다음 단계.</li>
+<li><strong>경쟁사 실견적 부재</strong>: 헤이홈·한샘·삼성·LG·코맥스·코콤·스타트홈·와츠매터는 공개 가격이 없다. 미소 가격대는 SEO 가이드, 클리앙 2,000만원은 개인 사례 1건. <strong>표준 도면(거실·주방·현관·안방·침실 2)으로 3~4곳 미스터리 쇼핑(견적 요청)</strong> 이 다음 단계.</li>
 <li><strong>인건비 가정</strong>: 외주 시간당 4만원은 조사치(전기기술자 5~10만/시간, 아카라 스위치 설치 5만/개)보다 낮다. 외주 단가가 6만원이면 START·BASIC 외주 마진은 0 이하 → 초기는 본인 시공, 외주는 STANDARD 이상에서만.</li>
 <li><strong>무중성선·중성선 공사</strong>: Aqara 무중성선 2구는 구형 재고분이며 저와트 LED 깜빡임 가능. 중성선 추가 공사(개소당 5~10만원)가 필요한 세대는 견적에 별도 항목(4-8 단가표 미포함).</li>
 <li><strong>재고</strong>: 품절·단종 SKU 가 많아(아카라 H1·T1·M3 공식몰, 시하스, 헤이홈 피카, HA Yellow) 견적 시점마다 대체 모델을 확인해야 한다.</li>
 <li><strong>법규·세무 미반영</strong>: 전기공사업·정보통신공사업 등록 범위, 부가세 신고 방식, 카드 매출 세액공제는 이 문서 범위 밖. 하도급형(모델 1)은 업체와 세금계산서 거래라 카드수수료가 없다.</li>
-<li><strong>다음 할 일</strong>: (1) 34평 도면 기준 방별 배치도(거실·주방·현관·안방·침실2·침실3)와 영업용 견적서 양식(4-8 단가표 기반), (2) 미스터리 쇼핑 3곳, (3) IKEA 센서 ↔ Station 페어링 실측, (4) 인테리어 업체 1곳과 PoC 가격 협의(업체 몫 20% 제안), (5) 웹사이트 패키지 화면에 5단계 가격 반영.</li>
+<li><strong>다음 할 일</strong>: (1) 표준 도면 기준 방별 배치도(거실·주방·현관·안방·침실2·침실3)와 영업용 견적서 양식(4-8 단가표 기반), (2) 미스터리 쇼핑 3곳, (3) IKEA 센서 ↔ Station 페어링 실측, (4) 인테리어 업체 1곳과 PoC 가격 협의(업체 몫 20% 제안), (5) 웹사이트 패키지 화면에 5단계 가격 반영.</li>
 </ul>
 <!-- /SECTION:LIMITS --></article>
 </div>
