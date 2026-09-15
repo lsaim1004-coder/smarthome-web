@@ -222,7 +222,7 @@ def build_index() -> None:
   <p class="sub">Smart Home Option Service 를 준비하면서 만든 자료를 한곳에 모았습니다. 숫자는 2026-09-11 조사 기준입니다.</p>
   <div class="cards">
     <a class="card" href="/docs/estimate-brief.html"><span class="tag hot">견적 브리프</span><h2>34평 스마트홈, 얼마에 팔아야 남을까</h2>
-      <p>5단계 가격(99~699만원), 원가와 시장 위치, 한 건당 순이익, 월 시나리오를 그림으로 한 장에 정리한 요약본.</p><span class="meta">8개 섹션 · 읽는 시간 5분</span></a>
+      <p>시공을 넘긴 현행 모델 기준. 우리 청구액 5단계(79~539만원), 고객 총부담, 한 건당 순이익, 월 시나리오, 케어 구독을 그림으로 한 장에 정리한 요약본.</p><span class="meta">11개 섹션 · 읽는 시간 6분 · 2026-09-13 개정</span></a>
     <a class="card" href="/docs/estimate.html"><span class="tag">견적 상세</span><h2>시장 조사 및 구성 원가 전문</h2>
       <p>기존 시공업체 견적, 다나와·쿠팡·공식몰 품목 단가, 세대 HA·중앙 관제 서버 2트랙, 패키지별 원가·수익표, 조사 한계.</p><span class="meta">5장 · 표 30여 개 · 출처 링크 포함</span></a>
   </div>

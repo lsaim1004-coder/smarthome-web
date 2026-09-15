@@ -7,9 +7,9 @@ const STEPS: Step[] = [
   { n: 2, title: '스마트홈 옵션 선택', owner: 'both', who: '업체 + 스마트홈' },
   { n: 3, title: '전기 · 통신 설계', owner: 'ours', who: '스마트홈 담당' },
   { n: 4, title: '인테리어 공사', owner: 'interior', who: '인테리어 업체' },
-  { n: 5, title: 'IoT 설치 · 배선', owner: 'ours', who: '스마트홈 담당' },
+  { n: 5, title: '기기 설치 · 배선', owner: 'interior', who: '업체 전기팀' },
   { n: 6, title: '가전 입고', owner: 'customer', who: '고객' },
-  { n: 7, title: '계정 연동 · 통합', owner: 'ours', who: '스마트홈 담당' },
+  { n: 7, title: '프로그램 설치 · 연동', owner: 'ours', who: '스마트홈 담당' },
   { n: 8, title: '입주', owner: 'customer', who: '고객' },
   { n: 9, title: '자동화 세팅 · 교육', owner: 'ours', who: '스마트홈 담당' },
   { n: 10, title: 'A/S · 스마트홈 케어', owner: 'ours', who: '스마트홈 담당' },
@@ -37,17 +37,18 @@ export default function ServiceFlow() {
             <li>고객에게 옵션 3종 제안</li>
             <li>견적서에 옵션 항목 반영</li>
             <li>공정 일정 공유</li>
+            <li>전기팀 시공 (스위치 · 커튼 · 도어락)</li>
           </ul>
         </article>
         <article className="actor main">
           <span className="arrow-label">옵션 의뢰</span>
           <span className="actor-tag">스마트홈 전문업체</span>
-          <h3>설계부터 A/S까지</h3>
-          <p>IoT 기술 · 시공 · 후처리를 한 곳에서</p>
+          <h3>설계 · 기기 · 프로그램 설치</h3>
+          <p>벽을 여는 일만 빼고 전부</p>
           <ul>
             <li>사전 설계 · 제품 선정</li>
-            <li>Wi-Fi · 네트워크 구축</li>
-            <li>IoT 설치 · 계정 연동</li>
+            <li>Wi-Fi 음영 측정 · 최적화</li>
+            <li>프로그램 설치 · 계정 연동</li>
             <li>자동화 · 장면 설정</li>
             <li>입주 후 세팅 · 교육</li>
             <li>A/S · 유지관리</li>
