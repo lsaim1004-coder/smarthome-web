@@ -5,6 +5,7 @@
 입력
   docs/견적.md                          → /docs/estimate.html   (markdown → HTML, 목차 포함)
   docs/site/estimate-brief.fragment.html → /docs/estimate-brief.html (Artifact 조각을 완전한 문서로 감싼다)
+  docs/제안서-인테리어업체.md              → /docs/proposal.html   (markdown → HTML, 인쇄용 @media print 포함)
 출력은 커밋해서 Docker 빌드에 Python 이 필요 없게 한다.
 """
 from __future__ import annotations
@@ -27,6 +28,7 @@ NAV_LINKS = [
     ("/docs/", "자료"),
     ("/docs/estimate-brief.html", "견적 브리프"),
     ("/docs/estimate.html", "견적 상세"),
+    ("/docs/proposal.html", "업체 제안서"),
     ("/login", "로그인"),
 ]
 
@@ -165,10 +167,28 @@ article ul,article ol{padding-left:22px}
 .h-anchor{color:var(--line);text-decoration:none;margin-left:6px;font-weight:400}
 h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 @media (min-width:960px){.doc{grid-template-columns:240px 1fr;align-items:start}.doc-head{grid-column:1/-1}.toc{position:sticky;top:66px;max-height:calc(100vh - 90px);overflow:auto}}
+@media print{
+  @page{size:A4;margin:14mm 16mm}
+  body{background:#fff}
+  .site-nav,.site-foot,.toc,.h-anchor{display:none!important}
+  .doc{display:block;padding:0;max-width:none}
+  .doc-head{border-radius:0;padding:0 0 10px;background:none;color:#000;border-bottom:2px solid #000;margin-bottom:12px}
+  .doc-head .kicker{color:#000}.doc-head p{color:#333}
+  article{border:0;box-shadow:none;padding:0;border-radius:0}
+  article h2{margin:18px 0 8px;padding-top:8px;border-top:1px solid #000;font-size:16px;page-break-after:avoid}
+  article p,article li,article table{font-size:11.5px;color:#000}
+  article table{min-width:0}article th{position:static;background:#eee}
+  .tbl{border:0;overflow:visible;page-break-inside:avoid}
+  article blockquote{background:none;border-left:3px solid #000;color:#000}
+  a{color:inherit;text-decoration:none}
+}
 """
 
 
-def build_markdown(src: Path, out_name: str, current: str) -> str:
+def build_markdown(src: Path, out_name: str, current: str,
+                   desc: str = "2026-09-11 시장 조사 · 원가 · 판매가 · 사업자 수익. 원문은 저장소 <code>docs/견적.md</code>, 계산은 <code>tools/estimate.py</code>.",
+                   note: str = "가격은 조사 시점(2026-09-11) 값이며 수시로 바뀝니다.",
+                   kicker: str = "Smart Home Option Service · 자료") -> str:
     text = src.read_text(encoding="utf-8")
     # 첫 줄 제목과 인용 요약 분리
     lines = text.split(NL)
@@ -182,13 +202,12 @@ def build_markdown(src: Path, out_name: str, current: str) -> str:
     html = re.sub(r"</table>", "</table></div>", html)
     toc = md.toc.replace('<div class="toc">', '<div class="toc-list">')  # type: ignore[attr-defined]
     body = f"""<div class="doc">
-  <div class="doc-head"><div class="kicker">Smart Home Option Service · 자료</div><h1>{title}</h1>
-  <p>2026-09-11 시장 조사 · 원가 · 판매가 · 사업자 수익. 원문은 저장소 <code>docs/견적.md</code>, 계산은 <code>tools/estimate.py</code>.</p></div>
+  <div class="doc-head"><div class="kicker">{kicker}</div><h1>{title}</h1>
+  <p>{desc}</p></div>
   <aside class="toc"><h2>목차</h2>{toc}</aside>
   <article>{html}</article>
 </div>"""
-    out = page(f"{title} · Smart Home Option", f"<style>{MD_CSS}</style>", body, current,
-               "가격은 조사 시점(2026-09-11) 값이며 수시로 바뀝니다.")
+    out = page(f"{title} · Smart Home Option", f"<style>{MD_CSS}</style>", body, current, note)
     (OUT / out_name).write_text(out, encoding="utf-8", newline=NL)
     return out_name
 
@@ -222,9 +241,11 @@ def build_index() -> None:
   <p class="sub">Smart Home Option Service 를 준비하면서 만든 자료를 한곳에 모았습니다. 숫자는 2026-09-11 조사 기준입니다.</p>
   <div class="cards">
     <a class="card" href="/docs/estimate-brief.html"><span class="tag hot">견적 브리프</span><h2>스마트홈 패키지, 얼마에 팔아야 남을까</h2>
-      <p>5단계 가격(99~799만원), 원가와 시장 위치, 한 건당 순이익, 월 시나리오를 그림으로 한 장에 정리한 요약본.</p><span class="meta">8개 섹션 · 읽는 시간 5분</span></a>
+      <p>시공을 넘긴 현행 모델 기준. 우리 청구액 5단계(79~619만원), 고객 총부담, 한 건당 순이익, 월 시나리오, 케어 구독을 그림으로 한 장에 정리한 요약본.</p><span class="meta">11개 섹션 · 읽는 시간 6분 · 2026-09-16 개정</span></a>
     <a class="card" href="/docs/estimate.html"><span class="tag">견적 상세</span><h2>시장 조사 및 구성 원가 전문</h2>
       <p>기존 시공업체 견적, 다나와·쿠팡·공식몰 품목 단가, 세대 HA·중앙 관제 서버 2트랙, 패키지별 원가·수익표, 조사 한계.</p><span class="meta">5장 · 표 30여 개 · 출처 링크 포함</span></a>
+    <a class="card" href="/docs/proposal.html"><span class="tag aside">업체 제안서</span><h2>인테리어 업체에 드리는 스마트홈 옵션 제안</h2>
+      <p>업체가 걱정하는 네 가지(공정·전화·하자·재고)에 대한 약속, 5단계 가격과 시공비 분리, 업체에 남는 수수료, 진행 순서, PoC 제안. 인쇄하면 A4 2장.</p><span class="meta">A4 2장 · 미팅용 · 2026-09-15 초안</span></a>
   </div>
 </div>"""
     out = page("자료 · Smart Home Option", f"<style>{INDEX_CSS}</style>", body, "/docs/", "Smart Home Option Service · 시범 운영 중")
@@ -237,6 +258,10 @@ def main() -> None:
         build_markdown(ROOT / "docs" / "견적.md", "estimate.html", "/docs/estimate.html"),
         wrap_fragment(ROOT / "docs" / "site" / "estimate-brief.fragment.html", "estimate-brief.html", "/docs/estimate-brief.html",
                       "원문 docs/견적.md · 계산 tools/estimate.py · 가격은 조사 시점(2026-09-11) 값"),
+        build_markdown(ROOT / "docs" / "제안서-인테리어업체.md", "proposal.html", "/docs/proposal.html",
+                       desc="인테리어 업체에 드리는 스마트홈 옵션 제안. A4 2장 분량이며 브라우저 인쇄로 그대로 출력됩니다. 원문은 저장소 <code>docs/제안서-인테리어업체.md</code>.",
+                       note="가격은 부가세 포함, 2026-09-16 개정 모델(거실·주방·현관·안방·침실 2 구성 기준). 시공비는 표준 시공 시간 기준 참고값입니다.",
+                       kicker="Smart Home Option Service · 제안서"),
     ]
     build_index()
     for name in made + ["index.html"]:
