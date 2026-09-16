@@ -64,6 +64,7 @@ services:
       APP_INTERNAL_KEY: ${APP_INTERNAL_KEY:?set APP_INTERNAL_KEY in .env}
     volumes:
       - uploads:/data/uploads
+      - keys:/data/keys
     depends_on:
       db:
         condition: service_healthy
@@ -112,6 +113,9 @@ services:
       # 사진 파일은 접수를 받은 backend 쪽 볼륨에만 있다. 필요할 때 내부망으로 받아 흘린다.
       APP_INTERNAL_KEY: ${APP_INTERNAL_KEY}
       APP_PUBLIC_API_URL: http://backend:8080
+    volumes:
+      # 비밀번호 서버키는 두 컨테이너가 같은 것을 봐야 한다. 로그인은 양쪽에서 확인할 수 있어야 하기 때문.
+      - keys:/data/keys
     depends_on:
       db:
         condition: service_healthy
@@ -139,6 +143,7 @@ services:
 volumes:
   dbdata:
   uploads:
+  keys:
 
 networks:
   internal:
