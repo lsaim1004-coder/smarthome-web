@@ -16,6 +16,7 @@ import {
   CSpinner,
 } from '@coreui/react'
 import { api, errorMessage, stamp } from '../api'
+import CopyText from '../components/CopyText'
 import { useAuth } from '../auth/AuthContext'
 import {
   ANALYSIS_SOURCES,
@@ -452,6 +453,7 @@ function ApplianceCard({ appliance, onSaved }: { appliance: Appliance; onSaved: 
           <dt className="col-4 text-body-secondary">신청자 기재</dt>
           <dd className="col-8">
             {labelOf(BRANDS, appliance.brand)} {appliance.modelName || '(모델명 없음)'}
+            <CopyText value={appliance.modelName} label="신청자가 적은 모델명" />
             <span className="text-body-secondary"> · {labelOf(PURCHASED, appliance.purchased)}</span>
           </dd>
           <dt className="col-4 text-body-secondary">판별 근거</dt>
@@ -485,7 +487,10 @@ function ApplianceCard({ appliance, onSaved }: { appliance: Appliance; onSaved: 
 
         <CRow className="g-2">
           <CCol xs={12}>
-            <label className="form-label small text-body-secondary">확인된 모델명</label>
+            <label className="form-label small text-body-secondary">
+              확인된 모델명
+              <CopyText value={detectedModel} label="확인된 모델명" />
+            </label>
             <CFormInput value={detectedModel} onChange={(e) => setDetectedModel(e.target.value)} />
           </CCol>
           <CCol xs={6}>

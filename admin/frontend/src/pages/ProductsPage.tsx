@@ -25,6 +25,7 @@ import {
   CTableRow,
 } from '@coreui/react'
 import { api, errorMessage } from '../api'
+import CopyText from '../components/CopyText'
 import { SHOT_KINDS } from '../data/labels'
 import type { Catalog, ProductRow } from '../data/types'
 
@@ -139,6 +140,7 @@ export default function ProductsPage() {
                   <CTableDataCell>{p.brand}</CTableDataCell>
                   <CTableDataCell>
                     {p.model}
+                    <CopyText value={p.model} label="제품 모델명" />
                     <div className="small text-body-secondary">{p.kind}</div>
                   </CTableDataCell>
                   <CTableDataCell className="small">{p.role}</CTableDataCell>

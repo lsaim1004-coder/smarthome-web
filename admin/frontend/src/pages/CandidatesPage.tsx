@@ -18,6 +18,7 @@ import {
   CTableRow,
 } from '@coreui/react'
 import { api, errorMessage, stamp } from '../api'
+import CopyText from '../components/CopyText'
 import {
   ANALYSIS_SOURCES,
   APPLIANCE_KINDS,
@@ -114,8 +115,9 @@ export default function CandidatesPage() {
                         {labelOf(APPLIANCE_KINDS, c.appliance.kind)}
                         <span className="text-body-secondary small"> · {labelOf(BRANDS, c.appliance.brand)}</span>
                       </CTableDataCell>
-                      <CTableDataCell className="small">
+                      <CTableDataCell className="small text-nowrap">
                         {c.appliance.detectedModel || c.appliance.modelName || '-'}
+                        <CopyText value={c.appliance.detectedModel || c.appliance.modelName} label="모델명" />
                       </CTableDataCell>
                       <CTableDataCell>{labelOf(ERAS, c.appliance.era)}</CTableDataCell>
                       <CTableDataCell>
