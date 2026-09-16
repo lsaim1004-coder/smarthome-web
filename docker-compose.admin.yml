@@ -1,0 +1,56 @@
+name: smarthome-admin
+
+# 관리자 (LXC 112 · iot-admin.kiwan.kr)
+#
+# 백엔드는 공개 서버와 같은 소스·같은 Dockerfile 이고 APP_ROLE=admin 으로만 다르게 뜬다.
+# DB 는 따로 두지 않는다 — 공개 서버(LXC 111)의 PostgreSQL 을 LAN 으로 본다.
+# 사진 파일도 복사하지 않는다. 필요할 때 공개 서버에서 받아 흘리고, 지울 때도 거기서 지운다.
+
+services:
+  admin-api:
+    build: ./backend
+    image: smarthome-admin/api:0.7.0
+    container_name: smarthome-admin-api
+    restart: unless-stopped
+    environment:
+      APP_ROLE: admin
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST:?set DB_HOST in .env}:5432/smarthome
+      SPRING_DATASOURCE_USERNAME: smarthome
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      TZ: Asia/Seoul
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=60 -Duser.timezone=Asia/Seoul"
+      APP_BASE_URL: ${APP_BASE_URL:-https://iot.kiwan.kr}
+      APP_ADMIN_URL: ${APP_ADMIN_URL:-https://iot-admin.kiwan.kr}
+      # 이 주소들이 운영자(OWNER)다. 나머지는 등록된 업체 담당자만 가입할 수 있다.
+      APP_ADMIN_EMAILS: ${APP_ADMIN_EMAILS:-}
+      APP_MAIL_MODE: ${APP_MAIL_MODE:-log}
+      APP_MAIL_HOST: ${APP_MAIL_HOST:-}
+      APP_MAIL_PORT: ${APP_MAIL_PORT:-587}
+      APP_MAIL_USERNAME: ${APP_MAIL_USERNAME:-}
+      APP_MAIL_PASSWORD: ${APP_MAIL_PASSWORD:-}
+      APP_MAIL_FROM: ${APP_MAIL_FROM:-no-reply@kiwan.kr}
+      APP_MAIL_STARTTLS: ${APP_MAIL_STARTTLS:-true}
+      # 공개 서버의 사진 통로. 공유 키는 양쪽이 같아야 한다.
+      APP_INTERNAL_KEY: ${APP_INTERNAL_KEY:?set APP_INTERNAL_KEY in .env}
+      APP_PUBLIC_API_URL: ${APP_PUBLIC_API_URL:?set APP_PUBLIC_API_URL in .env}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/api/health >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    networks: [internal]
+
+  admin-web:
+    build: ./admin/frontend
+    image: smarthome-admin/web:0.7.0
+    container_name: smarthome-admin-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - admin-api
+    networks: [internal]
+
+networks:
+  internal:

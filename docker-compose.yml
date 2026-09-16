@@ -1,5 +1,8 @@
 name: smarthome-web
 
+# 공개 사이트 (LXC 111 · iot.kiwan.kr)
+# 관리자는 별도 LXC 112 에서 docker-compose.admin.yml 로 돈다. 둘은 같은 DB 를 본다.
+
 services:
   db:
     image: postgres:16-alpine
@@ -13,6 +16,10 @@ services:
       PGTZ: Asia/Seoul
     volumes:
       - dbdata:/var/lib/postgresql/data
+    # 관리자 서버가 LAN 으로 붙는다. DB_BIND 를 이 호스트의 LAN 주소로 두면 그 주소에서만 열린다.
+    # 공인망에는 포워딩되어 있지 않다. 비워 두면 루프백에만 열린다.
+    ports:
+      - "${DB_BIND:-127.0.0.1}:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U smarthome -d smarthome"]
       interval: 10s
@@ -22,17 +29,20 @@ services:
 
   backend:
     build: ./backend
-    image: smarthome-web/backend:0.6.2
+    image: smarthome-web/backend:0.7.0
     container_name: smarthome-backend
     restart: unless-stopped
     environment:
+      # public 프로필: 로그인 없이 소개·접수만. 관리자 API 는 이 서버에 뜨지 않는다.
+      APP_ROLE: public
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/smarthome
       SPRING_DATASOURCE_USERNAME: smarthome
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       TZ: Asia/Seoul
       JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=60 -Duser.timezone=Asia/Seoul"
       APP_BASE_URL: ${APP_BASE_URL:-http://localhost}
-      # 관리자 이메일(콤마 구분). 상담 신청 알림을 받고 /admin/inquiries 목록을 볼 수 있다
+      APP_ADMIN_URL: ${APP_ADMIN_URL:-https://iot-admin.kiwan.kr}
+      # 상담 접수 알림을 받을 이메일(콤마 구분). 이 주소로 관리자 계정을 만들 수 있다.
       APP_ADMIN_EMAILS: ${APP_ADMIN_EMAILS:-}
       # 메일: log(개발, 인증번호를 로그·응답에 표시) | smtp(실제 발송)
       APP_MAIL_MODE: ${APP_MAIL_MODE:-log}
@@ -43,8 +53,18 @@ services:
       APP_MAIL_FROM: ${APP_MAIL_FROM:-no-reply@example.com}
       APP_MAIL_STARTTLS: ${APP_MAIL_STARTTLS:-true}
       APP_UPLOAD_DIR: /data/uploads
+      # 가전 사진 자동판별. 키가 없으면 구매시기·브랜드 규칙으로만 채운다.
+      APP_ANALYSIS_ENABLED: ${APP_ANALYSIS_ENABLED:-true}
+      APP_ANALYSIS_API_KEY: ${APP_ANALYSIS_API_KEY:-}
+      APP_ANALYSIS_MODEL: ${APP_ANALYSIS_MODEL:-claude-sonnet-5}
+      APP_ANALYSIS_PURGE_AFTER: ${APP_ANALYSIS_PURGE_AFTER:-true}
+      # 관리자 서버가 사진을 가져갈 때 쓰는 공유 키. 양쪽 .env 가 같은 값이어야 한다.
+      APP_INTERNAL_KEY: ${APP_INTERNAL_KEY:-}
     volumes:
       - uploads:/data/uploads
+    # 관리자 서버가 사진을 가져가는 통로. DB 와 같은 이유로 LAN 주소에만 연다.
+    ports:
+      - "${API_BIND:-127.0.0.1}:8081:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -58,7 +78,7 @@ services:
 
   frontend:
     build: ./frontend
-    image: smarthome-web/frontend:0.6.2
+    image: smarthome-web/frontend:0.7.0
     container_name: smarthome-frontend
     restart: unless-stopped
     ports:

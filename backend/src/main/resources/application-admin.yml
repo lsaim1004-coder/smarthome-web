@@ -1,0 +1,18 @@
+# 관리자 서버(iot-admin.kiwan.kr) 전용 설정.
+# 공개 서버와 같은 이미지를 APP_ROLE=admin 으로 띄운 것이라 다른 점만 적는다.
+spring:
+  sql:
+    init:
+      # 스키마는 공개 서버가 만든다. 두 곳에서 동시에 돌리면 배포 순서에 따라 엇갈린다.
+      mode: never
+
+server:
+  servlet:
+    session:
+      cookie:
+        # 공개 사이트와 쿠키 이름을 나눠 둔다. 도메인이 달라 섞일 일은 없지만 로그에서 구분된다.
+        name: SHADMIN
+
+logging:
+  level:
+    kr.kiwan.smarthome: INFO

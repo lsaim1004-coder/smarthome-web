@@ -1,19 +1,17 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { AuthProvider } from './auth/AuthContext'
+import { CatalogProvider } from './data/catalog'
 import Header from './components/Header'
 import WelcomePage from './pages/WelcomePage'
 import PackagesPage from './pages/PackagesPage'
 import ContactPage from './pages/ContactPage'
-import AdminInquiriesPage from './pages/AdminInquiriesPage'
-import AdminDevicesPage from './pages/AdminDevicesPage'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import VerifyPage from './pages/VerifyPage'
-import MePage from './pages/MePage'
 
+/**
+ * 공개 사이트에는 로그인이 없다.
+ * 로그인해서 보던 것(신청 관리 · 연동 후보 · 자료실)은 관리자 서버(iot-admin.kiwan.kr)로 옮겼다.
+ */
 export default function App() {
   return (
-    <AuthProvider>
+    <CatalogProvider>
       <div className="page">
         <Header />
         <main>
@@ -21,12 +19,6 @@ export default function App() {
             <Route path="/" element={<WelcomePage />} />
             <Route path="/packages" element={<PackagesPage />} />
             <Route path="/contact" element={<ContactPage />} />
-            <Route path="/admin/inquiries" element={<AdminInquiriesPage />} />
-            <Route path="/admin/devices" element={<AdminDevicesPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/verify" element={<VerifyPage />} />
-            <Route path="/me" element={<MePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
@@ -35,6 +27,6 @@ export default function App() {
           <span>Proxmox LXC 111 · docker compose (frontend / backend / db)</span>
         </footer>
       </div>
-    </AuthProvider>
+    </CatalogProvider>
   )
 }

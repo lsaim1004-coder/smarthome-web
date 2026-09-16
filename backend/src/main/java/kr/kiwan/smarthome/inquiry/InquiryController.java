@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import kr.kiwan.smarthome.inquiry.InquiryDtos.CreateRequest;
 import kr.kiwan.smarthome.inquiry.InquiryDtos.CreateResponse;
 
 /** 상담 신청 접수. 로그인 없이도 보낼 수 있다(요청 제한은 nginx 의 inquiry zone). */
+@Profile("public")
 @RestController
 @RequestMapping("/api/inquiries")
 public class InquiryController {

@@ -1,11 +1,10 @@
 import { Link } from 'react-router-dom'
-import { useAuth } from '../auth/AuthContext'
 import ProductShot from '../components/ProductShot'
 import IotArchitecture from '../components/IotArchitecture'
 import EnergyBoard from '../components/EnergyBoard'
 import ServiceFlow from '../components/ServiceFlow'
-import { PACKAGES, priceLabel } from '../data/packages'
-import { PRODUCTS } from '../data/products'
+import { priceLabel } from '../data/packages'
+import { useCatalog } from '../data/catalog'
 
 export function formatTime(iso: string | Date): string {
   const date = typeof iso === 'string' ? new Date(iso) : iso
@@ -20,7 +19,6 @@ const FACTS = [
 ]
 
 function Hero() {
-  const { user, loading } = useAuth()
   return (
     <section className="hero">
       <div className="hero-bg" aria-hidden="true">
@@ -45,7 +43,6 @@ function Hero() {
             패키지 보기
           </Link>
         </p>
-        {!loading && user ? <p className="hero-greet">{user.name || user.email} 님, 반갑습니다.</p> : null}
       </div>
     </section>
   )
@@ -155,6 +152,8 @@ function Roles() {
 }
 
 function Products() {
+  const { products: PRODUCTS } = useCatalog()
+
   return (
     <section className="products">
       <div className="devices-head">
@@ -191,6 +190,8 @@ function Products() {
 }
 
 function PackageTeaser() {
+  const { packages: PACKAGES } = useCatalog()
+
   return (
     <section className="teaser">
       <div className="teaser-head">

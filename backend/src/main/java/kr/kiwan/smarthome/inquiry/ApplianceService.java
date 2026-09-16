@@ -196,15 +196,96 @@ public class ApplianceService {
         return repo.findCandidates(normalized, pendingOnly, Math.min(Math.max(limit, 1), 200));
     }
 
-    public ApplianceResponse analyze(long id, AnalyzeRequest req) {
-        repo.findApplianceById(id).orElseThrow(() ->
+    public ApplianceResponse get(long id) {
+        return repo.findApplianceById(id).orElseThrow(() ->
                 new ApiException(HttpStatus.NOT_FOUND, "NOT_FOUND", "가전 정보를 찾을 수 없습니다."));
+    }
+
+    public ApplianceResponse analyze(long id, AnalyzeRequest req, String source) {
+        get(id);
         repo.analyze(id,
                 trimOrNull(req.detectedModel()),
                 enumOrThrow(req.era(), ERAS, "연식"),
                 enumOrThrow(req.iotStatus(), IOT_STATUSES, "연동 가능성"),
-                trimOrNull(req.analysisNote()));
+                trimOrNull(req.analysisNote()),
+                source,
+                null);
         return repo.findApplianceById(id).orElseThrow();
+    }
+
+    /* ── 자동판별 ─────────────────────────── */
+
+    /** 아직 판별하지 않은 가전. 배치가 하나씩 집어 간다. */
+    public List<Long> pendingAnalysis(int maxAttempts, int limit) {
+        return repo.findPendingAnalysis(maxAttempts, limit);
+    }
+
+    public void markAttempt(long id, String error) {
+        repo.markAttempt(id, error);
+    }
+
+    /** 자동판별 결과 저장. 사람이 고친 값(MANUAL)은 덮어쓰지 않는다. */
+    public void saveAutoAnalysis(long id, String detectedModel, String era, String iotStatus,
+                                 String note, String source, Double confidence) {
+        repo.analyze(id,
+                trimOrNull(detectedModel),
+                code(era, ERAS),
+                code(iotStatus, IOT_STATUSES),
+                trimOrNull(note),
+                source,
+                confidence);
+    }
+
+    /** 판별에 쓸 사진 파일들. 아직 지우지 않은 것만. */
+    public List<Path> livePhotos(long applianceId) {
+        List<Path> out = new ArrayList<>();
+        for (Object[] row : repo.livePhotoFiles(applianceId)) {
+            Path p = root.resolve(String.valueOf(row[1])).normalize();
+            if (p.startsWith(root) && Files.isReadable(p)) {
+                out.add(p);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * 모델명을 읽어냈으면 사진 원본은 들고 있을 이유가 없다. 파일만 지우고 행은 남긴다
+     * (몇 장 받았는지는 남아야 한다). 지운 장수를 돌려준다.
+     */
+    public int purgePhotos(long applianceId) {
+        int removed = 0;
+        for (Object[] row : repo.livePhotoFiles(applianceId)) {
+            if (deleteFile(String.valueOf(row[1]))) {
+                removed++;
+            }
+            repo.markPurged((Long) row[0]);
+        }
+        return removed;
+    }
+
+    /** 신청 한 건의 사진을 전부 지운다. 상담이 끝났을 때 관리자가 누른다. */
+    public int purgePhotosOfInquiry(long inquiryId) {
+        int removed = 0;
+        for (Object[] row : repo.livePhotoFilesByInquiry(inquiryId)) {
+            if (deleteFile(String.valueOf(row[1]))) {
+                removed++;
+            }
+            repo.markPurged((Long) row[0]);
+        }
+        return removed;
+    }
+
+    private boolean deleteFile(String storedName) {
+        try {
+            Path p = root.resolve(storedName).normalize();
+            if (!p.startsWith(root)) {
+                return false;
+            }
+            return Files.deleteIfExists(p);
+        } catch (IOException e) {
+            log.warn("사진 파일 삭제 실패 {}: {}", storedName, e.toString());
+            return false;
+        }
     }
 
     /** 이미지 파일 경로. 저장 이름은 DB 에만 있고, 경로 탈출이 없는지 다시 확인한다. */

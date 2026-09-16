@@ -40,7 +40,9 @@ public final class ApplianceDtos {
             String originalName,
             String contentType,
             long sizeBytes,
-            OffsetDateTime createdAt
+            OffsetDateTime createdAt,
+            /** 판별을 마치고 원본을 지운 시각. 값이 있으면 파일은 더 이상 없다. */
+            OffsetDateTime purgedAt
     ) {}
 
     /** 관리자 화면에 보여 줄 한 대 + 붙은 사진들. */
@@ -56,6 +58,9 @@ public final class ApplianceDtos {
             String era,
             String iotStatus,
             String analysisNote,
+            /** AI(사진 판독) / RULE(구매시기·브랜드 규칙) / MANUAL(사람이 고침) */
+            String analysisSource,
+            Double confidence,
             OffsetDateTime analyzedAt,
             OffsetDateTime createdAt,
             List<PhotoResponse> photos

@@ -1,9 +1,11 @@
 package kr.kiwan.smarthome.inquiry;
 
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,53 +15,87 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import kr.kiwan.smarthome.AppProperties;
-import kr.kiwan.smarthome.auth.AuthDtos.AuthUser;
-import kr.kiwan.smarthome.common.ApiException;
+import kr.kiwan.smarthome.admin.AdminAccess;
+import kr.kiwan.smarthome.admin.AuditRepository;
+import kr.kiwan.smarthome.admin.InternalClient;
+import kr.kiwan.smarthome.auth.UserRepository.UserRow;
+import kr.kiwan.smarthome.inquiry.InquiryDtos.InquiryDetail;
 import kr.kiwan.smarthome.inquiry.InquiryDtos.InquiryResponse;
 import kr.kiwan.smarthome.inquiry.InquiryDtos.UpdateRequest;
 
 /**
- * 상담 신청 관리. 로그인 계정의 이메일이 app.admin-emails 에 있을 때만 통과한다.
- * 세션에 권한을 굽지 않고 요청마다 설정을 확인하므로, 관리자 목록을 바꾸면 재로그인 없이 반영된다.
+ * 들어온 상담 신청을 보고 고친다.
+ *
+ * 운영자는 전부 보고, 업체 계정은 자기 업체가 담당인 건만 본다.
+ * 담당 배정과 삭제는 운영자만 — 업체가 자기 건을 남에게 넘기거나 지우면 안 된다.
  */
+@Profile("admin")
 @RestController
 @RequestMapping("/api/admin/inquiries")
 public class AdminInquiryController {
 
-    public record ListResponse(List<InquiryResponse> items, int total, List<String> statuses) {}
+    public record ListResponse(List<InquiryResponse> items, int total, List<String> statuses,
+                               Map<String, Integer> counts, boolean canAssign) {}
 
     private final InquiryService inquiries;
-    private final AppProperties props;
+    private final ApplianceService appliances;
+    private final AdminAccess access;
+    private final AuditRepository audit;
+    private final InternalClient internal;
 
-    public AdminInquiryController(InquiryService inquiries, AppProperties props) {
+    public AdminInquiryController(InquiryService inquiries, ApplianceService appliances,
+                                  AdminAccess access, AuditRepository audit, InternalClient internal) {
         this.inquiries = inquiries;
-        this.props = props;
+        this.appliances = appliances;
+        this.access = access;
+        this.audit = audit;
+        this.internal = internal;
     }
 
     @GetMapping
     public ListResponse list(@RequestParam(required = false) String status,
+                             @RequestParam(required = false) String q,
                              @RequestParam(defaultValue = "100") int limit,
                              @RequestParam(defaultValue = "0") int offset,
                              Authentication authentication) {
-        requireAdmin(authentication);
+        UserRow me = access.require(authentication);
+        Long scope = access.scope(me);
         int capped = Math.clamp(limit, 1, 500);
-        return new ListResponse(inquiries.list(status, capped, Math.max(offset, 0)),
-                inquiries.count(status), InquiryService.STATUSES);
+        return new ListResponse(
+                inquiries.list(status, scope, q, capped, Math.max(offset, 0)),
+                inquiries.count(status, scope, q),
+                InquiryService.STATUSES,
+                inquiries.statusCounts(scope),
+                me.owner());
+    }
+
+    @GetMapping("/{id}")
+    public InquiryDetail detail(@PathVariable long id, Authentication authentication) {
+        UserRow me = access.require(authentication);
+        InquiryResponse row = inquiries.get(id);
+        access.requireOwns(me, row.partnerId());
+        return new InquiryDetail(row, appliances.listByInquiry(id));
     }
 
     @PatchMapping("/{id}")
     public InquiryResponse update(@PathVariable long id,
                                   @Valid @RequestBody UpdateRequest req,
                                   Authentication authentication) {
-        requireAdmin(authentication);
-        return inquiries.update(id, req.status(), req.memo());
+        UserRow me = access.require(authentication);
+        access.requireOwns(me, inquiries.get(id).partnerId());
+        InquiryResponse updated = inquiries.update(id, req, me.owner());
+        audit.log(access.actor(me), "INQUIRY_UPDATE", String.valueOf(id),
+                "status=" + updated.status() + " partner=" + updated.partnerId());
+        return updated;
     }
 
-    private void requireAdmin(Authentication authentication) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof AuthUser user)
-                || !props.isAdmin(user.email())) {
-            throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN", "관리자만 접근할 수 있습니다.");
-        }
+    @DeleteMapping("/{id}")
+    public Map<String, Object> delete(@PathVariable long id, Authentication authentication) {
+        UserRow me = access.requireOwner(authentication);
+        // 사진 파일은 행보다 먼저 치운다. 행이 사라지면 어떤 파일이 남았는지 알 길이 없다.
+        int removed = internal.purgePhotos(id);
+        inquiries.delete(id);
+        audit.log(access.actor(me), "INQUIRY_DELETE", String.valueOf(id), "photos=" + removed);
+        return Map.of("ok", true, "photosRemoved", removed);
     }
 }

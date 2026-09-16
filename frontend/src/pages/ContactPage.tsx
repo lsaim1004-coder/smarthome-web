@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api, errorMessage } from '../api'
-import { useAuth } from '../auth/AuthContext'
-import { PACKAGES, findPackage, priceLabel } from '../data/packages'
+import { priceLabel } from '../data/packages'
+import { useCatalog } from '../data/catalog'
 import ApplianceStep, { type ApplianceDraft } from '../components/ApplianceStep'
 import {
   BUILD_STAGES,
@@ -64,7 +64,8 @@ function ChipRadio({
 /* ── 페이지 ───────────────────────────────────────────────────── */
 
 export default function ContactPage() {
-  const { user } = useAuth()
+  const { packages: PACKAGES, findPackage } = useCatalog()
+
   const [params] = useSearchParams()
 
   // 1. 어떤 집인가
@@ -102,14 +103,6 @@ export default function ContactPage() {
   const recommended = useMemo(() => recommendPackage(interests), [interests])
   const wantsCurtain = interests.includes('CURTAIN')
   const selectedStage = BUILD_STAGES.find((s) => s.code === buildStage)
-
-  // 로그인 상태면 이름·이메일을 채워 준다
-  useEffect(() => {
-    if (user) {
-      setName((prev) => prev || user.name || '')
-      setEmail((prev) => prev || user.email)
-    }
-  }, [user])
 
   // /contact?package=STANDARD 로 들어오면 그 패키지를 고른 상태로 시작한다
   useEffect(() => {
@@ -525,6 +518,7 @@ function Summary({
   appliances: ApplianceDraft[]
   packageCode: string
 }) {
+  const { findPackage } = useCatalog()
   const home = [labelOf(HOME_TYPES, homeType), labelOf(ROOM_COUNTS, roomCount), labelOf(BUILD_STAGES, buildStage)]
     .filter(Boolean)
     .join(' · ')

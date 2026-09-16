@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import { COMPARISON, PACKAGES, priceLabel, totalLabel } from '../data/packages'
+import { priceLabel, totalLabel } from '../data/packages'
+import { useCatalog } from '../data/catalog'
 
 function Cell({ value }: { value: number | string }) {
   if (typeof value === 'string') return <>{value}</>
@@ -8,6 +9,8 @@ function Cell({ value }: { value: number | string }) {
 }
 
 export default function PackagesPage() {
+  const { packages: PACKAGES, comparison: COMPARISON } = useCatalog()
+
   return (
     <>
       <section className="page-head">

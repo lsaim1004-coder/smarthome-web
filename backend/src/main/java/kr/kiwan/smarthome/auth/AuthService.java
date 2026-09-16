@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.kiwan.smarthome.AppProperties;
+import kr.kiwan.smarthome.admin.PartnerRepository;
+import kr.kiwan.smarthome.admin.PartnerRepository.PartnerRow;
 import kr.kiwan.smarthome.auth.AuthDtos.AuthUser;
 import kr.kiwan.smarthome.auth.AuthDtos.CodeIssued;
 import kr.kiwan.smarthome.auth.UserRepository.UserRow;
@@ -34,20 +36,42 @@ public class AuthService {
 
     private final UserRepository users;
     private final VerificationRepository codes;
+    private final PartnerRepository partners;
     private final MailService mail;
     private final PasswordEncoder encoder;
+    private final AppProperties props;
     private final AppProperties.Verification policy;
     /** 존재하지 않는 이메일로 로그인할 때도 같은 시간이 걸리도록 비교에 쓰는 더미 해시. */
     private final String dummyHash;
 
-    public AuthService(UserRepository users, VerificationRepository codes, MailService mail,
-                       PasswordEncoder encoder, AppProperties props) {
+    public AuthService(UserRepository users, VerificationRepository codes, PartnerRepository partners,
+                       MailService mail, PasswordEncoder encoder, AppProperties props) {
         this.users = users;
         this.codes = codes;
+        this.partners = partners;
         this.mail = mail;
         this.encoder = encoder;
+        this.props = props;
         this.policy = props.verification();
         this.dummyHash = encoder.encode("dummy-password-for-timing");
+    }
+
+    // ---------- 역할 ----------
+
+    /** 이메일 하나에 대한 역할과 소속 업체. 설정(app.admin-emails)과 업체 담당자 이메일이 근거다. */
+    record Grant(String role, Long partnerId) {
+        boolean staff() {
+            return !"USER".equals(role);
+        }
+    }
+
+    Grant grantFor(String email) {
+        if (props.isAdmin(email)) {
+            return new Grant("OWNER", null);
+        }
+        return partners.findByContactEmail(email)
+                .map(p -> new Grant("PARTNER", p.id()))
+                .orElseGet(() -> new Grant("USER", null));
     }
 
     // ---------- 회원가입 ----------
@@ -58,6 +82,14 @@ public class AuthService {
         String name = rawName == null || rawName.isBlank() ? null : rawName.trim();
         String hash = encoder.encode(password);
 
+        // 관리자 서버는 아무나 가입할 수 없다. 운영자 이메일(app.admin-emails) 이거나
+        // 등록된 업체의 담당자 이메일이어야 한다. 업체를 먼저 등록하는 것이 곧 초대다.
+        Grant grant = grantFor(email);
+        if (!grant.staff()) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "NOT_INVITED",
+                    "가입할 수 없는 이메일입니다. 담당자에게 업체 등록을 요청해 주세요.");
+        }
+
         Optional<UserRow> existing = users.findByEmail(email);
         long userId;
         if (existing.isPresent()) {
@@ -67,8 +99,9 @@ public class AuthService {
             // 인증을 마치지 않은 계정: 비밀번호를 새로 설정하고 인증번호를 다시 보낸다
             userId = existing.get().id();
             users.updateCredentials(userId, hash, name);
+            users.updateRole(userId, grant.role(), grant.partnerId());
         } else {
-            userId = users.insert(email, hash, name);
+            userId = users.insert(email, hash, name, grant.role(), grant.partnerId());
         }
         return issueCode(userId, email, "가입이 접수되었습니다. 이메일로 보낸 인증번호를 입력해 주세요.");
     }
@@ -165,12 +198,32 @@ public class AuthService {
             throw new ApiException(HttpStatus.FORBIDDEN, "EMAIL_NOT_VERIFIED",
                     "이메일 인증이 완료되지 않았습니다. 인증번호를 입력해 주세요.");
         }
+        if (!u.active()) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "ACCOUNT_DISABLED",
+                    "사용이 중지된 계정입니다. 담당자에게 문의해 주세요.");
+        }
+
+        // 설정과 업체 담당자 이메일이 바뀌었을 수 있으니 로그인할 때마다 역할을 다시 맞춘다.
+        Grant grant = grantFor(u.email());
+        if (!grant.staff()) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "NOT_STAFF",
+                    "관리자 권한이 없는 계정입니다.");
+        }
+        if (!grant.role().equals(u.role()) || !java.util.Objects.equals(grant.partnerId(), u.partnerId())) {
+            users.updateRole(u.id(), grant.role(), grant.partnerId());
+            log.info("role updated for {}: {} -> {}", u.email(), u.role(), grant.role());
+        }
         users.touchLogin(u.id());
-        return new AuthUser(u.id(), u.email(), u.name());
+        return new AuthUser(u.id(), u.email(), u.name(), grant.role(), grant.partnerId());
     }
 
     public Optional<UserRow> findById(long id) {
         return users.findById(id);
+    }
+
+    /** 화면에 업체 이름을 같이 보여 주기 위해. */
+    public Optional<PartnerRow> partner(Long partnerId) {
+        return partnerId == null ? Optional.empty() : partners.findById(partnerId);
     }
 
     // ---------- util ----------

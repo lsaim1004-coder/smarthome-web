@@ -164,24 +164,66 @@ public class InquiryService {
         return new Created(id, uploadToken, applianceIds);
     }
 
-    public List<InquiryResponse> list(String status, int limit, int offset) {
-        String normalized = normalizeStatus(status);
-        return repo.findAll(normalized, limit, offset);
+    public List<InquiryResponse> list(String status, Long partnerScope, String q, int limit, int offset) {
+        return repo.findAll(normalizeStatus(status), partnerScope, q, limit, offset);
     }
 
-    public int count(String status) {
-        return repo.countByStatus(normalizeStatus(status));
+    public int count(String status, Long partnerScope, String q) {
+        return repo.count(normalizeStatus(status), partnerScope, q);
     }
 
-    public InquiryResponse update(long id, String status, String memo) {
-        String normalized = status == null || status.isBlank() ? null : normalizeStatus(status);
-        if (status != null && !status.isBlank() && normalized == null) {
+    public InquiryResponse get(long id) {
+        return repo.findById(id).orElseThrow(() ->
+                new ApiException(HttpStatus.NOT_FOUND, "NOT_FOUND", "신청을 찾을 수 없습니다."));
+    }
+
+    /** 상태별 건수. 관리자 첫 화면의 요약 카드에 쓴다. */
+    public Map<String, Integer> statusCounts(Long partnerScope) {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        for (String status : STATUSES) {
+            counts.put(status, 0);
+        }
+        for (Object[] row : repo.countByStatus(partnerScope)) {
+            counts.put((String) row[0], (Integer) row[1]);
+        }
+        return counts;
+    }
+
+    /**
+     * 관리자 편집. 보내지 않은 항목은 그대로 둔다.
+     * canAssign 이 거짓이면(업체 계정) 담당 업체는 바꾸지 못한다.
+     */
+    public InquiryResponse update(long id, InquiryDtos.UpdateRequest req, boolean canAssign) {
+        String status = req.status();
+        String normalizedStatus = status == null || status.isBlank() ? null : normalizeStatus(status);
+        if (status != null && !status.isBlank() && normalizedStatus == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "VALIDATION", "상태 값이 올바르지 않습니다.");
         }
-        repo.findById(id).orElseThrow(() ->
-                new ApiException(HttpStatus.NOT_FOUND, "NOT_FOUND", "신청을 찾을 수 없습니다."));
-        repo.update(id, normalized, memo);
-        return repo.findById(id).orElseThrow();
+        get(id);
+
+        repo.update(id,
+                normalizedStatus,
+                req.memo(),
+                blankToNull(req.name()),
+                req.phone() == null || req.phone().isBlank() ? null : normalizePhone(req.phone()),
+                blankToNull(req.email()),
+                blankToNull(req.region()),
+                code(req.homeType(), HOME_TYPES),
+                code(req.roomCount(), ROOM_COUNTS),
+                code(req.buildStage(), BUILD_STAGES),
+                codes(req.interests(), INTERESTS),
+                code(req.windowCount(), WINDOW_COUNTS),
+                req.packageCode() == null || req.packageCode().isBlank() ? null : normalizePackage(req.packageCode()),
+                blankToNull(req.moveIn()),
+                blankToNull(req.channel()),
+                blankToNull(req.message()),
+                canAssign ? req.partnerId() : null);
+        return get(id);
+    }
+
+    public void delete(long id) {
+        get(id);
+        repo.delete(id);
     }
 
     private void notifyAdmins(InquiryResponse row, String applianceSummary) {
@@ -213,7 +255,7 @@ public class InquiryService {
                 + line("알게 된 경로", row.channel())
                 + "\n문의 내용\n"
                 + (row.message() == null || row.message().isBlank() ? "  (없음)\n" : "  " + row.message() + "\n")
-                + "\n관리자 목록: " + props.baseUrl() + "/admin/inquiries\n";
+                + "\n관리자 화면: " + props.adminUrl() + "/inquiries/" + row.id() + "\n";
         for (String admin : admins) {
             mail.send(admin, subject, body);
         }

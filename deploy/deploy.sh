@@ -20,6 +20,15 @@ ensure_env APP_MAIL_FROM no-reply@kiwan.kr
 ensure_env APP_MAIL_STARTTLS true
 # 관리자 이메일은 서버 .env 에서 직접 채운다 (공개 저장소에 주소를 넣지 않음)
 ensure_env APP_ADMIN_EMAILS ""
+ensure_env APP_ADMIN_URL https://iot-admin.kiwan.kr
+# 관리자 서버(LXC 112)가 LAN 으로 붙는다. 이 호스트의 LAN 주소에만 연다.
+ensure_env DB_BIND 192.168.0.160
+ensure_env API_BIND 192.168.0.160
+# 사진 통로 공유 키와 사진 판독 키는 서버 .env 에서 직접 채운다
+ensure_env APP_INTERNAL_KEY ""
+ensure_env APP_ANALYSIS_ENABLED true
+ensure_env APP_ANALYSIS_API_KEY ""
+ensure_env APP_ANALYSIS_PURGE_AFTER true
 grep -q 'LANG=' /etc/default/locale 2>/dev/null || echo 'LANG=C.UTF-8' > /etc/default/locale
 echo "== build start $(date)"
 if ! docker compose build --progress=plain > /var/log/smarthome-build.log 2>&1; then

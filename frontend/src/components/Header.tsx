@@ -1,5 +1,4 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { useAuth } from '../auth/AuthContext'
+import { Link, NavLink } from 'react-router-dom'
 
 function Logo() {
   return (
@@ -14,14 +13,6 @@ function Logo() {
 }
 
 export default function Header() {
-  const { user, loading, logout } = useAuth()
-  const navigate = useNavigate()
-
-  async function onLogout() {
-    await logout()
-    navigate('/')
-  }
-
   return (
     <header className="top">
       <Link to="/" className="brand">
@@ -34,33 +25,6 @@ export default function Header() {
         <NavLink to="/packages" className="nav-link">
           패키지
         </NavLink>
-        <a href="/docs/" className="nav-link nav-docs">
-          자료
-        </a>
-        {user?.admin ? (
-          <>
-            <NavLink to="/admin/inquiries" className="nav-link nav-admin">
-              신청관리
-            </NavLink>
-            <NavLink to="/admin/devices" className="nav-link nav-admin">
-              연동후보
-            </NavLink>
-          </>
-        ) : null}
-        {loading ? null : user ? (
-          <>
-            <NavLink to="/me" className="nav-link nav-user" title={user.email}>
-              {user.name || user.email}
-            </NavLink>
-            <button type="button" className="nav-btn ghost" onClick={() => void onLogout()}>
-              로그아웃
-            </button>
-          </>
-        ) : (
-          <NavLink to="/login" className="nav-link">
-            로그인
-          </NavLink>
-        )}
         <NavLink to="/contact" className="nav-btn">
           상담 신청
         </NavLink>

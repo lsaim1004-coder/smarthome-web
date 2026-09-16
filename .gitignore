@@ -6,6 +6,8 @@
 # build output
 frontend/node_modules/
 frontend/dist/
+admin/frontend/node_modules/
+admin/frontend/dist/
 backend/target/
 
 # tooling
