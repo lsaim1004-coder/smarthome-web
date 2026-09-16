@@ -2,7 +2,7 @@
 
 **Smart Home Option Service** 소개 웹. 인테리어 공사에 스마트홈 옵션을 더해 "입주하는 날 완성된 스마트홈"을 제공하는 서비스의 웹사이트입니다.
 
-현재 v0.4 — **패키지 5단계 소개**와 **상담 신청 접수**(관리자 목록 포함), 이메일 인증 기반 회원가입 · 로그인이 있습니다.
+현재 v0.7 — 공개 사이트(**패키지 소개 · 단계형 상담 신청 · 가전 사진 첨부**)와 관리자(`iot-admin.kiwan.kr`, **신청 관리 · 상품 구성 편집 · 업체별 화면 · 가전 자동판별**)로 나뉘어 있습니다.
 
 ## 서비스 구상
 
@@ -86,93 +86,136 @@ SmartThings + Aqara + IKEA 조립은 누구나 한다. 아카라라이프가 토
 
 | 구성 | 기술 | 컨테이너 |
 | --- | --- | --- |
-| Frontend | React 18 · TypeScript · Vite 6 (모바일 우선 반응형) | `node:22-alpine` 빌드 → `nginx:1.27-alpine` 서빙, `/api/` 를 백엔드로 프록시 |
-| Backend | Java 21 · Spring Boot 3.5 (`web`, `jdbc`, `validation`) | `maven:3.9-eclipse-temurin-21` 빌드 → `eclipse-temurin:21-jre-alpine` |
-| Database | PostgreSQL 16 | `postgres:16-alpine`, 볼륨 `dbdata` |
+| 공개 프런트 | React 18 · TypeScript · Vite 6 (모바일 우선 반응형) | `node:22-alpine` 빌드 → `nginx:1.27-alpine` |
+| 관리자 프런트 | React 18 · TypeScript · Vite 6 · **CoreUI**(Bootstrap Admin) | 같은 방식, 별도 이미지 |
+| 백엔드 | Java 21 · Spring Boot 3.5 (`web`, `jdbc`, `security`, `validation`) | `maven:3.9-eclipse-temurin-21` 빌드 → `eclipse-temurin:21-jre-alpine` |
+| 데이터베이스 | PostgreSQL 16 | `postgres:16-alpine`, 볼륨 `dbdata` |
 
-세 서비스는 `docker-compose.yml` 하나로 빌드·기동합니다. 외부로 열리는 포트는 frontend의 80만입니다.
+**백엔드는 한 벌이고 프로필로 갈린다.** 같은 이미지를 두 컨테이너로 띄운다.
 
 ```
-브라우저 ──▶ frontend(nginx :80) ──/api/──▶ backend(Spring Boot :8080) ──▶ db(PostgreSQL :5432)
+                    iot.kiwan.kr                        iot-admin.kiwan.kr
+브라우저 ──▶ frontend(nginx :80) ──/api/──▶ backend        admin-web(nginx :8080) ──/api/──▶ admin-api
+                                  APP_ROLE=public                              APP_ROLE=admin
+                                        │                                            │
+                                        └────────── db(PostgreSQL :5432) ────────────┘
+                                                          (내부망)
 ```
+
+- `public` 프로필: 소개 · 접수 · `/api/catalog`. **로그인이 없다.**
+- `admin` 프로필: 로그인 · 상담 관리 · 상품 구성 · 업체 · 자료실. **전부 인증이 필요하다.**
+- 호스트 밖으로 열리는 포트는 `80`(공개)과 `8080`(관리자) 둘뿐이다. DB 와 사진 통로는 내부망에만 있다.
+- 한 호스트에 같이 둔 이유: 나누면 PostgreSQL 과 사진 통로를 LAN 주소로 열어야 한다. 도메인 분리는
+  NPM 과 nginx 가 해 주므로, 1인 운영에서는 노출을 늘리지 않는 쪽이 낫다고 봤다.
 
 ## 디렉터리
 
 ```
-docker-compose.yml     # 세 서비스 정의
-.env.example           # DB_PASSWORD 예시 (실제 .env 는 커밋하지 않음)
-backend/               # Spring Boot 앱 + Dockerfile
-frontend/              # React 앱 + Dockerfile + nginx/default.conf
-deploy/                # 서버(Debian 12 LXC) 준비·배포 스크립트
-docs/landing-draft/    # 다음 단계용 상세 랜딩페이지 초안(정적 HTML, 옛 가격)
-frontend/src/data/     # 패키지 5단계 가격·구성·기기 라인업 (docs/견적.md 4장과 동기화)
-frontend/public/images/ # 대문 사진 (Unsplash License)
+docker-compose.yml         # 다섯 컨테이너 (db · backend · frontend · admin-api · admin-web)
+.env.example               # 설정 예시 (실제 .env 는 커밋하지 않음)
+backend/                   # Spring Boot 앱 + Dockerfile
+  .../catalog/             #   패키지·비교표·제품 (DB)
+  .../admin/               #   업체 · 권한 · 변경 기록 · 내부 통로
+  .../analysis/            #   가전 사진 자동판별
+  resources/seed/*.json    #   상품 구성 첫 채움 (프런트 상수에서 스크립트로 추출)
+frontend/                  # 공개 사이트
+admin/frontend/            # 관리자 화면 (CoreUI) + 자료실(public/docs)
+deploy/                    # 서버(Debian 12 LXC) 준비·배포 스크립트
+docs/                      # 사업 기획 · 견적 · 제안서 원본
 ```
 
 ## 실행
 
 ```bash
-cp .env.example .env          # DB_PASSWORD 를 실제 값으로 변경
+cp .env.example .env          # DB_PASSWORD · APP_INTERNAL_KEY 를 채운다
 docker compose up -d --build
-curl http://localhost/api/health
+curl http://localhost/api/health          # 공개
+curl http://localhost:8080/api/health     # 관리자
 ```
 
-- `http://localhost/` — 웰컴 페이지
-- `GET /api/welcome` — 서비스명·메시지·백엔드/DB 정보. 호출마다 DB 방문 카운터가 1 증가합니다
-- `GET /api/health` — DB 연결 확인. 정상 200, DB 불가 503
+- `http://localhost/` — 공개 사이트
+- `http://localhost:8080/` — 관리자 (로그인 화면)
 
-프론트만 개발할 때는 `frontend/` 에서 `npm install && npm run dev` (Vite dev 서버가 `/api` 를 `localhost:8080` 으로 프록시), 백엔드는 `backend/` 에서 `./mvnw` 없이 `mvn spring-boot:run` 으로 띄우면 됩니다.
+프런트만 개발할 때는 각 디렉터리에서 `npm install && npm run dev` (Vite dev 서버가 `/api` 를 `localhost:8080` 으로
+프록시), 백엔드는 `backend/` 에서 `mvn spring-boot:run` (기본 프로필은 `public`, 관리자는 `APP_ROLE=admin`).
 
-## 회원 · 로그인
+## 관리자 (iot-admin.kiwan.kr)
 
-이메일 + 비밀번호 계정이며, **이메일 인증번호를 확인한 계정만 로그인**할 수 있습니다.
+로그인해야 보이던 것은 전부 이쪽에 있다. 공개 사이트에는 로그인이 없다.
+
+| 화면 | 하는 일 |
+| --- | --- |
+| 요약 | 상태별 건수와 최근 접수 |
+| 상담 신청 | 목록·검색, 상세에서 **모든 항목 수정**, 담당 업체 배정, 가전 판별 수정, 사진 보기·폐기 |
+| 연동 후보 | 신청을 가로질러 앱 연동/리모컨 허브/불가로 모아 본다 — 허브 발주 수량이 여기서 나온다 |
+| 패키지 구성 | 가격·구성·비교표를 고친다. **배포 없이 공개 사이트에 바로 반영** |
+| 표준 제품 | 공개 사이트가 보여 주는 제품 목록 |
+| 업체 | 업체 등록. 담당자 이메일을 적는 것이 곧 초대다 |
+| 계정·기록 | 관리자 계정 사용/중지, 누가 무엇을 고쳤는지 |
+| 자료실 | `/docs/` — 견적·제안서 (로그인 필요) |
+
+### 권한
+
+| 역할 | 보는 범위 |
+| --- | --- |
+| `OWNER` | 전부. 가격표·업체·계정을 바꿀 수 있다 |
+| `PARTNER` | **자기 업체가 담당인 신청만.** 담당 배정과 삭제는 못 한다 |
+| `USER` | 관리자에 들어올 수 없다 |
+
+- `OWNER` 는 `.env` 의 `APP_ADMIN_EMAILS` 에 적힌 주소다.
+- `PARTNER` 는 **등록된 업체의 담당자 이메일**로만 가입할 수 있다. 업체 등록이 초대를 겸한다.
+- 권한은 세션에 굽지 않고 **요청마다 DB 를 다시 본다.** 담당을 내리거나 계정을 막으면 즉시 반영된다.
+- 가입·로그인 흐름은 공개 사이트에 있던 것과 같다: 인증번호 6자리(10분, 5회) → 비밀번호 로그인, 세션 쿠키 `SHADMIN`.
+
+## 상품 구성 (패키지 · 비교표 · 제품)
+
+값은 **DB**(`site_packages` / `site_comparison` / `site_products`)에 있고 관리자 화면에서 고친다.
+숫자의 출처는 여전히 [docs/견적.md](docs/견적.md) 4장이므로 크게 바꿀 때는 문서도 같이 고칠 것.
+
+- 첫 채움은 `backend/src/main/resources/seed/*.json` 이다. **표가 비어 있을 때만** 넣으므로
+  재배포가 운영자가 고친 가격을 되돌리지 않는다.
+- 공개 화면은 `GET /api/catalog` 를 읽되, 실패하면 번들에 들어 있는 상수(`frontend/src/data/`)로 그린다.
+  잠깐 옛 값이 보이는 편이 빈 화면보다 낫다.
+
+## 상담 신청 · 가전 자동판별
+
+- `/contact` — 단계형 신청 폼. 집 상태 → 원하는 것 → 보유 가전(+사진) → 패키지 → 연락처
+- 사진은 **모델명 라벨**을 찍도록 안내한다. 모델명만 읽히면 앱으로 묶이는 기종인지 바로 갈린다.
 
 ```
-회원가입 ──▶ 인증번호 발급(6자리, 10분 유효, 5회 제한) ──▶ 인증 완료 ──▶ 로그인(세션 쿠키)
+접수 ──▶ (배치) 구매시기·브랜드 규칙으로 1차 판별 ──▶ 사진의 모델명 판독(키가 있을 때) ──▶ 사진 원본 폐기
 ```
 
-| 메서드 | 경로 | 설명 |
-| --- | --- | --- |
-| POST | `/api/auth/register` | `{email, password, name?}` 가입 + 인증번호 발급. 미인증 계정은 재가입 시 비밀번호를 갈아끼움 |
-| POST | `/api/auth/verify` | `{email, code}` 인증 완료 |
-| POST | `/api/auth/resend` | `{email}` 인증번호 재발송 (60초 쿨다운) |
-| POST | `/api/auth/login` | `{email, password}` → 세션 쿠키 `SHSESSION`. 미인증이면 `403 EMAIL_NOT_VERIFIED` |
-| GET | `/api/auth/me` | 로그인 상태 `{authenticated, user}` |
-| POST | `/api/auth/logout` | 세션 종료 |
+- `APP_ANALYSIS_API_KEY` 가 비어 있으면 사진 판독을 건너뛰고 규칙 추정만 한다.
+- **판별이 끝나면 사진 원본을 지운다**(`APP_ANALYSIS_PURGE_AFTER`). 필요한 것은 모델명 한 줄뿐이고,
+  들고 있으면 그때부터 관리해야 할 개인정보가 된다. 사진 행은 남겨 몇 장 받았는지는 기록한다.
+- 판별 근거는 `AI`(사진 판독) / `RULE`(규칙 추정) / `MANUAL`(사람이 고침)로 남는다.
 
-- 비밀번호는 BCrypt, 인증번호는 SHA-256 해시로 저장. 세션은 Spring Session JDBC 로 DB(`SPRING_SESSION`)에 보관되어 백엔드를 재시작해도 유지됩니다.
-- `/api/auth/` 는 nginx 에서 IP 당 분당 10회로 제한합니다 (Cloudflare 실제 IP 기준).
-- **메일 발송**: `.env` 의 `APP_MAIL_MODE` 가 `log` 면 메일을 보내지 않고 백엔드 로그와 API 응답(`devCode`)에 인증번호를 표시합니다(개발용). `smtp` 로 바꾸고 `APP_MAIL_HOST/PORT/USERNAME/PASSWORD/FROM` 을 채우면 실제 발송합니다.
-- 화면: `/register` → `/verify` → `/login` → `/me`. 로그인하면 헤더에 이름(이메일)과 로그아웃 버튼이 보입니다.
-
-## 패키지 · 상담 신청
-
-패키지 가격과 구성은 `frontend/src/data/packages.ts` 한 곳에 있습니다. 숫자는 [docs/견적.md](docs/견적.md) 4장에서 가져온 것이라 **둘을 같이 고쳐야** 합니다.
-
-- `/packages` — 5단계 카드 + 구성 비교표 + 미리 알려드리는 것(중성선·가전 연동 범위·투입 시점)
-- `/contact` — 상담 신청 폼. `/packages` 의 카드에서 오면 `?package=STANDARD` 로 해당 구성이 선택된 상태로 열립니다
-- `/admin/inquiries` — 접수 목록. 상태 변경과 메모를 인라인으로 저장합니다
-
-| 메서드 | 경로 | 인증 | 설명 |
+| 메서드 | 경로 | 프로필 | 설명 |
 | --- | --- | --- | --- |
-| POST | `/api/inquiries` | 없음 | 상담 신청 접수. 로그인 상태면 `user_id` 를 함께 남김 |
-| GET | `/api/admin/inquiries?status=&limit=&offset=` | 관리자 | 접수 목록 + 상태별 건수 |
-| PATCH | `/api/admin/inquiries/{id}` | 관리자 | `{status?, memo?}` 변경 |
+| POST | `/api/inquiries` | public | 상담 신청 접수 |
+| POST | `/api/inquiries/{id}/photos` | public | 사진 첨부 (접수 직후 발급한 30분짜리 토큰 필요) |
+| GET | `/api/catalog` | public | 공개용 상품 구성 |
+| GET | `/api/internal/photos/{id}` | public | 관리자 컨테이너 전용. 공유 키(`APP_INTERNAL_KEY`) 필요 |
+| GET/PATCH/DELETE | `/api/admin/inquiries[/{id}]` | admin | 목록·상세·수정·삭제 |
+| GET/PUT/POST/DELETE | `/api/admin/catalog/...` | admin | 패키지·비교표·제품 (운영자만 쓰기) |
+| GET/POST/PUT | `/api/admin/partners[/{id}]` | admin | 업체 |
+| GET/PATCH | `/api/admin/appliances[/{id}]` | admin | 연동 후보·판별 수정 |
 
-- **관리자 지정**: `.env` 의 `APP_ADMIN_EMAILS` 에 콤마로 나열합니다. 세션에 권한을 굽지 않고 **요청마다 설정을 확인**하므로 목록을 바꿔도 재로그인할 필요가 없습니다. 이 계정으로 로그인하면 헤더에 `신청관리` 가 보입니다.
-- **접수 알림**: 신청이 들어오면 관리자 이메일로 내용 전체를, 신청자에게는 접수 확인 메일을 보냅니다. 메일 발송이 실패해도 접수 자체는 성공 처리합니다(로그에만 남김).
-- **스팸·중복 방어**: nginx 에서 IP 당 분당 5회(`inquiry` zone), 폼의 숨김 필드(honeypot)가 채워지면 저장하지 않고 성공으로 응답, 같은 번호로 10분 안에 다시 보내면 `409 DUPLICATE`.
-- 상태는 `NEW → CONTACTED → QUOTED → WON / LOST` 입니다.
+- **스팸·중복 방어**: nginx 에서 IP 당 분당 5회(`inquiry` zone), 숨김 필드(honeypot)가 채워지면 저장하지 않고
+  성공으로 응답, 같은 번호로 10분 안에 다시 보내면 `409 DUPLICATE`.
+- 상태는 `NEW → CONTACTED → QUOTED → WON / LOST`.
 
 ## 배포
 
-Proxmox 위 Debian 12 LXC(Docker 설치)에서 운영합니다.
+Proxmox 위 Debian 12 LXC 111(192.168.0.160, Docker)에서 두 사이트를 함께 운영한다.
 
 1. `deploy/docker-install.sh` — Docker CE + compose plugin 설치 (1회)
 2. 소스를 `tar czf` 로 묶어 서버 `/root/smarthome-web.tgz` 로 전송
 3. `deploy/deploy.sh <DB_PASSWORD>` — `/opt/smarthome-web` 에 풀고 `docker compose build && up -d`, 헬스체크 대기
 
-리버스 프록시(Nginx Proxy Manager)와 Cloudflare 뒤에 두고 HTTPS 도메인으로 서비스합니다.
+Nginx Proxy Manager(LXC 105)가 `iot.kiwan.kr → :80`, `iot-admin.kiwan.kr → :8080` 으로 넘기고,
+Cloudflare 뒤에서 HTTPS 로 서비스한다.
 
 ## 로드맵
 
