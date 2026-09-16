@@ -5,6 +5,7 @@ import WelcomePage from './pages/WelcomePage'
 import PackagesPage from './pages/PackagesPage'
 import ContactPage from './pages/ContactPage'
 import AdminInquiriesPage from './pages/AdminInquiriesPage'
+import AdminDevicesPage from './pages/AdminDevicesPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import VerifyPage from './pages/VerifyPage'
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="/packages" element={<PackagesPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/admin/inquiries" element={<AdminInquiriesPage />} />
+            <Route path="/admin/devices" element={<AdminDevicesPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify" element={<VerifyPage />} />

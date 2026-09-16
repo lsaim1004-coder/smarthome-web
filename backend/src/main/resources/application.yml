@@ -18,6 +18,11 @@ spring:
     timeout: 7d
   jackson:
     time-zone: Asia/Seoul
+  servlet:
+    multipart:
+      # 사진 1장 10MB · 한 번에 12장까지. nginx client_max_body_size 와 같이 움직여야 한다.
+      max-file-size: 10MB
+      max-request-size: 128MB
 
 server:
   port: 8080
@@ -36,6 +41,8 @@ app:
   service-name: Smart Home Option Service
   welcome-message: "입주하는 날, 스마트홈이 완성되어 있습니다."
   base-url: ${APP_BASE_URL:http://localhost}
+  # 상담 신청에 붙는 가전 사진 저장 위치. compose 에서 이름 있는 볼륨으로 마운트한다.
+  upload-dir: ${APP_UPLOAD_DIR:/data/uploads}
   # 관리자 이메일(콤마 구분). 이 계정으로 로그인하면 /admin/inquiries 목록을 볼 수 있고 상담 접수 알림을 받는다.
   admin-emails: ${APP_ADMIN_EMAILS:}
   mail:

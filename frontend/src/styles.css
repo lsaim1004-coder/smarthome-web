@@ -816,3 +816,148 @@ button { font: inherit; }
   .energy-stats { grid-template-columns: repeat(3, 1fr); }
   .energy-uses ul { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ── v0.6: 상담 신청 양식 개편 (단계 · 칩 선택 · 보유 가전 · 사진) ───── */
+
+/* 단계 */
+.wizard { display: grid; gap: 10px; }
+.fstep { border: 1px solid var(--line); border-radius: 14px; padding: 18px 16px 20px; margin: 0; background: var(--card); }
+.fstep > legend { display: flex; align-items: center; gap: 8px; padding: 0 8px; font-size: 16px; font-weight: 800; color: var(--ink); }
+.fstep > legend b {
+  display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--navy); color: #fff; font-size: 12px; font-weight: 800;
+}
+.fstep-sub { margin: 4px 0 14px; font-size: 13px; color: var(--muted); }
+
+.q { margin-bottom: 18px; }
+.q-follow { padding: 14px; border-radius: 12px; background: #fffdf5; border: 1px dashed var(--amber); }
+.q-label { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.q-label small { margin-left: 6px; font-size: 12px; font-weight: 500; color: var(--muted); }
+.q-hint { margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+.q-hint code { font-size: 12px; background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+
+/* 칩 선택 */
+.chip-set { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-opt { position: relative; cursor: pointer; }
+.chip-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+.chip-opt > span {
+  display: block; padding: 9px 14px; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--card); font-size: 13.5px; color: var(--ink-2);
+}
+.chip-opt > span em { display: block; font-style: normal; font-size: 11.5px; color: var(--muted); }
+.chip-opt:hover > span { border-color: #cbd5e1; }
+.chip-opt.on > span { border-color: var(--navy-2); background: var(--navy); color: #fff; font-weight: 700; }
+.chip-opt.on > span em { color: #cbd5e1; }
+.chip-opt input:focus-visible + span { outline: 2px solid var(--amber-2); outline-offset: 2px; }
+
+.chip-add {
+  display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 999px;
+  border: 1px dashed #cbd5e1; background: var(--card); font-size: 13.5px; color: var(--ink-2); cursor: pointer;
+}
+.chip-add::before { content: "+"; font-weight: 800; color: var(--amber-2); }
+.chip-add:hover { border-color: var(--amber); background: #fffdf5; }
+.chip-add em {
+  font-style: normal; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+  background: var(--navy); color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center;
+}
+
+/* 관심 항목 카드 */
+.want-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.want {
+  position: relative; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px;
+  padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); cursor: pointer;
+}
+.want input { position: absolute; opacity: 0; width: 0; height: 0; }
+.want-body b { display: block; font-size: 14px; font-weight: 700; color: var(--ink); }
+.want-body em { display: block; margin-top: 3px; font-style: normal; font-size: 12.5px; color: var(--muted); }
+.want-from { font-size: 11px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.want:hover { border-color: #cbd5e1; }
+.want.on { border-color: var(--navy-2); background: #f8fafc; box-shadow: inset 3px 0 0 var(--amber); }
+.want.on .want-from { color: var(--navy-2); }
+.want input:focus-visible ~ .want-body { outline: 2px solid var(--amber-2); outline-offset: 3px; }
+
+/* 패키지 추천 */
+.reco { margin-bottom: 14px; padding: 12px 14px; border-radius: 12px; background: #fffdf5; border: 1px solid var(--amber); font-size: 14px; color: var(--ink); }
+.reco b { color: var(--navy-2); }
+.reco span { display: block; margin-top: 4px; font-size: 12.5px; color: var(--ink-2); }
+
+.pick-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.pick { position: relative; display: block; padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); cursor: pointer; }
+.pick input { position: absolute; opacity: 0; width: 0; height: 0; }
+.pick-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.pick-head b { font-size: 14.5px; font-weight: 800; color: var(--ink); }
+.pick-head i { font-style: normal; font-size: 13px; font-weight: 700; color: var(--navy-2); }
+.pick-sub { display: block; margin-top: 4px; font-size: 12.5px; color: var(--ink-2); }
+.pick-note { display: block; margin-top: 3px; font-size: 11.5px; color: var(--muted); }
+.pick:hover { border-color: #cbd5e1; }
+.pick.on { border-color: var(--navy-2); background: #f8fafc; box-shadow: inset 3px 0 0 var(--navy-2); }
+.pick-flag { position: absolute; top: -8px; right: 12px; padding: 2px 8px; border-radius: 999px; background: var(--amber); color: var(--navy); font-size: 11px; font-weight: 800; }
+
+.pick-summary { margin-top: 4px; padding: 14px 16px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); }
+.pick-summary dl { margin-top: 8px; display: grid; gap: 6px; }
+.pick-summary dl > div { display: grid; grid-template-columns: 96px 1fr; gap: 8px; font-size: 13px; }
+.pick-summary dt { color: var(--muted); }
+.pick-summary dd { color: var(--ink); }
+
+/* 보유 가전 입력 */
+.shot-guide { margin: 14px 0; padding: 12px 14px; border-radius: 12px; background: #f0f9ff; border: 1px solid #bae6fd; font-size: 13px; line-height: 1.7; color: var(--ink-2); }
+.shot-guide b { color: var(--ink); }
+
+.appl-list { display: grid; gap: 10px; margin-top: 12px; }
+.appl { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--bg); }
+.appl-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.appl-head h4 { font-size: 15px; font-weight: 800; color: var(--ink); }
+.appl-del { border: 0; background: none; color: var(--muted); font-size: 12.5px; cursor: pointer; padding: 4px; }
+.appl-del:hover { color: var(--err); text-decoration: underline; }
+.appl-row { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 14px; }
+.appl-photo { margin-top: 4px; }
+.appl-spot { margin: 0 0 10px; font-size: 12.5px; color: var(--ink-2); }
+.appl-spot b { color: var(--navy-2); margin-right: 6px; }
+
+.shots { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; list-style: none; padding: 0; }
+.shots li { position: relative; width: 84px; height: 84px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--card); }
+.shots img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.shots li > button {
+  position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; border-radius: 50%; border: 0;
+  background: rgba(15, 23, 42, 0.72); color: #fff; font-size: 14px; line-height: 1; cursor: pointer;
+}
+.shots.admin li { width: 110px; height: 110px; }
+.shots.admin a { display: block; width: 100%; height: 100%; }
+
+.btn-sm { padding: 8px 14px; font-size: 13px; }
+
+/* 관리자: 가전 판정 */
+.inq-taglist { margin-top: 10px; display: grid; gap: 6px; }
+.inq-tags { display: grid; grid-template-columns: 88px 1fr; gap: 8px; align-items: start; }
+.inq-tags dt { font-size: 12px; color: var(--muted); padding-top: 3px; }
+.inq-tags dd { display: flex; flex-wrap: wrap; gap: 5px; }
+.inq-tag { padding: 2px 8px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); font-size: 12px; color: var(--ink-2); }
+
+.inq-appl { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+.inq-appl > summary { cursor: pointer; font-size: 13px; font-weight: 700; color: var(--navy-2); }
+
+.appl-admin-list { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 12px; }
+.appl-admin { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--card); }
+.appl-admin.done { border-left: 3px solid var(--ok); }
+.appl-admin > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.appl-admin h4 { font-size: 15px; font-weight: 800; color: var(--ink); }
+.appl-brand { margin-left: 8px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.appl-owner { margin-bottom: 8px; font-size: 12px; color: var(--muted); }
+.appl-said { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.appl-said dt { font-size: 11.5px; color: var(--muted); }
+.appl-said dd { font-size: 13px; color: var(--ink); }
+.appl-verdict { display: grid; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+
+.iot-badge { padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; white-space: nowrap; background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
+.iot-badge.s-APP { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+.iot-badge.s-IR { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+.iot-badge.s-NONE { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+.iot-badge.s-UNKNOWN { background: #e0f2fe; color: #075985; border-color: #bae6fd; }
+
+@media (min-width: 720px) {
+  .fstep { padding: 22px 22px 24px; }
+  .want-grid { grid-template-columns: 1fr 1fr; }
+  .pick-grid { grid-template-columns: repeat(3, 1fr); }
+  .appl-row { grid-template-columns: 200px 1fr; }
+  .appl-admin-list.wide { grid-template-columns: 1fr 1fr; }
+}

@@ -50,6 +50,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/check").authenticated()   // nginx auth_request 용: 세션 없으면 401
                         .requestMatchers("/api/auth/**", "/api/welcome", "/api/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/inquiries").permitAll()  // 비로그인 상담 신청
+                        // 가전 사진 첨부: 접수 직후 발급한 토큰을 ApplianceService 가 검사한다
+                        .requestMatchers(HttpMethod.POST, "/api/inquiries/*/photos").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
                 .exceptionHandling(eh -> eh.authenticationEntryPoint((request, response, ex) -> {

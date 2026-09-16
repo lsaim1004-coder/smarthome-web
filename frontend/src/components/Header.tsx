@@ -38,9 +38,14 @@ export default function Header() {
           자료
         </a>
         {user?.admin ? (
-          <NavLink to="/admin/inquiries" className="nav-link nav-admin">
-            신청관리
-          </NavLink>
+          <>
+            <NavLink to="/admin/inquiries" className="nav-link nav-admin">
+              신청관리
+            </NavLink>
+            <NavLink to="/admin/devices" className="nav-link nav-admin">
+              연동후보
+            </NavLink>
+          </>
         ) : null}
         {loading ? null : user ? (
           <>

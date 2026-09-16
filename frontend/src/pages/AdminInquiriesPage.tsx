@@ -3,6 +3,17 @@ import { Link } from 'react-router-dom'
 import { api, errorMessage } from '../api'
 import { useAuth } from '../auth/AuthContext'
 import { findPackage, priceLabel } from '../data/packages'
+import {
+  ALL_INTERESTS,
+  BRANDS,
+  BUILD_STAGES,
+  HOME_TYPES,
+  ROOM_COUNTS,
+  WINDOW_COUNTS,
+  labelFor,
+  labelsFor,
+} from '../data/inquiryOptions'
+import AppliancePanel from '../components/AppliancePanel'
 import { formatTime } from './WelcomePage'
 
 type Inquiry = {
@@ -12,6 +23,12 @@ type Inquiry = {
   email: string | null
   region: string | null
   areaPyeong: number | null
+  homeType: string | null
+  roomCount: string | null
+  buildStage: string | null
+  interests: string | null
+  windowCount: string | null
+  brands: string | null
   packageCode: string | null
   moveIn: string | null
   channel: string | null
@@ -37,6 +54,33 @@ function packageText(code: string | null): string {
   const found = findPackage(code)
   if (!found) return '미정'
   return `${found.name} · ${priceLabel(found.price)}`
+}
+
+/** 집 정보 한 줄. 빈 값은 건너뛴다. */
+function homeText(row: Inquiry): string {
+  const parts = [
+    labelFor(row.homeType, HOME_TYPES),
+    labelFor(row.roomCount, ROOM_COUNTS),
+    labelFor(row.buildStage, BUILD_STAGES),
+  ].filter(Boolean)
+  return parts.length ? parts.join(' · ') : '-'
+}
+
+/** 코드 묶음을 태그로 보여 준다. 없으면 아무것도 그리지 않는다. */
+function TagRow({ label, items }: { label: string; items: string[] }) {
+  if (items.length === 0) return null
+  return (
+    <div className="inq-tags">
+      <dt>{label}</dt>
+      <dd>
+        {items.map((t) => (
+          <span key={t} className="inq-tag">
+            {t}
+          </span>
+        ))}
+      </dd>
+    </div>
+  )
 }
 
 export default function AdminInquiriesPage() {
@@ -151,6 +195,10 @@ export default function AdminInquiriesPage() {
                 <dd>{packageText(row.packageCode)}</dd>
               </div>
               <div>
+                <dt>집</dt>
+                <dd>{homeText(row)}</dd>
+              </div>
+              <div>
                 <dt>지역</dt>
                 <dd>{row.region ?? '-'}</dd>
               </div>
@@ -167,6 +215,20 @@ export default function AdminInquiriesPage() {
                 <dd>{row.email ?? '-'}</dd>
               </div>
             </dl>
+
+            <dl className="inq-taglist">
+              <TagRow label="원하는 것" items={labelsFor(row.interests, ALL_INTERESTS)} />
+              <TagRow
+                label="커튼 창 수"
+                items={row.windowCount ? [labelFor(row.windowCount, WINDOW_COUNTS) ?? ''] : []}
+              />
+              <TagRow label="가전 브랜드" items={labelsFor(row.brands, BRANDS)} />
+            </dl>
+
+            <details className="inq-appl">
+              <summary>보유 가전 · 사진 보기</summary>
+              <AppliancePanel inquiryId={row.id} />
+            </details>
 
             {row.message ? <p className="inq-message">{row.message}</p> : null}
 

@@ -14,7 +14,8 @@ import kr.kiwan.smarthome.inquiry.InquiryDtos.InquiryResponse;
 public class InquiryRepository {
 
     private static final String COLUMNS =
-            "id, name, phone, email, region, area_pyeong, package_code, move_in, channel, message, "
+            "id, name, phone, email, region, area_pyeong, home_type, room_count, build_stage, interests, "
+                    + "window_count, brands, package_code, move_in, channel, message, "
                     + "status, memo, user_id, created_at, updated_at";
 
     private static final RowMapper<InquiryResponse> MAPPER = (rs, i) -> new InquiryResponse(
@@ -24,6 +25,12 @@ public class InquiryRepository {
             rs.getString("email"),
             rs.getString("region"),
             rs.getObject("area_pyeong", Integer.class),
+            rs.getString("home_type"),
+            rs.getString("room_count"),
+            rs.getString("build_stage"),
+            rs.getString("interests"),
+            rs.getString("window_count"),
+            rs.getString("brands"),
             rs.getString("package_code"),
             rs.getString("move_in"),
             rs.getString("channel"),
@@ -41,15 +48,39 @@ public class InquiryRepository {
     }
 
     public long insert(String name, String phone, String email, String region, Integer areaPyeong,
+                       String homeType, String roomCount, String buildStage, String interests,
+                       String windowCount, String brands,
                        String packageCode, String moveIn, String channel, String message,
                        Long userId, String clientIp) {
         Long id = jdbc.queryForObject(
-                "INSERT INTO inquiries (name, phone, email, region, area_pyeong, package_code, move_in, "
+                "INSERT INTO inquiries (name, phone, email, region, area_pyeong, home_type, room_count, "
+                        + "build_stage, interests, window_count, brands, package_code, move_in, "
                         + "channel, message, user_id, client_ip) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
-                Long.class, name, phone, email, region, areaPyeong, packageCode, moveIn,
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
+                Long.class, name, phone, email, region, areaPyeong, homeType, roomCount, buildStage,
+                interests, windowCount, brands, packageCode, moveIn,
                 channel, message, userId, clientIp);
         return id == null ? -1 : id;
+    }
+
+    /**
+     * 접수 직후 발급하는 업로드 토큰. 비로그인 신청자가 사진을 붙일 수 있는 유일한 열쇠다.
+     * 유효 시간이 지나면 저절로 못 쓰게 된다.
+     */
+    public void setUploadToken(long id, String token, int minutes) {
+        jdbc.update("UPDATE inquiries SET upload_token = ?, "
+                + "upload_expires_at = now() + (CAST(? AS INT) * interval '1 minute') WHERE id = ?",
+                token, minutes, id);
+    }
+
+    public boolean isUploadTokenValid(long inquiryId, String token) {
+        if (token == null || token.isBlank()) {
+            return false;
+        }
+        Integer count = jdbc.queryForObject(
+                "SELECT count(*) FROM inquiries WHERE id = ? AND upload_token = ? AND upload_expires_at > now()",
+                Integer.class, inquiryId, token);
+        return count != null && count > 0;
     }
 
     /** 같은 번호로 방금 들어온 접수가 있는지 (더블클릭·중복 제출 방지). */
