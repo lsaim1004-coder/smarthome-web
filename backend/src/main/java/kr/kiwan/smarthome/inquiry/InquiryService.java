@@ -108,7 +108,6 @@ public class InquiryService {
                 + line("연락처", row.phone())
                 + line("이메일", row.email())
                 + line("지역", row.region())
-                + line("평형", row.areaPyeong() == null ? null : row.areaPyeong() + "평")
                 + line("관심 패키지", packageLabel(row.packageCode()))
                 + line("입주·공사 예정", row.moveIn())
                 + line("알게 된 경로", row.channel())
@@ -128,7 +127,7 @@ public class InquiryService {
         String subject = "[" + props.serviceName() + "] 상담 신청이 접수되었습니다.";
         String body = name + " 님, 안녕하세요.\n\n"
                 + "스마트홈 상담 신청이 접수되었습니다. 확인 후 영업일 기준 1~2일 안에 연락드리겠습니다.\n\n"
-                + "상담은 평형과 현재 인테리어 일정에 맞춰 어떤 구성이 가능한지 먼저 확인하는 순서로 진행합니다.\n"
+                + "상담은 방 구성과 현재 인테리어 일정에 맞춰 어떤 구성이 가능한지 먼저 확인하는 순서로 진행합니다.\n"
                 + "공사 일정이 이미 잡혀 있다면 전기공사 전에 연락 주시면 선택지가 넓어집니다.\n\n"
                 + props.baseUrl() + "\n";
         mail.send(email, subject, body);

@@ -4,8 +4,6 @@ import java.time.OffsetDateTime;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -31,8 +29,8 @@ public final class InquiryDtos {
             @Size(max = 60, message = "지역은 60자 이하로 입력해 주세요.")
             String region,
 
-            @Min(value = 5, message = "평형을 확인해 주세요.")
-            @Max(value = 300, message = "평형을 확인해 주세요.")
+            // 2026-09-16: 평형으로 규모를 특정하지 않기로 해 상담 폼에서 입력을 없앴다.
+            // DB 컬럼(area_pyeong)과 이 필드는 과거 접수 건 조회를 위해 남겨 두고, 신규 접수는 항상 null 이다.
             Integer areaPyeong,
 
             @Size(max = 20, message = "패키지 값이 올바르지 않습니다.")
