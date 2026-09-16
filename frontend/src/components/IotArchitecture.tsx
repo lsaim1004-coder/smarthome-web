@@ -71,7 +71,7 @@ export default function IotArchitecture() {
           <ul className="iot-features">
             <li>모든 기기 · 모든 브랜드를 방 단위로 한곳에</li>
             <li>외출 · 귀가 · 취침 같은 생활 장면 자동화</li>
-            <li>연결 상태 · 사용 기록 · 알림</li>
+            <li>기기별 전력 사용량 · 연결 상태 · 알림</li>
             <li>Matter 브릿지로 SmartThings 에도 그대로 노출</li>
           </ul>
         </div>

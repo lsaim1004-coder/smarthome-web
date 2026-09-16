@@ -115,6 +115,7 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <li><a href="#2-9">2-9. 관찰과 조달 시 주의</a></li>
 <li><a href="#2-10-ikea-tapo-aqara-p2-2026-09-11">2-10. 저가 표준 스택 단가 검증 (IKEA · Tapo · Aqara P2, 2026-09-11 공식몰·다나와 재확인)</a></li>
 <li><a href="#2-11-2026-09-15">2-11. 벽면 태블릿 대시보드 세트 (2026-09-15 다나와·공식몰)</a></li>
+<li><a href="#2-12-2026-09-16">2-12. 에너지 계측 — 어디까지 보이나 (2026-09-16 실운영 세대 실측)</a></li>
 </ul>
 </li>
 <li><a href="#3-pc-ha">3. 서버 PC — 세대용 HA 와 중앙 관제</a><ul>
@@ -1128,6 +1129,90 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <li>태블릿 대안으로 고객 보유 구형 태블릿을 재활용하면 세트가 7.5만원대로 내려간다(견적서에 "고객 태블릿 활용 시 −20만" 옵션).</li>
 <li>Fully Kiosk 대신 HA Companion 앱만으로도 되지만, 화면 잠금·자동 켜짐·브라우저 이탈 방지는 Fully 가 낫다.</li>
 </ul>
+<h3 id="2-12-2026-09-16">2-12. 에너지 계측 — 어디까지 보이나 (2026-09-16 실운영 세대 실측)<a class="h-anchor" href="#2-12-2026-09-16" title="이 절 링크">#</a></h3>
+<p>판매 문구로 "전기 사용량이 보입니다" 를 쓰려면 <strong>무엇이 보이고 무엇이 안 보이는지</strong>를 먼저 정해야 한다. 아래는 실제 운영 중인 세대(HA 2026.8)에서 확인한 결과다.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>계측 경로</th>
+<th>무엇이 잡히나</th>
+<th>추가 비용</th>
+<th>한계</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>스마트 플러그</strong> (Aqara SP-EUC01 · 다원 PM-B540-ZB)</td>
+<td>플러그에 물린 기기 1대의 W · 누적 kWh</td>
+<td>기기당 3.8~4.2만</td>
+<td>플러그를 물릴 수 있는 콘센트 기기만. 벽 매립 조명·인덕션은 불가</td>
+</tr>
+<tr>
+<td><strong>제조사 클라우드 보고</strong> (LG ThinQ · SmartThings)</td>
+<td>에어컨 · 전기레인지 · 정수기 등의 월 누적 Wh</td>
+<td>0원 (이미 보유한 가전)</td>
+<td>모델마다 제공 여부가 다르다. 실시간 W 는 대체로 안 주고 월 누계만 준다</td>
+</tr>
+<tr>
+<td><strong>분전반 CT 계측기</strong></td>
+<td>회로 단위 전체 사용량</td>
+<td>계측기 + 전기팀 시공 (업체 견적)</td>
+<td>분전반 작업이라 전기팀 필수. 패키지 기본에 넣지 않는다</td>
+</tr>
+</tbody>
+</table></div>
+<p>실측 예 (해당 세대, 이번 달 누계):</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>기기</th>
+<th>이번 달</th>
+<th>계측 경로</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>거실 에어컨</td>
+<td>44.2 kWh</td>
+<td>LG ThinQ</td>
+</tr>
+<tr>
+<td>안방 에어컨</td>
+<td>21.4 kWh</td>
+<td>LG ThinQ</td>
+</tr>
+<tr>
+<td>전기레인지</td>
+<td>10.7 kWh</td>
+<td>LG ThinQ</td>
+</tr>
+<tr>
+<td>작은방 에어컨</td>
+<td>7.8 kWh</td>
+<td>LG ThinQ</td>
+</tr>
+<tr>
+<td>정수기</td>
+<td>4.9 kWh</td>
+<td>LG ThinQ</td>
+</tr>
+<tr>
+<td>컴퓨터방 에어컨</td>
+<td>4.3 kWh</td>
+<td>LG ThinQ</td>
+</tr>
+<tr>
+<td>합계</td>
+<td><strong>93.3 kWh</strong> (냉방이 83%)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>HA 쪽 구성은 <strong>기기별 에너지 등록 + 전체 합계 템플릿 센서(kW) + Riemann 적분(kWh)</strong> 이다. 단위가 제각각인 센서를 kW 로 통일해 한 줄로 합치는 것이 커미셔닝 항목이고, 이게 4-8 의 "기기별 에너지 모니터링" 이 실제로 하는 일이다.</li>
+<li>하루 전력 곡선의 <strong>바닥값(대기전력)</strong> 이 영업에서 가장 잘 먹힌다. 위 세대는 새벽 바닥이 42W 였고, 이 숫자는 플러그를 늘릴수록 더 잘게 쪼개진다.</li>
+<li>주의: <strong>제조사가 주는 누계는 기기 수명 전체 누적치인 경우가 있다</strong>(다원 플러그가 그렇다). 대시보드에는 기간 델타로 보여야 하며, 처음 등록한 달에는 값이 튄다고 미리 안내할 것.</li>
+</ul>
 <!-- /SECTION:PRODUCTS -->
 
 <hr />
@@ -1886,7 +1971,7 @@ h2:hover .h-anchor,h3:hover .h-anchor{color:var(--amber-2)}
 <li><strong>재고</strong>: 품절·단종 SKU 가 많아(아카라 H1·T1·M3 공식몰, 시하스, 헤이홈 피카, HA Yellow) 견적 시점마다 대체 모델을 확인해야 한다.</li>
 <li><strong>법규·세무</strong>: 물리 시공을 하지 않으면서 전기공사업·정보통신공사업 등록 이슈는 해소됐다. 남은 것은 부가세 신고 방식과 카드 매출 세액공제, 그리고 <strong>기기를 우리가 매입·재판매하므로 통신판매업 신고 필요 여부</strong>다. 하도급형(모델 1)은 업체와 세금계산서 거래라 카드수수료가 없다.</li>
 <li><strong>책임 경계의 문서화</strong>: 설정·연동 하자는 우리, 물리 시공 하자는 업체로 나뉜다. 이 경계가 계약서에 없으면 결국 고객은 판 사람에게 전화한다. <strong>업체 계약서 초안에 반드시 넣을 것.</strong></li>
-<li><strong>다음 할 일</strong>: (1) 인테리어 업체 제안서 A4 1~2장, (2) 아카라 토탈 설치 서비스 단가 확인, (3) 미스터리 쇼핑 3곳, (4) IKEA 센서 ↔ Station 페어링 실측, (5) 업체 1곳과 시공 단가·책임 경계 협의, (6) 표준 도면(거실·주방·현관·안방·침실 2) 기준 방별 배치도, (7) <strong>Tapo H110 으로 학습한 IR 가전이 SmartThings 에 어떤 종류로 노출되는지 실측</strong>, (8) <strong>마마바 유선 Wi-Fi 커튼 모터의 SmartThings·HA 연동 경로 실측</strong>(Tuya 클라우드 경유 여부), (9) PREMIUM 시간당 38,000원 문제 — 세대 서버·메시 Wi-Fi·태블릿을 고객 직구로 돌릴지 결정.</li>
+<li><strong>다음 할 일</strong>: (1) 인테리어 업체 제안서 A4 1~2장, (2) 아카라 토탈 설치 서비스 단가 확인, (3) 미스터리 쇼핑 3곳, (4) IKEA 센서 ↔ Station 페어링 실측, (5) 업체 1곳과 시공 단가·책임 경계 협의, (6) 표준 도면(거실·주방·현관·안방·침실 2) 기준 방별 배치도, (7) <strong>Tapo H110 으로 학습한 IR 가전이 SmartThings 에 어떤 종류로 노출되는지 실측</strong>, (8) <strong>마마바 유선 Wi-Fi 커튼 모터의 SmartThings·HA 연동 경로 실측</strong>(Tuya 클라우드 경유 여부), (9) PREMIUM 시간당 38,000원 문제 — 세대 서버·메시 Wi-Fi·태블릿을 고객 직구로 돌릴지 결정, (10) <strong>분전반 CT 계측기 모델·설치 단가 조사</strong> — 2-12 의 셋째 경로는 아직 가격이 없다.</li>
 </ul>
 <!-- /SECTION:LIMITS --></article>
 </div>

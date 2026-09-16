@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import ProductShot from '../components/ProductShot'
 import IotArchitecture from '../components/IotArchitecture'
+import EnergyBoard from '../components/EnergyBoard'
 import ServiceFlow from '../components/ServiceFlow'
 import { PACKAGES, priceLabel } from '../data/packages'
 import { PRODUCTS } from '../data/products'
@@ -98,6 +99,10 @@ function Problem() {
             <li>
               <b>쓰던 가전을 그대로 씁니다.</b> 제조사가 외부 연동을 막아 둔 모델만 아니면, 브랜드가 섞여 있어도 한
               화면에 들어옵니다.
+            </li>
+            <li>
+              <b>전기가 어디로 나가는지 보입니다.</b> 고지서는 집 전체 한 줄이지만, 저희가 맞춰 드리는 화면은 가전 하나
+              하나를 따로 셉니다.
             </li>
             <li>
               <b>입주 후 한 달을 같이 봅니다.</b> 자동화는 살아 보면서 고치는 것입니다.
@@ -235,6 +240,7 @@ export default function WelcomePage() {
       <Products />
       <PackageTeaser />
       <IotArchitecture />
+      <EnergyBoard />
       <ServiceFlow />
       <ClosingCta />
     </>
