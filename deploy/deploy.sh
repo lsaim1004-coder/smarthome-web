@@ -21,11 +21,9 @@ ensure_env APP_MAIL_STARTTLS true
 # 관리자 이메일은 서버 .env 에서 직접 채운다 (공개 저장소에 주소를 넣지 않음)
 ensure_env APP_ADMIN_EMAILS ""
 ensure_env APP_ADMIN_URL https://iot-admin.kiwan.kr
-# 관리자 서버(LXC 112)가 LAN 으로 붙는다. 이 호스트의 LAN 주소에만 연다.
-ensure_env DB_BIND 192.168.0.160
-ensure_env API_BIND 192.168.0.160
-# 사진 통로 공유 키와 사진 판독 키는 서버 .env 에서 직접 채운다
-ensure_env APP_INTERNAL_KEY ""
+# 관리자 컨테이너가 사진을 가져올 때 쓰는 내부 키. 없으면 여기서 한 번 만든다.
+ensure_env APP_INTERNAL_KEY "$(head -c 24 /dev/urandom | base64 | tr -d '=+/')"
+# 사진 판독 키는 서버 .env 에서 직접 채운다 (비어 있으면 규칙 추정만 한다)
 ensure_env APP_ANALYSIS_ENABLED true
 ensure_env APP_ANALYSIS_API_KEY ""
 ensure_env APP_ANALYSIS_PURGE_AFTER true
@@ -48,6 +46,9 @@ docker compose ps
 echo "== health"; curl -sS http://127.0.0.1/api/health || true; echo
 echo "== welcome"; curl -sS http://127.0.0.1/api/welcome || true; echo
 echo "== index"; curl -sS -o /dev/null -w '%{http_code} %{size_download}B\n' http://127.0.0.1/
+echo "== admin health"; curl -sS http://127.0.0.1:8080/api/health || true; echo
+echo "== admin index"; curl -sS -o /dev/null -w "%{http_code} %{size_download}B" http://127.0.0.1:8080/; echo
+echo "== catalog"; curl -sS http://127.0.0.1/api/catalog | head -c 200; echo
 docker image ls --format '{{.Repository}}:{{.Tag}} {{.Size}}' | grep -E 'smarthome|postgres|nginx|temurin|maven|node' || true
 df -h / | tail -1
 echo DEPLOY_DONE
