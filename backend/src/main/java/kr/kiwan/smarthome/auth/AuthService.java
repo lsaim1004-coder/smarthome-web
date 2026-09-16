@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,22 +37,22 @@ public class AuthService {
     private final VerificationRepository codes;
     private final PartnerRepository partners;
     private final MailService mail;
-    private final PasswordEncoder encoder;
+    private final PasswordHasher hasher;
     private final AppProperties props;
     private final AppProperties.Verification policy;
     /** 존재하지 않는 이메일로 로그인할 때도 같은 시간이 걸리도록 비교에 쓰는 더미 해시. */
     private final String dummyHash;
 
     public AuthService(UserRepository users, VerificationRepository codes, PartnerRepository partners,
-                       MailService mail, PasswordEncoder encoder, AppProperties props) {
+                       MailService mail, PasswordHasher hasher, AppProperties props) {
         this.users = users;
         this.codes = codes;
         this.partners = partners;
         this.mail = mail;
-        this.encoder = encoder;
+        this.hasher = hasher;
         this.props = props;
         this.policy = props.verification();
-        this.dummyHash = encoder.encode("dummy-password-for-timing");
+        this.dummyHash = hasher.hash("dummy-password-for-timing");
     }
 
     // ---------- 역할 ----------
@@ -80,7 +79,7 @@ public class AuthService {
     public CodeIssued register(String rawEmail, String password, String rawName) {
         String email = normalizeEmail(rawEmail);
         String name = rawName == null || rawName.isBlank() ? null : rawName.trim();
-        String hash = encoder.encode(password);
+        String hash = hasher.hash(password);
 
         // 관리자 서버는 아무나 가입할 수 없다. 운영자 이메일(app.admin-emails) 이거나
         // 등록된 업체의 담당자 이메일이어야 한다. 업체를 먼저 등록하는 것이 곧 초대다.
@@ -188,8 +187,8 @@ public class AuthService {
         String email = normalizeEmail(rawEmail);
         Optional<UserRow> user = users.findByEmail(email);
         boolean ok = user.isPresent()
-                ? encoder.matches(password, user.get().passwordHash())
-                : encoder.matches(password, dummyHash) && false;
+                ? hasher.matches(password, user.get().passwordHash())
+                : hasher.matches(password, dummyHash) && false;
         if (!ok) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "이메일 또는 비밀번호가 올바르지 않습니다.");
         }
@@ -212,6 +211,11 @@ public class AuthService {
         if (!grant.role().equals(u.role()) || !java.util.Objects.equals(grant.partnerId(), u.partnerId())) {
             users.updateRole(u.id(), grant.role(), grant.partnerId());
             log.info("role updated for {}: {} -> {}", u.email(), u.role(), grant.role());
+        }
+        // 옛 방식(서버키 없이 BCrypt 만)으로 저장돼 있으면 이 기회에 새 방식으로 바꿔 둔다.
+        if (hasher.needsUpgrade(u.passwordHash())) {
+            users.updateCredentials(u.id(), hasher.hash(password), u.name());
+            log.info("password rehashed for {}", u.email());
         }
         users.touchLogin(u.id());
         return new AuthUser(u.id(), u.email(), u.name(), grant.role(), grant.partnerId());

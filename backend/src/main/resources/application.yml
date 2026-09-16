@@ -76,6 +76,11 @@ app:
     purge-after: ${APP_ANALYSIS_PURGE_AFTER:true}
     max-attempts: 3
     batch-size: 5
+  # 비밀번호에 섞는 서버키(pepper). DB 가 아니라 이 파일에만 있어서, DB 만 새도 비밀번호를 맞춰 볼 수 없다.
+  # 없으면 처음 뜰 때 만들고, 공개·관리자 두 컨테이너가 같은 볼륨(keys)을 본다.
+  # 이 파일을 잃으면 기존 비밀번호는 모두 확인할 수 없다.
+  security:
+    key-file: ${APP_KEY_FILE:/data/keys/password.key}
   # 관리자 서버(LXC 112)가 공개 서버(LXC 111)의 사진을 가져올 때 쓰는 공유 키. 두 서버가 같은 값.
   internal:
     key: ${APP_INTERNAL_KEY:}
