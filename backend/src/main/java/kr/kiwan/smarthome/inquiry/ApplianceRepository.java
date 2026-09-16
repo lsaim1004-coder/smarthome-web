@@ -40,7 +40,7 @@ public class ApplianceRepository {
             rs.getString("iot_status"),
             rs.getString("analysis_note"),
             rs.getString("analysis_source"),
-            rs.getObject("confidence", Double.class),
+            toDouble(rs.getBigDecimal("confidence")),
             rs.getObject("analyzed_at", OffsetDateTime.class),
             rs.getObject("created_at", OffsetDateTime.class),
             List.of());
@@ -54,6 +54,14 @@ public class ApplianceRepository {
             rs.getLong("size_bytes"),
             rs.getObject("created_at", OffsetDateTime.class),
             rs.getObject("purged_at", OffsetDateTime.class));
+
+    /**
+     * confidence 는 NUMERIC(3,2) 라 JDBC 가 Double 로 바로 주지 않는다.
+     * (getObject(.., Double.class) 는 "conversion to Double from numeric not supported" 로 터진다)
+     */
+    private static Double toDouble(java.math.BigDecimal value) {
+        return value == null ? null : value.doubleValue();
+    }
 
     private final JdbcTemplate jdbc;
 
