@@ -12,8 +12,14 @@ public final class AuthDtos {
 
     private AuthDtos() {}
 
-    /** 세션에 저장되는 로그인 주체. Spring Session JDBC 직렬화 대상이므로 Serializable. */
-    public record AuthUser(long id, String email, String name) implements Serializable {}
+    /**
+     * 세션에 저장되는 로그인 주체. Spring Session JDBC 직렬화 대상이므로 Serializable.
+     *
+     * 역할과 소속 업체를 여기 담되 권한 판정은 요청마다 DB 를 다시 본다 —
+     * 업체 담당을 바꾼 뒤 그 사람이 재로그인할 때까지 기다릴 수는 없다.
+     */
+    public record AuthUser(long id, String email, String name, String role, Long partnerId)
+            implements Serializable {}
 
     public record RegisterRequest(
             @NotBlank(message = "이메일을 입력해 주세요.")
@@ -53,8 +59,10 @@ public final class AuthDtos {
     /** 인증번호 발급 결과. devCode 는 메일 모드가 log 일 때만 채워진다. */
     public record CodeIssued(String email, String message, String devCode, int expiresInMinutes) {}
 
-    public record UserResponse(long id, String email, String name, boolean admin, OffsetDateTime emailVerifiedAt,
-                               OffsetDateTime createdAt, OffsetDateTime lastLoginAt) {}
+    public record UserResponse(long id, String email, String name, boolean admin, String role,
+                               Long partnerId, String partnerName, boolean active,
+                               OffsetDateTime emailVerifiedAt, OffsetDateTime createdAt,
+                               OffsetDateTime lastLoginAt) {}
 
     public record MeResponse(boolean authenticated, UserResponse user) {}
 }

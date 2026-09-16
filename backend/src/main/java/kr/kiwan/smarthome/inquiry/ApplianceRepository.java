@@ -20,7 +20,11 @@ public class ApplianceRepository {
 
     private static final String A_COLUMNS =
             "a.id, a.inquiry_id, a.kind, a.brand, a.model_name, a.purchased, a.note, "
-                    + "a.detected_model, a.era, a.iot_status, a.analysis_note, a.analyzed_at, a.created_at";
+                    + "a.detected_model, a.era, a.iot_status, a.analysis_note, a.analysis_source, "
+                    + "a.confidence, a.analyzed_at, a.created_at";
+
+    private static final String P_COLUMNS =
+            "id, inquiry_id, appliance_id, original_name, content_type, size_bytes, created_at, purged_at";
 
     /** 사진은 따로 읽어 붙인다. 여기서는 빈 목록으로 만들어 둔다. */
     private static final RowMapper<ApplianceResponse> A_MAPPER = (rs, i) -> new ApplianceResponse(
@@ -35,6 +39,8 @@ public class ApplianceRepository {
             rs.getString("era"),
             rs.getString("iot_status"),
             rs.getString("analysis_note"),
+            rs.getString("analysis_source"),
+            rs.getObject("confidence", Double.class),
             rs.getObject("analyzed_at", OffsetDateTime.class),
             rs.getObject("created_at", OffsetDateTime.class),
             List.of());
@@ -46,7 +52,8 @@ public class ApplianceRepository {
             rs.getString("original_name"),
             rs.getString("content_type"),
             rs.getLong("size_bytes"),
-            rs.getObject("created_at", OffsetDateTime.class));
+            rs.getObject("created_at", OffsetDateTime.class),
+            rs.getObject("purged_at", OffsetDateTime.class));
 
     private final JdbcTemplate jdbc;
 
@@ -89,14 +96,52 @@ public class ApplianceRepository {
     /**
      * 분석 결과 저장. null 로 온 칸은 그대로 두고, 호출될 때마다 analyzed_at 을 찍는다.
      */
-    public void analyze(long id, String detectedModel, String era, String iotStatus, String analysisNote) {
+    public void analyze(long id, String detectedModel, String era, String iotStatus, String analysisNote,
+                        String source, Double confidence) {
         jdbc.update("UPDATE inquiry_appliances SET "
                         + "detected_model = COALESCE(?, detected_model), "
                         + "era = COALESCE(?, era), "
                         + "iot_status = COALESCE(?, iot_status), "
                         + "analysis_note = COALESCE(?, analysis_note), "
+                        + "analysis_source = COALESCE(?, analysis_source), "
+                        + "confidence = COALESCE(?, confidence), "
                         + "analyzed_at = now() WHERE id = ?",
-                detectedModel, era, iotStatus, analysisNote, id);
+                detectedModel, era, iotStatus, analysisNote, source, confidence, id);
+    }
+
+    /* ── 자동판별 ───────────────────────────────── */
+
+    /** 아직 판별하지 않았고 시도 횟수가 남은 가전. 먼저 들어온 것부터. */
+    public List<Long> findPendingAnalysis(int maxAttempts, int limit) {
+        return jdbc.query("SELECT id FROM inquiry_appliances "
+                        + "WHERE analyzed_at IS NULL AND analysis_attempts < ? "
+                        + "ORDER BY created_at LIMIT ?",
+                (rs, i) -> rs.getLong(1), maxAttempts, limit);
+    }
+
+    /** 판별을 시도했다고 적는다. 실패해도 횟수를 올려 무한히 다시 붙지 않게 한다. */
+    public void markAttempt(long id, String error) {
+        jdbc.update("UPDATE inquiry_appliances SET analysis_attempts = analysis_attempts + 1, "
+                + "analysis_error = ? WHERE id = ?", error, id);
+    }
+
+    /** 아직 지우지 않은 사진의 (id, 저장이름). */
+    public List<Object[]> livePhotoFiles(long applianceId) {
+        return jdbc.query("SELECT id, stored_name FROM inquiry_photos "
+                        + "WHERE appliance_id = ? AND purged_at IS NULL ORDER BY id",
+                (rs, i) -> new Object[] {rs.getLong(1), rs.getString(2)}, applianceId);
+    }
+
+    /** 신청 한 건에 붙은, 아직 지우지 않은 사진 전부. */
+    public List<Object[]> livePhotoFilesByInquiry(long inquiryId) {
+        return jdbc.query("SELECT id, stored_name FROM inquiry_photos "
+                        + "WHERE inquiry_id = ? AND purged_at IS NULL ORDER BY id",
+                (rs, i) -> new Object[] {rs.getLong(1), rs.getString(2)}, inquiryId);
+    }
+
+    /** 파일을 지운 뒤 표시. 행은 남겨 놓아야 “몇 장 받았는지”가 남는다. */
+    public void markPurged(long photoId) {
+        jdbc.update("UPDATE inquiry_photos SET purged_at = now() WHERE id = ? AND purged_at IS NULL", photoId);
     }
 
     /**
@@ -151,13 +196,11 @@ public class ApplianceRepository {
     }
 
     public List<PhotoResponse> photosByInquiry(long inquiryId) {
-        return jdbc.query("SELECT id, inquiry_id, appliance_id, original_name, content_type, size_bytes, "
-                + "created_at FROM inquiry_photos WHERE inquiry_id = ? ORDER BY id", P_MAPPER, inquiryId);
+        return jdbc.query("SELECT " + P_COLUMNS + " FROM inquiry_photos WHERE inquiry_id = ? ORDER BY id", P_MAPPER, inquiryId);
     }
 
     public List<PhotoResponse> findPhotosByAppliance(long applianceId) {
-        return jdbc.query("SELECT id, inquiry_id, appliance_id, original_name, content_type, size_bytes, "
-                + "created_at FROM inquiry_photos WHERE appliance_id = ? ORDER BY id", P_MAPPER, applianceId);
+        return jdbc.query("SELECT " + P_COLUMNS + " FROM inquiry_photos WHERE appliance_id = ? ORDER BY id", P_MAPPER, applianceId);
     }
 
     public int countPhotosByInquiry(long inquiryId) {
@@ -179,8 +222,7 @@ public class ApplianceRepository {
         }
         String marks = String.join(",", applianceIds.stream().map(x -> "?").toList());
         List<PhotoResponse> all = jdbc.query(
-                "SELECT id, inquiry_id, appliance_id, original_name, content_type, size_bytes, created_at "
-                        + "FROM inquiry_photos WHERE appliance_id IN (" + marks + ") ORDER BY id",
+                "SELECT " + P_COLUMNS + " FROM inquiry_photos WHERE appliance_id IN (" + marks + ") ORDER BY id",
                 P_MAPPER, applianceIds.toArray());
         Map<Long, List<PhotoResponse>> map = new LinkedHashMap<>();
         for (PhotoResponse p : all) {
@@ -205,7 +247,7 @@ public class ApplianceRepository {
 
     private static ApplianceResponse withPhotos(ApplianceResponse a, List<PhotoResponse> photos) {
         return new ApplianceResponse(a.id(), a.inquiryId(), a.kind(), a.brand(), a.modelName(), a.purchased(),
-                a.note(), a.detectedModel(), a.era(), a.iotStatus(), a.analysisNote(), a.analyzedAt(),
-                a.createdAt(), photos);
+                a.note(), a.detectedModel(), a.era(), a.iotStatus(), a.analysisNote(), a.analysisSource(),
+                a.confidence(), a.analyzedAt(), a.createdAt(), photos);
     }
 }

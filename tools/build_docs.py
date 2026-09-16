@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""정적 자료 페이지 빌드: docs/ 의 원본을 frontend/public/docs/ 의 완성 HTML 로 만든다.
+"""정적 자료 페이지 빌드: docs/ 의 원본을 admin/frontend/public/docs/ 의 완성 HTML 로 만든다.
+
+자료실은 로그인해야 보이므로 2026-09-16 에 관리자 서버로 옮겼다.
 
 사용: python tools/build_docs.py
 입력
@@ -17,7 +19,7 @@ from pathlib import Path
 import markdown
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "frontend" / "public" / "docs"
+OUT = ROOT / "admin" / "frontend" / "public" / "docs"
 NL = chr(10)
 
 # ---------------------------------------------------------------------------

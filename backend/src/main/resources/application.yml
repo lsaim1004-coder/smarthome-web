@@ -1,6 +1,11 @@
 spring:
   application:
     name: smarthome-backend
+  # 같은 이미지를 두 서버로 띄운다.
+  #  public : iot.kiwan.kr       — 로그인 없는 공개 사이트 + 접수
+  #  admin  : iot-admin.kiwan.kr — 로그인해서 쓰는 관리자
+  profiles:
+    active: ${APP_ROLE:public}
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/smarthome}
     username: ${SPRING_DATASOURCE_USERNAME:smarthome}
@@ -59,6 +64,22 @@ app:
     code-ttl-minutes: 10
     max-attempts: 5
     resend-cooldown-seconds: 60
+  # 관리자 서버 주소. 접수 알림 메일의 링크에 쓴다.
+  admin-url: ${APP_ADMIN_URL:https://iot-admin.kiwan.kr}
+  # 가전 사진 자동판별. 키가 없으면 사진 판독은 건너뛰고 구매 시기·브랜드 규칙으로만 채운다.
+  analysis:
+    enabled: ${APP_ANALYSIS_ENABLED:true}
+    api-key: ${APP_ANALYSIS_API_KEY:}
+    model: ${APP_ANALYSIS_MODEL:claude-sonnet-5}
+    base-url: ${APP_ANALYSIS_BASE_URL:https://api.anthropic.com}
+    # 모델명을 읽어낸 뒤 사진 원본을 지운다. 남길 이유가 없고, 남기면 관리 대상이 된다.
+    purge-after: ${APP_ANALYSIS_PURGE_AFTER:true}
+    max-attempts: 3
+    batch-size: 5
+  # 관리자 서버(LXC 112)가 공개 서버(LXC 111)의 사진을 가져올 때 쓰는 공유 키. 두 서버가 같은 값.
+  internal:
+    key: ${APP_INTERNAL_KEY:}
+    public-api-url: ${APP_PUBLIC_API_URL:}
 
 logging:
   level:

@@ -92,13 +92,63 @@ public final class InquiryDtos {
             String homeType, String roomCount, String buildStage, String interests, String windowCount,
             String brands,
             String packageCode, String moveIn, String channel, String message, String status, String memo,
-            Long userId, OffsetDateTime createdAt, OffsetDateTime updatedAt
+            Long userId, Long partnerId, String partnerName,
+            OffsetDateTime createdAt, OffsetDateTime updatedAt
     ) {}
 
+    /**
+     * 관리자 편집. 보내지 않은(null) 항목은 그대로 둔다 —
+     * 화면이 한 칸만 고쳐 보내도 나머지가 지워지면 안 된다.
+     * 담당 업체를 떼려면 partnerId 에 0 을 보낸다.
+     */
     public record UpdateRequest(
             @Size(max = 20, message = "상태 값이 올바르지 않습니다.")
             String status,
+
             @Size(max = 2000, message = "메모는 2000자 이하로 입력해 주세요.")
-            String memo
+            String memo,
+
+            @Size(max = 50, message = "성함은 50자 이하로 입력해 주세요.")
+            String name,
+
+            @Size(max = 30, message = "연락처는 30자 이하로 입력해 주세요.")
+            String phone,
+
+            @Size(max = 120, message = "이메일이 너무 깁니다.")
+            String email,
+
+            @Size(max = 60, message = "지역은 60자 이하로 입력해 주세요.")
+            String region,
+
+            @Size(max = 20, message = "주거 형태 값이 올바르지 않습니다.")
+            String homeType,
+
+            @Size(max = 20, message = "방 개수 값이 올바르지 않습니다.")
+            String roomCount,
+
+            @Size(max = 20, message = "공사 상태 값이 올바르지 않습니다.")
+            String buildStage,
+
+            List<String> interests,
+
+            @Size(max = 20, message = "창 개수 값이 올바르지 않습니다.")
+            String windowCount,
+
+            @Size(max = 20, message = "패키지 값이 올바르지 않습니다.")
+            String packageCode,
+
+            @Size(max = 40, message = "예정 시기는 40자 이하로 입력해 주세요.")
+            String moveIn,
+
+            @Size(max = 80, message = "유입 경로는 80자 이하로 입력해 주세요.")
+            String channel,
+
+            @Size(max = 2000, message = "문의 내용은 2000자 이하로 입력해 주세요.")
+            String message,
+
+            Long partnerId
     ) {}
+
+    /** 상세 화면 한 벌. 신청 내용 + 보유 가전(판별 결과 포함). */
+    public record InquiryDetail(InquiryResponse inquiry, List<ApplianceDtos.ApplianceResponse> appliances) {}
 }

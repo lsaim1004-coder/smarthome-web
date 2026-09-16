@@ -1,5 +1,14 @@
 name: smarthome-web
 
+# Proxmox LXC 111 한 곳에서 두 사이트를 띄운다.
+#
+#   iot.kiwan.kr       -> frontend(80)  + backend(APP_ROLE=public)   로그인 없는 공개 사이트
+#   iot-admin.kiwan.kr -> admin-web(8080) + admin-api(APP_ROLE=admin) 로그인해야 들어가는 관리자
+#
+# 백엔드는 같은 이미지이고 프로필로만 갈린다. 호스트를 나누지 않은 이유는,
+# 나누면 PostgreSQL(5432)과 사진 통로(8081)를 LAN 주소로 열어야 하기 때문이다.
+# 한 곳에 두면 그 둘이 컨테이너 내부망에만 남는다. 도메인 분리는 NPM 과 nginx 가 한다.
+
 services:
   db:
     image: postgres:16-alpine
@@ -22,17 +31,20 @@ services:
 
   backend:
     build: ./backend
-    image: smarthome-web/backend:0.6.2
+    image: smarthome-web/backend:0.7.0
     container_name: smarthome-backend
     restart: unless-stopped
     environment:
+      # public 프로필: 로그인 없이 소개·접수만. 관리자 API 는 이 컨테이너에 뜨지 않는다.
+      APP_ROLE: public
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/smarthome
       SPRING_DATASOURCE_USERNAME: smarthome
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       TZ: Asia/Seoul
-      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=60 -Duser.timezone=Asia/Seoul"
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=50 -Duser.timezone=Asia/Seoul"
       APP_BASE_URL: ${APP_BASE_URL:-http://localhost}
-      # 관리자 이메일(콤마 구분). 상담 신청 알림을 받고 /admin/inquiries 목록을 볼 수 있다
+      APP_ADMIN_URL: ${APP_ADMIN_URL:-https://iot-admin.kiwan.kr}
+      # 상담 접수 알림을 받고, 이 주소로 관리자(OWNER) 계정을 만들 수 있다.
       APP_ADMIN_EMAILS: ${APP_ADMIN_EMAILS:-}
       # 메일: log(개발, 인증번호를 로그·응답에 표시) | smtp(실제 발송)
       APP_MAIL_MODE: ${APP_MAIL_MODE:-log}
@@ -43,6 +55,13 @@ services:
       APP_MAIL_FROM: ${APP_MAIL_FROM:-no-reply@example.com}
       APP_MAIL_STARTTLS: ${APP_MAIL_STARTTLS:-true}
       APP_UPLOAD_DIR: /data/uploads
+      # 가전 사진 자동판별. 키가 없으면 구매시기·브랜드 규칙으로만 채운다.
+      APP_ANALYSIS_ENABLED: ${APP_ANALYSIS_ENABLED:-true}
+      APP_ANALYSIS_API_KEY: ${APP_ANALYSIS_API_KEY:-}
+      APP_ANALYSIS_MODEL: ${APP_ANALYSIS_MODEL:-claude-sonnet-5}
+      APP_ANALYSIS_PURGE_AFTER: ${APP_ANALYSIS_PURGE_AFTER:-true}
+      # 관리자가 사진을 가져갈 때 쓰는 공유 키. 내부망에서만 쓰이지만 값은 비워 두지 않는다.
+      APP_INTERNAL_KEY: ${APP_INTERNAL_KEY:?set APP_INTERNAL_KEY in .env}
     volumes:
       - uploads:/data/uploads
     depends_on:
@@ -58,13 +77,63 @@ services:
 
   frontend:
     build: ./frontend
-    image: smarthome-web/frontend:0.6.2
+    image: smarthome-web/frontend:0.7.0
     container_name: smarthome-frontend
     restart: unless-stopped
     ports:
       - "80:80"
     depends_on:
       - backend
+    networks: [internal]
+
+  admin-api:
+    build: ./backend
+    image: smarthome-web/backend:0.7.0
+    container_name: smarthome-admin-api
+    restart: unless-stopped
+    environment:
+      # admin 프로필: 로그인·상담 관리·상품 구성. 공개 API 는 이 컨테이너에 뜨지 않는다.
+      APP_ROLE: admin
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/smarthome
+      SPRING_DATASOURCE_USERNAME: smarthome
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      TZ: Asia/Seoul
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=40 -Duser.timezone=Asia/Seoul"
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost}
+      APP_ADMIN_URL: ${APP_ADMIN_URL:-https://iot-admin.kiwan.kr}
+      APP_ADMIN_EMAILS: ${APP_ADMIN_EMAILS:-}
+      APP_MAIL_MODE: ${APP_MAIL_MODE:-log}
+      APP_MAIL_HOST: ${APP_MAIL_HOST:-}
+      APP_MAIL_PORT: ${APP_MAIL_PORT:-587}
+      APP_MAIL_USERNAME: ${APP_MAIL_USERNAME:-}
+      APP_MAIL_PASSWORD: ${APP_MAIL_PASSWORD:-}
+      APP_MAIL_FROM: ${APP_MAIL_FROM:-no-reply@example.com}
+      APP_MAIL_STARTTLS: ${APP_MAIL_STARTTLS:-true}
+      # 사진 파일은 접수를 받은 backend 쪽 볼륨에만 있다. 필요할 때 내부망으로 받아 흘린다.
+      APP_INTERNAL_KEY: ${APP_INTERNAL_KEY}
+      APP_PUBLIC_API_URL: http://backend:8080
+    depends_on:
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/api/health >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    networks: [internal]
+
+  admin-web:
+    build: ./admin/frontend
+    image: smarthome-web/admin:0.7.0
+    container_name: smarthome-admin-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - admin-api
     networks: [internal]
 
 volumes:

@@ -3,6 +3,7 @@ package kr.kiwan.smarthome.auth;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -33,6 +34,11 @@ import kr.kiwan.smarthome.auth.AuthDtos.UserResponse;
 import kr.kiwan.smarthome.auth.AuthDtos.VerifyRequest;
 import kr.kiwan.smarthome.auth.UserRepository.UserRow;
 
+/**
+ * 로그인·가입은 관리자 서버(iot-admin.kiwan.kr)에만 있다.
+ * 공개 사이트는 로그인 없이 접수만 받으므로 public 프로필에서는 이 컨트롤러가 뜨지 않는다.
+ */
+@Profile("admin")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -121,7 +127,9 @@ public class AuthController {
     }
 
     private UserResponse toResponse(UserRow row) {
-        return new UserResponse(row.id(), row.email(), row.name(), props.isAdmin(row.email()), row.emailVerifiedAt(),
-                row.createdAt(), row.lastLoginAt());
+        String partnerName = auth.partner(row.partnerId()).map(p -> p.name()).orElse(null);
+        return new UserResponse(row.id(), row.email(), row.name(), props.isAdmin(row.email()),
+                row.role(), row.partnerId(), partnerName, row.active(),
+                row.emailVerifiedAt(), row.createdAt(), row.lastLoginAt());
     }
 }
