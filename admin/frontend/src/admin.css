@@ -87,3 +87,14 @@ body {
 .admin-foot {
   background: var(--cui-body-bg);
 }
+
+/* 모델명 복사 버튼. 값 옆에 조용히 붙어 있다가 누르면 "복사됨" 으로 잠깐 바뀐다. */
+.copy-text {
+  font-size: 0.75rem;
+  text-decoration: none;
+  vertical-align: baseline;
+}
+
+.copy-text:hover {
+  text-decoration: underline;
+}
