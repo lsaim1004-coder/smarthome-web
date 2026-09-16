@@ -14,7 +14,6 @@ export default function ContactPage() {
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [region, setRegion] = useState('')
-  const [areaPyeong, setAreaPyeong] = useState('')
   const [packageCode, setPackageCode] = useState('UNDECIDED')
   const [moveIn, setMoveIn] = useState('')
   const [channel, setChannel] = useState('')
@@ -53,7 +52,7 @@ export default function ContactPage() {
           phone,
           email: email || null,
           region: region || null,
-          areaPyeong: areaPyeong ? Number(areaPyeong) : null,
+          areaPyeong: null,
           packageCode,
           moveIn: moveIn || null,
           channel: channel || null,
@@ -97,7 +96,7 @@ export default function ContactPage() {
         <p className="kicker">상담 신청</p>
         <h2>어떤 집인지 알려 주세요</h2>
         <p>
-          평형과 공사 일정만 알려 주시면 가능한 구성과 예상 비용을 먼저 정리해 드립니다. 영업일 기준 1~2일 안에
+          방 구성과 공사 일정만 알려 주시면 가능한 구성과 예상 비용을 먼저 정리해 드립니다. 영업일 기준 1~2일 안에
           연락드립니다.
         </p>
       </div>
@@ -136,20 +135,8 @@ export default function ContactPage() {
 
         <div className="field-row">
           <label className="field">
-            지역 <small>예: 수원 영통</small>
+            지역 <small>예: 수원 영통 · 아파트</small>
             <input value={region} onChange={(e) => setRegion(e.target.value)} maxLength={60} />
-          </label>
-          <label className="field">
-            평형 <small>공급면적 기준</small>
-            <input
-              type="number"
-              value={areaPyeong}
-              onChange={(e) => setAreaPyeong(e.target.value)}
-              min={5}
-              max={300}
-              placeholder="34"
-              inputMode="numeric"
-            />
           </label>
         </div>
 

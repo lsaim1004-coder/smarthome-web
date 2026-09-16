@@ -15,7 +15,7 @@ export function formatTime(iso: string | Date): string {
 const FACTS = [
   { label: '한 화면에 묶는 브랜드', value: '5+', note: '삼성 · LG · 샤오미 · Aqara · SwitchBot' },
   { label: '표준으로 짜 드리는 생활 장면', value: '8종', note: '외출 · 귀가 · 취침 · 청소 · 아침 · 보안 · 커튼 · 음성' },
-  { label: '34평 표준 구성 커미셔닝', value: '7h', note: '설계 협의부터 사용 교육까지' },
+  { label: '표준 구성 커미셔닝', value: '7h', note: '설계 협의부터 사용 교육까지' },
 ]
 
 function Hero() {
@@ -156,8 +156,8 @@ function Products() {
         <p className="kicker">제품 라인업</p>
         <h2>실제로 들어가는 제품들</h2>
         <p>
-          모든 브랜드를 다 다루지 않습니다. 아래 열두 가지로 고정해 두면 설치가 빨라지고, 고장이 줄고, 몇 년 뒤 부품을
-          구하기도 쉽습니다. 기기값과 서비스비는 견적서에서 분리해 보여 드립니다.
+          모든 브랜드를 다 다루지 않습니다. 아래 열다섯 가지로 고정해 두면 설치가 빨라지고, 고장이 줄고, 몇 년 뒤
+          부품을 구하기도 쉽습니다. 기기값과 서비스비는 견적서에서 분리해 보여 드립니다.
         </p>
       </div>
       <div className="prod-grid">
@@ -189,7 +189,7 @@ function PackageTeaser() {
   return (
     <section className="teaser">
       <div className="teaser-head">
-        <h2>34평 기준 5단계</h2>
+        <h2>패키지 5단계</h2>
         <Link to="/packages" className="teaser-more">
           구성 자세히 보기
         </Link>
@@ -215,7 +215,8 @@ function ClosingCta() {
     <section className="closing">
       <h2>공사 일정이 잡히기 전이 가장 좋습니다</h2>
       <p>
-        평형과 일정만 알려 주시면 가능한 구성과 예상 비용을 먼저 정리해 드립니다. 영업일 기준 1~2일 안에 연락드립니다.
+        방 구성과 일정만 알려 주시면 가능한 구성과 예상 비용을 먼저 정리해 드립니다. 영업일 기준 1~2일 안에
+        연락드립니다.
       </p>
       <Link to="/contact" className="btn btn-lg">
         상담 신청

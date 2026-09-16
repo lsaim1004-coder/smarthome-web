@@ -18,6 +18,9 @@ export type ShotKind =
   | 'leak'
   | 'plug'
   | 'curtain'
+  | 'blind'
+  | 'irhub'
+  | 'tablet'
   | 'hubm3'
   | 'doorlock'
   | 'minipc'
@@ -103,22 +106,49 @@ export const PRODUCTS: Product[] = [
     note: '바닥이 젖기 전에 알립니다. 아랫집까지 내려가면 비용이 다른 차원이 됩니다.',
   },
   {
+    kind: 'irhub',
+    brand: 'TP-Link Tapo',
+    model: 'H110 IR 리모컨 허브',
+    role: '리모컨으로만 되는 구형 가전',
+    link: 'Wi-Fi · Matter · IR 학습',
+    from: 'BASIC',
+    note: '오래된 에어컨·TV 는 Wi-Fi 도 없고 제조사 앱에도 안 잡힙니다. 리모컨 신호를 학습해 외출·귀가 장면에 넣습니다.',
+  },
+  {
     kind: 'curtain',
-    brand: 'SwitchBot',
-    model: '커튼 3 (레일형)',
-    role: '기존 커튼 레일에 장착',
-    link: 'Bluetooth · Matter(허브 경유)',
+    brand: '마마바',
+    model: '전동커튼 맞춤 레일 + 유선 Wi-Fi 모터',
+    role: '창 크기에 맞춘 레일까지',
+    link: 'Wi-Fi · SmartThings 연동',
     from: 'PREMIUM',
-    note: '커튼을 새로 맞출 필요가 없습니다. 쓰던 레일에 물려 일출·일몰 시각에 맞춰 움직입니다.',
+    note: '레일을 창 치수대로 맞춰 제작합니다. 일출·일몰 시각에 맞춰 열리고, 커튼 원단은 쓰시던 것을 그대로 답니다.',
+  },
+  {
+    kind: 'blind',
+    brand: '마마바',
+    model: '전동 블라인드 매터 모터',
+    role: '롤스크린 · 콤비 블라인드',
+    link: 'Matter · SmartThings 직접',
+    from: 'FULL HOME',
+    note: '허브를 거치지 않고 SmartThings 에 바로 붙습니다. 햇빛이 드는 시간에 맞춰 내려갑니다.',
   },
   {
     kind: 'hubm3',
     brand: 'Aqara',
     model: '허브 M3',
-    role: '적외선 리모컨 가전까지',
+    role: 'Zigbee 기기 + 거실 적외선',
     link: 'Zigbee · Thread · Matter · IR',
     from: 'PREMIUM',
-    note: '에어컨·선풍기처럼 리모컨으로만 되는 기기를 적외선으로 잡아 자동화에 넣습니다.',
+    note: 'Zigbee 기기를 모으고, 거실 적외선 가전도 함께 잡습니다.',
+  },
+  {
+    kind: 'tablet',
+    brand: '벽면 태블릿',
+    model: '11인치 + 벽 거치대 + 매립 전원',
+    role: '가족 공용 한 화면 제어',
+    link: 'Home Assistant 대시보드',
+    from: 'PREMIUM',
+    note: '앱을 여러 개 깔 필요 없이 벽에 붙은 화면 하나로 조명·커튼·에어컨을 누르고, 기기별 전기 사용량도 봅니다.',
   },
   {
     kind: 'mesh',

@@ -151,11 +151,8 @@ export default function AdminInquiriesPage() {
                 <dd>{packageText(row.packageCode)}</dd>
               </div>
               <div>
-                <dt>지역 · 평형</dt>
-                <dd>
-                  {row.region ?? '-'}
-                  {row.areaPyeong ? ` · ${row.areaPyeong}평` : ''}
-                </dd>
+                <dt>지역</dt>
+                <dd>{row.region ?? '-'}</dd>
               </div>
               <div>
                 <dt>예정 시기</dt>
