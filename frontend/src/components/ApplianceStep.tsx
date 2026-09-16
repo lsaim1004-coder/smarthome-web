@@ -192,6 +192,12 @@ export default function ApplianceStep({
     onChange(drafts.filter((d) => d.key !== key))
   }
 
+  /** 같은 종류 중 가장 나중에 넣은 것을 뺀다. 칩에서 개수를 줄일 때 쓴다. */
+  function removeLast(kind: string) {
+    const last = [...drafts].reverse().find((d) => d.kind === kind)
+    if (last) remove(last.key)
+  }
+
   const used = drafts.reduce((n, d) => n + d.photos.length, 0)
   const core = APPLIANCE_KINDS.filter((k) => k.core)
   const extra = APPLIANCE_KINDS.filter((k) => !k.core)
@@ -200,20 +206,44 @@ export default function ApplianceStep({
     return drafts.filter((d) => d.kind === code).length
   }
 
+  /** 가전 종류 하나. 누르면 늘고, 옆의 빼기 버튼으로 줄인다. */
+  function KindChip({ code, label }: { code: string; label: string }) {
+    const n = countOf(code)
+    return (
+      <span className={n > 0 ? 'chip-step on' : 'chip-step'}>
+        <button type="button" className="chip-step-add" onClick={() => add(code)}>
+          {label}
+          <i aria-hidden="true">＋</i>
+        </button>
+        {n > 0 ? (
+          <>
+            <em className="chip-step-n">{n}</em>
+            <button
+              type="button"
+              className="chip-step-sub"
+              onClick={() => removeLast(code)}
+              aria-label={`${label} 하나 빼기`}
+            >
+              −
+            </button>
+          </>
+        ) : null}
+      </span>
+    )
+  }
+
   return (
     <>
       <p className="fstep-sub">
-        갖고 계신 가전을 눌러 추가해 주세요. 같은 종류가 여러 대면 여러 번 누르시면 됩니다. 종류만 골라도 접수됩니다.
+        갖고 계신 가전을 눌러 추가해 주세요. 같은 종류가 여러 대면 여러 번 누르시면 됩니다. 잘못 누르셨으면 옆의{' '}
+        <b>−</b> 로 빼시면 됩니다. 종류만 골라도 접수됩니다.
       </p>
 
       <div className="q">
         <p className="q-label">거의 모든 집에 있는 것</p>
         <div className="chip-set">
           {core.map((k) => (
-            <button key={k.code} type="button" className="chip-add" onClick={() => add(k.code)}>
-              {k.label}
-              {countOf(k.code) > 0 ? <em>{countOf(k.code)}</em> : null}
-            </button>
+            <KindChip key={k.code} code={k.code} label={k.label} />
           ))}
         </div>
       </div>
@@ -222,10 +252,7 @@ export default function ApplianceStep({
         <p className="q-label">그 밖에</p>
         <div className="chip-set">
           {extra.map((k) => (
-            <button key={k.code} type="button" className="chip-add" onClick={() => add(k.code)}>
-              {k.label}
-              {countOf(k.code) > 0 ? <em>{countOf(k.code)}</em> : null}
-            </button>
+            <KindChip key={k.code} code={k.code} label={k.label} />
           ))}
         </div>
       </div>
