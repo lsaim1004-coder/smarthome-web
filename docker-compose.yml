@@ -22,7 +22,7 @@ services:
 
   backend:
     build: ./backend
-    image: smarthome-web/backend:0.4.0
+    image: smarthome-web/backend:0.5.0
     container_name: smarthome-backend
     restart: unless-stopped
     environment:
@@ -55,7 +55,7 @@ services:
 
   frontend:
     build: ./frontend
-    image: smarthome-web/frontend:0.4.0
+    image: smarthome-web/frontend:0.5.0
     container_name: smarthome-frontend
     restart: unless-stopped
     ports:
