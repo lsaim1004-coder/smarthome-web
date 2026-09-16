@@ -31,8 +31,11 @@ public class InquiryController {
                                                  HttpServletRequest request) {
         Long userId = (authentication != null && authentication.getPrincipal() instanceof AuthUser user)
                 ? user.id() : null;
-        inquiries.create(req, userId, request.getRemoteAddr());
+        InquiryService.Created created = inquiries.create(req, userId, request.getRemoteAddr());
         return ResponseEntity.status(HttpStatus.CREATED).body(new CreateResponse(true,
-                "상담 신청이 접수되었습니다. 영업일 기준 1~2일 안에 연락드리겠습니다."));
+                "상담 신청이 접수되었습니다. 영업일 기준 1~2일 안에 연락드리겠습니다.",
+                created.id() > 0 ? created.id() : null,
+                created.uploadToken(),
+                created.applianceIds()));
     }
 }

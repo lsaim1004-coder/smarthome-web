@@ -1,6 +1,8 @@
 package kr.kiwan.smarthome.inquiry;
 
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Map;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
@@ -33,6 +35,30 @@ public final class InquiryDtos {
             // DB 컬럼(area_pyeong)과 이 필드는 과거 접수 건 조회를 위해 남겨 두고, 신규 접수는 항상 null 이다.
             Integer areaPyeong,
 
+            // 2026-09-16 양식 개편: 신청자가 기기 이름을 몰라도 채울 수 있게 집 상태와 관심 항목을 받는다.
+            // 코드 값 검증은 서비스에서 화이트리스트로 한다(프런트 코드표: frontend/src/data/inquiryOptions.ts).
+            @Size(max = 20, message = "주거 형태 값이 올바르지 않습니다.")
+            String homeType,
+
+            @Size(max = 20, message = "방 개수 값이 올바르지 않습니다.")
+            String roomCount,
+
+            @Size(max = 20, message = "공사 상태 값이 올바르지 않습니다.")
+            String buildStage,
+
+            /** 관심 항목 코드. 알 수 없는 코드는 버린다. */
+            List<String> interests,
+
+            @Size(max = 20, message = "창 개수 값이 올바르지 않습니다.")
+            String windowCount,
+
+            /**
+             * 보유 가전 목록. 종류 · 브랜드 · 모델명 · 구매 시기를 한 대씩 받는다.
+             * 사진은 접수 후 이 목록의 id 에 붙는다(ApplianceController).
+             */
+            @jakarta.validation.Valid
+            List<ApplianceDtos.ApplianceInput> appliances,
+
             @Size(max = 20, message = "패키지 값이 올바르지 않습니다.")
             String packageCode,
 
@@ -52,11 +78,19 @@ public final class InquiryDtos {
             String company
     ) {}
 
-    public record CreateResponse(boolean ok, String message) {}
+    /**
+     * 접수 응답. 사진을 붙일 수 있게 접수번호와 업로드 토큰, 그리고
+     * 프런트가 보낸 순번 → 저장된 가전 id 매핑을 같이 준다.
+     * 봇 요청(허니팟)이면 전부 비어 있고, 프런트는 업로드를 건너뛴다.
+     */
+    public record CreateResponse(boolean ok, String message, Long id, String uploadToken,
+                                 Map<Integer, Long> applianceIds) {}
 
     /** 관리자 목록 행. */
     public record InquiryResponse(
             long id, String name, String phone, String email, String region, Integer areaPyeong,
+            String homeType, String roomCount, String buildStage, String interests, String windowCount,
+            String brands,
             String packageCode, String moveIn, String channel, String message, String status, String memo,
             Long userId, OffsetDateTime createdAt, OffsetDateTime updatedAt
     ) {}
