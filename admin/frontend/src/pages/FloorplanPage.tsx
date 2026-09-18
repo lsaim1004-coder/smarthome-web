@@ -19,7 +19,7 @@ import { api, errorMessage } from '../api'
 import PlanEditor, { type Mode } from '../floorplan/PlanEditor'
 import PlanView3D from '../floorplan/PlanView3D'
 import { EMPTY_GEOMETRY, geometryOf, styleOf } from '../floorplan/types'
-import { detectWalls } from '../floorplan/detectWalls'
+import { detectPlan } from '../floorplan/detectPlan'
 import type { Floorplan, Geometry, PlacedDevice, Scale } from '../floorplan/types'
 import type { InquiryDetail, RequirementSheet } from '../data/types'
 
@@ -169,11 +169,12 @@ export default function FloorplanPage() {
       const img = new Image()
       img.src = `/api/admin/floorplans/${planId}/image`
       await img.decode()
-      const res = detectWalls(img)
+      const res = detectPlan(img)
       let note = res.note
 
       if (res.walls.length > 0) {
-        setGeometry((g) => ({ ...g, walls: res.walls }))
+        // 벽·문창·방을 통째로 갈아 끼운다. 손으로 고친 게 있으면 덮어쓰므로 버튼을 눌러야만 돈다.
+        setGeometry({ walls: res.walls, openings: res.openings, rooms: res.rooms })
         setDirty(true)
         setMode('select')
 
@@ -190,7 +191,7 @@ export default function FloorplanPage() {
           }
           const mm = Math.round(bestPx * res.mmPerPx)
           setScale({ x1: best.x1, y1: best.y1, x2: best.x2, y2: best.y2, mm })
-          note += ` 가장 긴 벽을 ${(mm / 1000).toFixed(2)}m 로 보고 3D 를 세웠습니다.`
+          note += ` 가장 긴 벽을 ${(mm / 1000).toFixed(2)}m 로 봤습니다.`
         }
       }
       setAutoNote(note)
@@ -402,7 +403,7 @@ export default function FloorplanPage() {
                   disabled={autoBusy}
                   onClick={() => void runDetect(current.id, current.imageWidth ?? 0, current.imageHeight ?? 0)}
                 >
-                  {autoBusy ? '찾는 중…' : '벽 자동 찾기'}
+                  {autoBusy ? '찾는 중…' : '도면 자동 인식'}
                 </CButton>
 
                 <span className="ms-auto d-flex align-items-center gap-2">
