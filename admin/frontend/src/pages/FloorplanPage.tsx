@@ -19,6 +19,7 @@ import { api, errorMessage } from '../api'
 import PlanEditor, { type Mode } from '../floorplan/PlanEditor'
 import PlanView3D from '../floorplan/PlanView3D'
 import { EMPTY_GEOMETRY, geometryOf, styleOf } from '../floorplan/types'
+import { detectWalls } from '../floorplan/detectWalls'
 import type { Floorplan, Geometry, PlacedDevice, Scale } from '../floorplan/types'
 import type { InquiryDetail, RequirementSheet } from '../data/types'
 
@@ -92,6 +93,9 @@ export default function FloorplanPage() {
   const [pendingScale, setPendingScale] = useState<{ a: { x: number; y: number }; b: { x: number; y: number } } | null>(null)
   const [scaleMm, setScaleMm] = useState('')
 
+  const [autoBusy, setAutoBusy] = useState(false)
+  const [autoNote, setAutoNote] = useState<string | null>(null)
+
   const [dirty, setDirty] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -125,8 +129,24 @@ export default function FloorplanPage() {
     setDirty(false)
   }, [current?.id])
 
-  const mmX = current?.derived?.mmPerUnitX ?? 0
-  const mmY = current?.derived?.mmPerUnitY ?? 0
+  /**
+   * 축척 환산. 서버도 같은 값을 내지만 그건 저장해야 갱신된다 —
+   * 그리는 도중에도 3D 가 따라와야 하므로 여기서 직접 계산한다.
+   */
+  const view = useMemo(() => {
+    const w = current?.imageWidth ?? 0
+    const h = current?.imageHeight ?? 0
+    if (!w || !h || scale.x1 == null || scale.x2 == null || scale.y1 == null || scale.y2 == null || !scale.mm) {
+      return { scaled: false, mmX: 0, mmY: 0 }
+    }
+    const px = Math.hypot((scale.x2 - scale.x1) * w, (scale.y2 - scale.y1) * h)
+    if (px < 0.5) return { scaled: false, mmX: 0, mmY: 0 }
+    const mmPerPx = scale.mm / px
+    return { scaled: true, mmX: mmPerPx * w, mmY: mmPerPx * h }
+  }, [scale, current?.imageWidth, current?.imageHeight])
+
+  const mmX = view.mmX
+  const mmY = view.mmY
 
   /** 필요 수량(시트) 대비 배치 수량. 도면을 채우다 보면 모자란 게 바로 보인다. */
   const palette = useMemo(() => {
@@ -137,6 +157,49 @@ export default function FloorplanPage() {
       placed: devices.filter((d) => d.item === n.item).length,
     }))
   }, [sheet, devices])
+
+  /**
+   * 도면 그림에서 벽을 찾아 넣고, 벽 두께로 축척까지 추정한다.
+   * 결과는 초안이다 — 틀린 곳은 편집기에서 고친다. 서버를 거치지 않고 브라우저에서 끝난다.
+   */
+  async function runDetect(planId: number, imageWidth: number, imageHeight: number) {
+    setAutoBusy(true)
+    setAutoNote(null)
+    try {
+      const img = new Image()
+      img.src = `/api/admin/floorplans/${planId}/image`
+      await img.decode()
+      const res = detectWalls(img)
+      let note = res.note
+
+      if (res.walls.length > 0) {
+        setGeometry((g) => ({ ...g, walls: res.walls }))
+        setDirty(true)
+        setMode('select')
+
+        // 가장 긴 벽에 추정 축척을 물려 준다. 두 점 + 실제 길이가 우리 축척 표현이다.
+        if (res.mmPerPx && imageWidth && imageHeight) {
+          let best = res.walls[0]
+          let bestPx = 0
+          for (const wl of res.walls) {
+            const d = Math.hypot((wl.x2 - wl.x1) * imageWidth, (wl.y2 - wl.y1) * imageHeight)
+            if (d > bestPx) {
+              bestPx = d
+              best = wl
+            }
+          }
+          const mm = Math.round(bestPx * res.mmPerPx)
+          setScale({ x1: best.x1, y1: best.y1, x2: best.x2, y2: best.y2, mm })
+          note += ` 가장 긴 벽을 ${(mm / 1000).toFixed(2)}m 로 보고 3D 를 세웠습니다.`
+        }
+      }
+      setAutoNote(note)
+    } catch (e) {
+      setAutoNote('도면을 읽지 못했습니다: ' + errorMessage(e))
+    } finally {
+      setAutoBusy(false)
+    }
+  }
 
   function change(next: { geometry?: Geometry; devices?: PlacedDevice[] }) {
     if (next.geometry) setGeometry(next.geometry)
@@ -154,10 +217,10 @@ export default function FloorplanPage() {
         method: 'POST',
         body: form,
       })
-      setNotice('도면을 올렸습니다. 먼저 축척을 잡아 주세요.')
+      setNotice('도면을 올렸습니다. 벽을 찾는 중입니다…')
       setCurrent(created)
-      setMode('scale')
       load()
+      await runDetect(created.id, created.imageWidth ?? 0, created.imageHeight ?? 0)
     } catch (e) {
       setError(errorMessage(e))
     } finally {
@@ -332,6 +395,16 @@ export default function FloorplanPage() {
                   </CButtonGroup>
                 ) : null}
 
+                <CButton
+                  size="sm"
+                  color="info"
+                  variant="outline"
+                  disabled={autoBusy}
+                  onClick={() => void runDetect(current.id, current.imageWidth ?? 0, current.imageHeight ?? 0)}
+                >
+                  {autoBusy ? '찾는 중…' : '벽 자동 찾기'}
+                </CButton>
+
                 <span className="ms-auto d-flex align-items-center gap-2">
                   <span className="small text-body-secondary">벽 높이</span>
                   <CFormInput
@@ -379,7 +452,7 @@ export default function FloorplanPage() {
               <div className="plan-steps mt-2">
                 {STEPS.map((st) => {
                   const done =
-                    st.mode === 'scale' ? !!current.derived?.scaled
+                    st.mode === 'scale' ? view.scaled
                       : st.mode === 'wall' ? geometry.walls.length > 0
                       : st.mode === 'room' ? geometry.rooms.length > 0
                       : st.mode === 'opening' ? geometry.openings.length > 0
@@ -406,20 +479,23 @@ export default function FloorplanPage() {
                     벽·방·문창·기기를 클릭하면 오른쪽에서 고치거나 지울 수 있습니다.
                   </span>
                 ) : (
-                  <span className={current.derived?.scaled || mode === 'scale' ? 'text-body-secondary' : 'text-danger'}>
+                  <span className={view.scaled || mode === 'scale' ? 'text-body-secondary' : 'text-danger'}>
                     {STEPS.find((x) => x.mode === mode)?.hint}
-                    {!current.derived?.scaled && mode !== 'scale'
-                      ? ' — 먼저 ① 축척을 잡아야 3D 로 섭니다.'
-                      : ''}
+                    {!view.scaled && mode !== 'scale' ? ' — 먼저 ① 축척을 잡아야 3D 로 섭니다.' : ''}
                   </span>
                 )}
               </div>
 
-              {current.derived?.scaled ? (
+              {autoNote ? (
+                <div className="small mt-2 p-2 rounded bg-body-tertiary">{autoNote}</div>
+              ) : null}
+
+              {view.scaled ? (
                 <div className="small text-body-secondary mt-1">
-                  벽 {current.derived.wallCount}개 · 총 {(current.derived.wallTotalMm / 1000).toFixed(1)}m ·
-                  방 {current.derived.roomCount}개 · 바닥 {current.derived.floorAreaM2}㎡ ·
-                  기기 {current.derived.deviceCount}점
+                  벽 {geometry.walls.length}개 · 방 {geometry.rooms.length}개 · 기기 {devices.length}점
+                  {current.derived?.scaled && !dirty
+                    ? ` · 총 벽 ${(current.derived.wallTotalMm / 1000).toFixed(1)}m · 바닥 ${current.derived.floorAreaM2}㎡`
+                    : ' · 길이·면적은 저장하면 계산됩니다'}
                 </div>
               ) : null}
             </CCardBody>
@@ -457,7 +533,7 @@ export default function FloorplanPage() {
                     3D — 끌어서 돌리고, 휠로 확대합니다
                   </CCardHeader>
                   <CCardBody className="p-0">
-                    {current.derived?.scaled ? (
+                    {view.scaled ? (
                       <PlanView3D
                         geometry={geometry}
                         devices={devices}
