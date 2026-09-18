@@ -351,6 +351,17 @@ public class InquiryService {
         return kept.isEmpty() ? null : String.join(",", kept);
     }
 
+    /** 다른 화면·서비스에서도 코드 대신 한글을 보여 줄 수 있게 연다. 코드표는 여기 한 곳에만 둔다. */
+    public static String applianceLabel(String code) {
+        String v = label(code, APPLIANCE_KINDS);
+        return v == null ? "가전" : v;
+    }
+
+    public static String homeTypeLabel(String code) {
+        String v = label(code, HOME_TYPES);
+        return v == null ? "주거 형태 미기재" : v;
+    }
+
     static String label(String code, Map<String, String> allowed) {
         if (code == null || code.isBlank()) {
             return null;

@@ -22,6 +22,8 @@ import kr.kiwan.smarthome.auth.UserRepository.UserRow;
 import kr.kiwan.smarthome.inquiry.InquiryDtos.InquiryDetail;
 import kr.kiwan.smarthome.inquiry.InquiryDtos.InquiryResponse;
 import kr.kiwan.smarthome.inquiry.InquiryDtos.UpdateRequest;
+import kr.kiwan.smarthome.requirement.RequirementDtos.RequirementSheet;
+import kr.kiwan.smarthome.requirement.RequirementService;
 
 /**
  * 들어온 상담 신청을 보고 고친다.
@@ -42,14 +44,17 @@ public class AdminInquiryController {
     private final AdminAccess access;
     private final AuditRepository audit;
     private final InternalClient internal;
+    private final RequirementService requirements;
 
     public AdminInquiryController(InquiryService inquiries, ApplianceService appliances,
-                                  AdminAccess access, AuditRepository audit, InternalClient internal) {
+                                  AdminAccess access, AuditRepository audit, InternalClient internal,
+                                  RequirementService requirements) {
         this.inquiries = inquiries;
         this.appliances = appliances;
         this.access = access;
         this.audit = audit;
         this.internal = internal;
+        this.requirements = requirements;
     }
 
     @GetMapping
@@ -75,6 +80,17 @@ public class AdminInquiryController {
         InquiryResponse row = inquiries.get(id);
         access.requireOwns(me, row.partnerId());
         return new InquiryDetail(row, appliances.listByInquiry(id));
+    }
+
+    /**
+     * 상담 준비 시트. 모아 둔 데이터를 "무엇이 얼마나 필요한가 / 무엇을 더 물어봐야 하는가"로 바꿔 준다.
+     * 전화를 걸기 전에 이 한 장만 보면 되게 하는 것이 목적이다.
+     */
+    @GetMapping("/{id}/requirements")
+    public RequirementSheet requirements(@PathVariable long id, Authentication authentication) {
+        UserRow me = access.require(authentication);
+        access.requireOwns(me, inquiries.get(id).partnerId());
+        return requirements.build(id);
     }
 
     @PatchMapping("/{id}")

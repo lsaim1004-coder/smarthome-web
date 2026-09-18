@@ -17,6 +17,7 @@ import {
 } from '@coreui/react'
 import { api, errorMessage, stamp } from '../api'
 import CopyText from '../components/CopyText'
+import RequirementSheetCard from '../components/RequirementSheet'
 import { useAuth } from '../auth/AuthContext'
 import {
   ANALYSIS_SOURCES,
@@ -194,6 +195,9 @@ export default function InquiryDetailPage() {
 
       {error ? <CAlert color="danger">{error}</CAlert> : null}
       {notice ? <CAlert color="success">{notice}</CAlert> : null}
+
+      {/* 모아 둔 데이터를 먼저 정리해 보여 준다 — 아래 편집 칸보다 이게 먼저 필요하다 */}
+      <RequirementSheetCard inquiryId={i.id} />
 
       <CRow className="g-3">
         <CCol xs={12} lg={7}>
