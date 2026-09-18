@@ -31,6 +31,43 @@ import type { InquiryDetail, RequirementSheet } from '../data/types'
  * 기준은 시공 검토다 — 축척·문·창을 제대로 넣어야 배선 길이와 간섭을 볼 수 있다.
  * 그 데이터가 그대로 고객 설명용 그림이 된다.
  */
+/**
+ * 그리는 순서. 벽을 자동으로 인식하지 않으므로 사람이 이 차례로 짚어 나간다.
+ * 화면이 이걸 말해 주지 않으면 올려 놓고 아무 일도 안 일어나는 것처럼 보인다.
+ */
+const STEPS: { mode: Mode; no: string; label: string; hint: string }[] = [
+  {
+    mode: 'scale',
+    no: '1',
+    label: '축척',
+    hint: '길이를 아는 두 점을 차례로 클릭한 뒤 실제 치수(mm)를 넣으세요. 도면에 적힌 치수를 쓰면 가장 정확합니다.',
+  },
+  {
+    mode: 'wall',
+    no: '2',
+    label: '벽',
+    hint: '벽을 따라 클릭해 이어 그으세요. 수평·수직에 가까우면 자동으로 반듯해지고, 기존 끝점 근처는 달라붙습니다. 더블클릭하면 끊깁니다.',
+  },
+  {
+    mode: 'room',
+    no: '3',
+    label: '방',
+    hint: '방 모서리를 돌아가며 클릭하고, 첫 점을 다시 누르면 닫힙니다. 닫히면 면적이 나옵니다.',
+  },
+  {
+    mode: 'opening',
+    no: '4',
+    label: '문·창',
+    hint: '문 또는 창을 고른 뒤 놓을 벽을 클릭하세요. 폭·높이는 오른쪽에서 고칩니다.',
+  },
+  {
+    mode: 'device',
+    no: '5',
+    label: '기기',
+    hint: '아래 팔레트에서 기기를 고른 뒤 도면을 클릭하면 놓입니다. 놓인 기기는 끌어서 옮길 수 있습니다.',
+  },
+]
+
 export default function FloorplanPage() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -215,8 +252,12 @@ export default function FloorplanPage() {
         <CCard>
           <CCardBody className="text-center py-5">
             <p className="text-body-secondary">아직 올린 도면이 없습니다.</p>
+            <p className="small text-body-secondary mb-1">
+              올린 뒤 <b>축척 → 벽 → 방 → 문·창 → 기기</b> 순서로 직접 그립니다.
+            </p>
             <p className="small text-body-secondary">
-              JPG · PNG · WebP (20MB 이하). PDF 도면은 이미지로 내보내 주세요.
+              벽을 <b>자동으로 인식하지는 않습니다</b> — 도면마다 축척·선 두께가 달라 고치는 편이 더 오래 걸립니다.
+              34평 기준 3~5분이면 끝납니다. JPG · PNG · WebP (20MB 이하), PDF 는 이미지로 내보내 주세요.
             </p>
             <input
               ref={fileRef}
@@ -334,18 +375,53 @@ export default function FloorplanPage() {
                 </div>
               ) : null}
 
-              {!current.derived?.scaled ? (
-                <div className="small text-danger mt-2">
-                  축척이 없습니다. <b>축척</b> 모드에서 길이를 아는 두 점을 찍고 실제 치수를 넣어 주세요 —
-                  3D 로 세우려면 치수가 있어야 합니다.
-                </div>
-              ) : (
-                <div className="small text-body-secondary mt-2">
+              {/* 지금 어느 단계이고 무엇이 끝났는지. 눌러서 그 단계로 바로 간다. */}
+              <div className="plan-steps mt-2">
+                {STEPS.map((st) => {
+                  const done =
+                    st.mode === 'scale' ? !!current.derived?.scaled
+                      : st.mode === 'wall' ? geometry.walls.length > 0
+                      : st.mode === 'room' ? geometry.rooms.length > 0
+                      : st.mode === 'opening' ? geometry.openings.length > 0
+                      : devices.length > 0
+                  return (
+                    <button
+                      key={st.mode}
+                      type="button"
+                      className={
+                        'plan-step' + (mode === st.mode ? ' on' : '') + (done ? ' done' : '')
+                      }
+                      onClick={() => setMode(st.mode)}
+                    >
+                      <span className="plan-step-no">{done ? '✓' : st.no}</span>
+                      {st.label}
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="small mt-2">
+                {mode === 'select' ? (
+                  <span className="text-body-secondary">
+                    벽·방·문창·기기를 클릭하면 오른쪽에서 고치거나 지울 수 있습니다.
+                  </span>
+                ) : (
+                  <span className={current.derived?.scaled || mode === 'scale' ? 'text-body-secondary' : 'text-danger'}>
+                    {STEPS.find((x) => x.mode === mode)?.hint}
+                    {!current.derived?.scaled && mode !== 'scale'
+                      ? ' — 먼저 ① 축척을 잡아야 3D 로 섭니다.'
+                      : ''}
+                  </span>
+                )}
+              </div>
+
+              {current.derived?.scaled ? (
+                <div className="small text-body-secondary mt-1">
                   벽 {current.derived.wallCount}개 · 총 {(current.derived.wallTotalMm / 1000).toFixed(1)}m ·
                   방 {current.derived.roomCount}개 · 바닥 {current.derived.floorAreaM2}㎡ ·
                   기기 {current.derived.deviceCount}점
                 </div>
-              )}
+              ) : null}
             </CCardBody>
           </CCard>
 
