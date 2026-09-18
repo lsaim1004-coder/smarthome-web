@@ -156,3 +156,34 @@ export type AuditRow = {
   detail: string | null
   createdAt: string
 }
+
+// ---- 상담 준비 시트 (백엔드 RequirementDtos 와 짝) ----
+
+export type Need = { item: string; count: number; unit: string; why: string }
+export type Work = { item: string; why: string }
+
+export type ApplianceRoll = {
+  total: number
+  app: number
+  ir: number
+  none: number
+  unknown: number
+  appList: string[]
+  irList: string[]
+  noneList: string[]
+  unknownList: string[]
+}
+
+export type RequirementSheet = {
+  inquiryId: number
+  headline: string
+  fit: { chosen: string | null; needed: string; verdict: string; note: string }
+  devices: Need[]
+  works: Work[]
+  appliances: ApplianceRoll
+  questions: string[]
+  cautions: string[]
+  money: { packageCode: string; price: number; installFee: number; total: number; note: string }
+  /** 전화 상담용으로 그대로 복사해 쓰는 전문 */
+  plainText: string
+}
