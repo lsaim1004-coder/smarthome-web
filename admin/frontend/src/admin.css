@@ -171,3 +171,45 @@ body {
     height: 340px;
   }
 }
+
+/* 도면 그리는 단계. 눌러서 그 단계로 간다. */
+.plan-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.plan-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border: 1px solid var(--cui-border-color);
+  background: var(--cui-body-bg);
+  color: var(--cui-body-color);
+  border-radius: 999px;
+  padding: 0.15rem 0.7rem 0.15rem 0.35rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.plan-step-no {
+  display: inline-grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background: var(--cui-secondary-bg);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.plan-step.done .plan-step-no {
+  background: var(--cui-success);
+  color: #fff;
+}
+
+.plan-step.on {
+  border-color: var(--cui-primary);
+  box-shadow: 0 0 0 2px rgba(42, 120, 214, 0.18);
+  font-weight: 600;
+}
