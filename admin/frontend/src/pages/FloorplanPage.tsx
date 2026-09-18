@@ -95,6 +95,8 @@ export default function FloorplanPage() {
 
   const [autoBusy, setAutoBusy] = useState(false)
   const [autoNote, setAutoNote] = useState<string | null>(null)
+  const [extent, setExtent] = useState<{ x1: number; x2: number; y: number } | null>(null)
+  const [totalWidthM, setTotalWidthM] = useState('')
 
   const [dirty, setDirty] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -171,6 +173,7 @@ export default function FloorplanPage() {
       await img.decode()
       const res = detectPlan(img)
       let note = res.note
+      setExtent(res.extent)
 
       if (res.walls.length > 0) {
         // 벽·문창·방을 통째로 갈아 끼운다. 손으로 고친 게 있으면 덮어쓰므로 버튼을 눌러야만 돈다.
@@ -191,7 +194,11 @@ export default function FloorplanPage() {
           }
           const mm = Math.round(bestPx * res.mmPerPx)
           setScale({ x1: best.x1, y1: best.y1, x2: best.x2, y2: best.y2, mm })
-          note += ` 가장 긴 벽을 ${(mm / 1000).toFixed(2)}m 로 봤습니다.`
+          if (res.extent && imageWidth) {
+            const widthM = ((res.extent.x2 - res.extent.x1) * imageWidth * res.mmPerPx) / 1000
+            setTotalWidthM(widthM.toFixed(2))
+            note += ` 전체 가로를 ${widthM.toFixed(2)}m 로 봤습니다.`
+          }
         }
       }
       setAutoNote(note)
@@ -200,6 +207,20 @@ export default function FloorplanPage() {
     } finally {
       setAutoBusy(false)
     }
+  }
+
+  /**
+   * 도면에 적힌 전체 가로 길이 하나로 축척을 다시 잡는다.
+   *
+   * 벽 두께로 어림한 값은 도면 양식에 따라 두 배 넘게 틀린다(실측: 한 도면은 -3%, 다른 도면은 +150%).
+   * 전체 폭은 거의 모든 평면도에 적혀 있고 읽기도 쉬워서, 이 한 칸이 가장 확실한 보정 수단이다.
+   */
+  function applyTotalWidth() {
+    const m = Number(totalWidthM)
+    if (!extent || !Number.isFinite(m) || m <= 0) return
+    setScale({ x1: extent.x1, y1: extent.y, x2: extent.x2, y2: extent.y, mm: Math.round(m * 1000) })
+    setDirty(true)
+    setNotice(`전체 가로를 ${m}m 로 맞췄습니다.`)
   }
 
   function change(next: { geometry?: Geometry; devices?: PlacedDevice[] }) {
@@ -488,7 +509,31 @@ export default function FloorplanPage() {
               </div>
 
               {autoNote ? (
-                <div className="small mt-2 p-2 rounded bg-body-tertiary">{autoNote}</div>
+                <div className="small mt-2 p-2 rounded bg-body-tertiary">
+                  <div className="text-body-secondary">{autoNote}</div>
+                  {extent ? (
+                    <div className="d-flex align-items-center gap-2 mt-2 flex-wrap">
+                      <span className="fw-semibold">도면 전체 가로</span>
+                      <CFormInput
+                        size="sm"
+                        type="number"
+                        step="0.01"
+                        style={{ width: '7rem' }}
+                        value={totalWidthM}
+                        onChange={(e) => setTotalWidthM(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && applyTotalWidth()}
+                        placeholder="예: 14.62"
+                      />
+                      <span>m</span>
+                      <CButton size="sm" color="primary" onClick={applyTotalWidth}>
+                        축척 맞추기
+                      </CButton>
+                      <span className="text-body-secondary">
+                        도면에 적힌 전체 폭을 넣으면 크기가 정확해집니다. 모양은 이미 맞습니다.
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
               ) : null}
 
               {view.scaled ? (
