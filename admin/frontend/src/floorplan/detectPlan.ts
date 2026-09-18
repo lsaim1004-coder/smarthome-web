@@ -20,8 +20,16 @@ export type PlanResult = {
   walls: Wall[]
   openings: Opening[]
   rooms: Room[]
-  /** 원본 이미지 1픽셀이 몇 mm 인지. 못 구하면 null. */
+  /**
+   * 원본 이미지 1픽셀이 몇 mm 인지 **어림한** 값. 못 구하면 null.
+   *
+   * 벽 두께로 재는데, 도면을 실제 두께대로 그린 경우에만 맞는다.
+   * 작게 축소된 그림이나 양식화된 평면도에서는 2배 넘게 틀릴 수 있다 —
+   * 그래서 화면에서 "전체 가로 길이" 한 칸으로 바로잡게 해 두었다.
+   */
   mmPerPx: number | null
+  /** 찾은 벽 전체의 가로 범위(비율). 전체 폭을 입력받아 축척을 다시 잡을 때 쓴다. */
+  extent: { x1: number; x2: number; y: number } | null
   note: string
 }
 
@@ -48,13 +56,17 @@ const MAX_GAP_MM = 2600
 const DOOR_MAX_MM = 1200
 /** 이보다 작은 영역은 방이 아니다(벽 사이 틈·다용도 공간). */
 const MIN_ROOM_M2 = 2.0
+/** 이보다 색이 진하면 벽이 아니다(치수선·바닥 채색). */
+const SATURATION_MAX = 40
 
 type Seg = { h: boolean; a: number; b: number; c: number; thick: number }
 
 export function detectPlan(img: HTMLImageElement): PlanResult {
-  const empty: PlanResult = { walls: [], openings: [], rooms: [], mmPerPx: null, note: '' }
+  const empty: PlanResult = { walls: [], openings: [], rooms: [], mmPerPx: null, extent: null, note: '' }
 
-  const scale = Math.min(1, WORK_WIDTH / img.naturalWidth)
+  // 작은 그림은 키워서 쓴다. 침식 반지름·최소 길이가 픽셀 고정값이라, 폭을 맞춰 놓지 않으면
+  // 720px 짜리 도면에서는 벽이 침식에 통째로 지워진다(실측: 조각 3개 → 확대하면 50개).
+  const scale = WORK_WIDTH / img.naturalWidth
   const w = Math.max(1, Math.round(img.naturalWidth * scale))
   const h = Math.max(1, Math.round(img.naturalHeight * scale))
 
@@ -66,7 +78,7 @@ export function detectPlan(img: HTMLImageElement): PlanResult {
   ctx.drawImage(img, 0, 0, w, h)
 
   const gray = toGray(ctx.getImageData(0, 0, w, h).data, w * h)
-  const t = darkPercentile(gray, DARK_FRACTION, 60, 125)
+  const t = darkPercentile(gray, DARK_FRACTION, 60, 160)
   const dark = new Uint8Array(w * h)
   let darkCount = 0
   for (let i = 0; i < gray.length; i++) {
@@ -136,10 +148,20 @@ export function detectPlan(img: HTMLImageElement): PlanResult {
   const note =
     `벽 ${walls.length}개 · 문·창 ${openings.length}개 · 방 ${rooms.length}개를 찾았습니다.` +
     (mmPerPx
-      ? ` 벽 두께를 ${ASSUMED_WALL_MM}mm 로 보고 축척을 잡았습니다 (1px ≈ ${mmPerPx.toFixed(1)}mm) — 어림값입니다.`
-      : ' 축척은 추정하지 못했습니다.')
+      ? ` 벽 두께로 축척을 어림했습니다 (1px ≈ ${mmPerPx.toFixed(1)}mm). 도면에 적힌 전체 가로 길이를 넣으면 정확해집니다.`
+      : ' 축척은 추정하지 못했습니다. 전체 가로 길이를 넣어 주세요.')
 
-  return { walls, openings, rooms, mmPerPx, note }
+  let minX = 1
+  let maxX = 0
+  let sumY = 0
+  for (const wl of walls) {
+    minX = Math.min(minX, wl.x1, wl.x2)
+    maxX = Math.max(maxX, wl.x1, wl.x2)
+    sumY += (wl.y1 + wl.y2) / 2
+  }
+  const extent = maxX > minX ? { x1: minX, x2: maxX, y: walls.length ? sumY / walls.length : 0.5 } : null
+
+  return { walls, openings, rooms, mmPerPx, extent, note }
 }
 
 function mkWall(
@@ -152,12 +174,26 @@ function mkWall(
 
 // ---------- 기본 처리 ----------
 
+/**
+ * 회색조로 바꾸되 **색이 있는 픽셀은 흰색으로 밀어 버린다.**
+ *
+ * 벽은 검정·회색이고, 빨간 치수선이나 색으로 칠한 바닥은 채도가 높다.
+ * 회색조로만 바꾸면 빨강(#f00)이 밝기 76 이라 벽보다 어둡게 잡힌다 —
+ * 실측에서 이 필터 하나로 어두운 픽셀이 6.3% → 3.8% 로 줄었다.
+ */
 function toGray(data: Uint8ClampedArray, n: number): Uint8Array {
   const gray = new Uint8Array(n)
   for (let i = 0, p = 0; i < n; i++, p += 4) {
+    const r = data[p]
+    const g = data[p + 1]
+    const b = data[p + 2]
     const a = data[p + 3] / 255
-    const g = 0.299 * data[p] + 0.587 * data[p + 1] + 0.114 * data[p + 2]
-    gray[i] = Math.round(g * a + 255 * (1 - a))
+    let v = 0.299 * r + 0.587 * g + 0.114 * b
+    v = v * a + 255 * (1 - a)
+    if (Math.max(r, g, b) - Math.min(r, g, b) > SATURATION_MAX) {
+      v = 255
+    }
+    gray[i] = Math.round(v)
   }
   return gray
 }
