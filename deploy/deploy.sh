@@ -36,6 +36,8 @@ echo "== build done $(date)"
 # 업로드 볼륨을 처음 만들 때 root 소유로 생기는 경우가 있다(백엔드는 app 계정으로 돈다).
 # 이미 맞으면 아무 일도 하지 않는다.
 docker compose run --rm --no-deps --user root --entrypoint sh backend -c 'chown -R app:app /data/uploads /data/keys' || true
+# 도면 볼륨은 admin-api 에만 붙어 있다
+docker compose run --rm --no-deps --user root --entrypoint sh admin-api -c 'chown -R app:app /data/keys /data/floorplans' || true
 docker compose up -d
 echo "== waiting for backend health"
 for i in $(seq 1 60); do

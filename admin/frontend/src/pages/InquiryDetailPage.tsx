@@ -187,6 +187,9 @@ export default function InquiryDetailPage() {
           <CButton color="secondary" variant="outline" onClick={() => navigate('/inquiries')}>
             목록
           </CButton>
+          <CButton color="info" variant="outline" onClick={() => navigate(`/inquiries/${i.id}/plan`)}>
+            도면 배치
+          </CButton>
           <CButton color="primary" onClick={() => void save()} disabled={busy}>
             {busy ? '저장 중…' : '저장'}
           </CButton>
