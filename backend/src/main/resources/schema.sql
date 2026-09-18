@@ -196,3 +196,44 @@ CREATE TABLE IF NOT EXISTS admin_audit (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_admin_audit_created ON admin_audit (created_at DESC);
+
+-- ---------------------------------------------------------------------------
+-- 2026-09-18 도면 배치 (시공 검토 + 고객 설명 겸용)
+--
+-- 인테리어 도면 이미지를 깔고 벽을 따라 그으면 3D 로 세운다. 도면에서 벽을 자동으로
+-- 뽑아내는 대신 사람이 긋는다 — 도면 품질 편차가 커서 자동 인식은 고치는 데 더 오래 걸린다.
+--
+-- 좌표는 전부 **이미지 대비 비율(0~1)** 이다. 확대·축소나 다른 해상도에서도 위치가 유지된다.
+-- 실제 치수는 축척(두 점의 비율 거리 ↔ 실제 mm)으로 환산한다 — 3D 로 세우려면 치수가 있어야 한다.
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS inquiry_floorplans (
+  id            BIGSERIAL PRIMARY KEY,
+  inquiry_id    BIGINT NOT NULL REFERENCES inquiries(id) ON DELETE CASCADE,
+  name          TEXT,            -- "1층" · "확장 전" 처럼 구분이 필요할 때
+  stored_name   TEXT NOT NULL,   -- 도면 이미지 저장 이름
+  original_name TEXT,
+  content_type  TEXT NOT NULL,
+  size_bytes    BIGINT NOT NULL,
+  image_width   INTEGER,
+  image_height  INTEGER,
+
+  -- 축척: 도면 위 두 점(비율 좌표)과 그 사이의 실제 길이(mm)
+  scale_x1 DOUBLE PRECISION,
+  scale_y1 DOUBLE PRECISION,
+  scale_x2 DOUBLE PRECISION,
+  scale_y2 DOUBLE PRECISION,
+  scale_mm INTEGER,
+
+  wall_height_mm INTEGER NOT NULL DEFAULT 2400,
+
+  -- walls / rooms / openings. 순서와 연결이 뜻을 가져 통째로 둔다.
+  geometry   JSONB NOT NULL DEFAULT '{}'::jsonb,
+  -- 배치한 기기. 필요사항 시트의 품목을 그대로 쓴다.
+  devices    JSONB NOT NULL DEFAULT '[]'::jsonb,
+
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_by TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_floorplans_inquiry ON inquiry_floorplans (inquiry_id, id);
