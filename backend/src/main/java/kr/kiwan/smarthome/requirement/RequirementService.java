@@ -211,9 +211,14 @@ public class RequirementService {
         for (ApplianceResponse a : owned) {
             boolean noModel = blank(a.modelName()) && blank(a.detectedModel());
             boolean noVerdict = a.iotStatus() == null || "UNKNOWN".equals(a.iotStatus());
-            if (noModel && noVerdict) {
-                out.add(InquiryService.applianceLabel(a.kind())
-                        + " 모델명 확인 (옆면·문 안쪽 라벨 사진이면 충분)");
+            // 규칙 판정(RULE)은 구매 시기·브랜드로 찍은 추정값이다. 모델명이 없으면 아직 확정이 아니므로
+            // 판정이 붙어 있어도 물어봐야 한다. 사진 판독(AI)이나 사람이 고친 값(MANUAL)만 확정으로 본다.
+            boolean provisional = a.analysisSource() == null || "RULE".equals(a.analysisSource());
+            if (noModel && (noVerdict || provisional)) {
+                String label = InquiryService.applianceLabel(a.kind());
+                out.add(noVerdict
+                        ? label + " 모델명 확인 — 아직 판별하지 못했습니다 (옆면·문 안쪽 라벨 사진이면 충분)"
+                        : label + " 모델명 확인 — 지금 값은 구매 시기·브랜드로 찍은 추정입니다 (라벨 사진이면 확정됩니다)");
             }
         }
         if (interests.contains("CURTAIN") && windows == null) {
