@@ -43,6 +43,26 @@ const ERODE_R = 2
  * 상한을 125 로 눌러 둔 이유: 더 올라가면 나무 바닥이 섞여 벽이 덩어리에 먹힌다.
  */
 const DARK_FRACTION = 0.085
+/**
+ * 국소 임계값을 잴 창의 반지름(작업 픽셀). 방 하나가 들어갈 만큼 넓어야
+ * 창 안의 평균이 "바탕"이 된다. 좁으면 굵은 벽 안쪽이 바탕으로 잡혀 속이 빈다.
+ */
+const LOCAL_R = 40
+/** 바탕보다 이 비율만큼 어두우면 선으로 본다. */
+const LOCAL_DROP = 0.14
+/** 바탕과의 밝기 차가 이보다 작으면 JPEG 잡티다. */
+const LOCAL_MIN_DIFF = 16
+/**
+ * 얇은 선 패스에서 요구하는 최소 길이(작업 폭 대비).
+ * 연하게 그린 벽은 얇지만 길다. 글자·가구·치수 눈금은 짧다 — 길이로 가른다.
+ */
+const THIN_MIN_LEN_RATIO = 0.045
+/**
+ * 마주 보는 두 선을 한 벽으로 합칠 최대 간격(mm).
+ * 도면은 벽을 속 빈 이중선으로 그리는 일이 많다 — 두 면 사이가 곧 벽 두께다.
+ * 벽은 아무리 두꺼워도 이 정도고, 붙박이장 같은 좁은 공간도 이보다는 넓다.
+ */
+const PAIR_MAX_MM = 320
 /** 아파트 도면의 벽 두께(내벽 150·외벽 200)에서 중앙값으로 잡은 값. 실측으로 맞췄다. */
 const ASSUMED_WALL_MM = 200
 
@@ -83,6 +103,12 @@ export function detectPlan(img: HTMLImageElement): PlanResult {
   ctx.drawImage(img, 0, 0, w, h)
 
   const gray = toGray(ctx.getImageData(0, 0, w, h).data, w * h)
+
+  // 선을 두 갈래로 나눠 잡는다. 도면 한 장 안에 진한 벽과 연한 벽이 섞여 있어서
+  // 전역 임계값 하나로는 둘 다 못 잡는다 — 연한 쪽을 살리려고 값을 올리면 바닥이 딸려 온다.
+  //
+  //   진한 선  전역 임계값 (기존). 두께가 믿을 만해서 **축척은 이쪽으로만** 잰다
+  //   연한 선  국소 적응 임계값. 주변 바탕보다 어두우면 선으로 본다
   const t = darkPercentile(gray, DARK_FRACTION, 60, 160)
   const dark = new Uint8Array(w * h)
   let darkCount = 0
@@ -92,27 +118,51 @@ export function detectPlan(img: HTMLImageElement): PlanResult {
       darkCount++
     }
   }
-  if (darkCount < 50) return { ...empty, note: '어두운 선을 찾지 못했습니다. 도면이 너무 흐릴 수 있습니다.' }
-
-  // 1) 벽 띠
-  const core = erode(dark, w, h, ERODE_R)
-  const segs: Seg[] = [
-    ...bands(core, w, h, true).map((b) => ({ h: true, ...b })),
-    ...bands(core, w, h, false).map((b) => ({ h: false, ...b })),
-  ]
-  if (segs.length === 0) {
-    return { ...empty, note: '벽으로 볼 만한 두꺼운 선이 없습니다. 선이 얇은 도면이면 직접 그으셔야 합니다.' }
+  const ink = adaptiveInk(gray, w, h)
+  if (darkCount < 50 && countOn(ink) < 50) {
+    return { ...empty, note: '선을 찾지 못했습니다. 도면이 너무 흐릴 수 있습니다.' }
   }
 
-  // 축척 — 띠 두께 중앙값을 실제 벽 두께로 본다
-  const thicks = segs.map((s) => s.thick).sort((a, b) => a - b)
-  const med = thicks[Math.floor(thicks.length / 2)]
-  let mmPerPx: number | null = ASSUMED_WALL_MM / ((med + 2 * ERODE_R) / scale)
+  // 1) 벽 띠 — 진한 선에서
+  const core = erode(dark, w, h, ERODE_R)
+  // 침식한 만큼 두께가 깎여 있다. **여기서 한 번만** 되돌려 놓는다 —
+  // 이제 조각의 thick 은 출처(진한 선·연한 선·짝 합치기)와 무관하게 실제 두께다.
+  const thickSegs: Seg[] = [
+    ...bands(core, w, h, true).map((b) => ({ h: true, ...b, thick: b.thick + 2 * ERODE_R })),
+    ...bands(core, w, h, false).map((b) => ({ h: false, ...b, thick: b.thick + 2 * ERODE_R })),
+  ]
+
+  // 축척 — 띠 두께 중앙값을 실제 벽 두께로 본다.
+  // **연한 선은 여기 넣지 않는다.** 얇은 조각이 섞이면 중앙값이 무너져 축척이 엉킨다.
+  const thicks = thickSegs.map((s) => s.thick).sort((a, b) => a - b)
+  const med = thicks.length ? thicks[Math.floor(thicks.length / 2)] : 0
+  let mmPerPx: number | null = ASSUMED_WALL_MM / (med / scale)
   if (!Number.isFinite(mmPerPx) || mmPerPx < 2 || mmPerPx > 80) mmPerPx = null
 
   // 작업 해상도에서의 mm/px — 틈 폭 판단에 쓴다
   const mmPerWorkPx = mmPerPx ? mmPerPx / scale : 0
   const maxGapPx = mmPerWorkPx ? MAX_GAP_MM / mmPerWorkPx : 60
+
+  // 연한 선 패스 — 침식하지 않는다(1~2px 선은 침식에 통째로 지워진다).
+  // 대신 **길이**로 거른다. 연하게 그린 벽은 얇아도 길고, 글자·가구·치수 눈금은 짧다.
+  const thinMin = Math.max(MIN_LEN, Math.round(w * THIN_MIN_LEN_RATIO))
+  const thinSegs: Seg[] = [
+    ...bands(ink, w, h, true, thinMin).map((b) => ({ h: true, ...b })),
+    ...bands(ink, w, h, false, thinMin).map((b) => ({ h: false, ...b })),
+  ]
+
+  // 치수선은 길고 얇고 검다 — 길이만으로는 벽과 못 가른다. 대신 **건물 바깥에** 있다.
+  // 진한 선이 이루는 상자 안쪽만 남겨서 떼어 낸다.
+  const box = bbox(thickSegs)
+  const found = [...thickSegs, ...thinSegs.filter((s) => insideBox(s, box) && !coveredBy(s, thickSegs))]
+  if (found.length === 0) {
+    return { ...empty, note: '벽으로 볼 만한 선이 없습니다. 도면이 너무 흐리면 직접 그으셔야 합니다.' }
+  }
+
+  // 마주 보는 두 선을 한 벽으로 합친다. 도면이 벽을 속 빈 이중선으로 그리면 양쪽 면이
+  // 따로 잡히는데, 그대로 두면 3D 에 얇은 판이 두 장 서고 그 사이가 빈다.
+  // 합치면 두 면 사이 간격이 곧 벽 두께가 되므로 두께도 실제에 가까워진다.
+  const segs = mergeParallelPairs(found, mmPerWorkPx ? PAIR_MAX_MM / mmPerWorkPx : 20)
 
   // 2) 잇고, 메운 틈을 문·창으로
   const { merged, holes } = joinAndPunch(segs, maxGapPx)
@@ -129,6 +179,11 @@ export function detectPlan(img: HTMLImageElement): PlanResult {
   // 바깥 둘레를 먼저 닫는다. 집은 반드시 닫힌 외벽을 갖는데, 도면에서 그 일부가 연한 선으로
   // 그려져 있으면 걸러진다. 끊긴 자리를 메워야 3D 에 큰 구멍이 남지 않고 방도 제대로 닫힌다.
   closeOuterBoundary(merged, w, h)
+
+  // 둘레를 닫으면서 **새로 생긴 벽**은 아직 아무 데도 물려 있지 않다. 한 번 더 맞물린다.
+  // 실측: 침실 위 외벽을 메웠는데 왼쪽 세로벽 끝과 3px 어긋나 그 틈으로 바깥이 새어
+  // 방이 통째로 사라졌다. 눈으로는 닫혀 보여서 찾기 어려운 종류의 구멍이다.
+  extendToCorners(merged, maxGapPx)
 
   // 방 둘레에 벽이 빠진 곳도 메운다.
   const rooms0 = findRooms(merged, w, h, mmPerPx, scale)
@@ -186,7 +241,7 @@ function mkWall(
   x1: number, y1: number, x2: number, y2: number,
   thickWork: number, scale: number, mmPerPx: number | null,
 ): Wall {
-  const mm = mmPerPx ? Math.round(((thickWork + 2 * ERODE_R) / scale) * mmPerPx) : 150
+  const mm = mmPerPx ? Math.round((thickWork / scale) * mmPerPx) : 150
   return { id: newId('aw'), x1, y1, x2, y2, thicknessMm: Math.min(400, Math.max(80, mm)) }
 }
 
@@ -228,6 +283,162 @@ function darkPercentile(gray: Uint8Array, frac: number, lo: number, hi: number):
   return hi
 }
 
+function countOn(m: Uint8Array): number {
+  let n = 0
+  for (let i = 0; i < m.length; i++) n += m[i]
+  return n
+}
+
+/**
+ * **국소** 임계값으로 선을 잡는다 — 주변 바탕보다 어두우면 선이다.
+ *
+ * 전역 임계값은 도면 한 장 안에 진한 벽과 연한 벽이 섞이면 못 쓴다. 연한 쪽을 살리려고
+ * 값을 올리면 나무 바닥·음영이 통째로 딸려 오고, 낮추면 연한 벽이 사라진다.
+ * 국소로 재면 둘 다 풀린다 — 흰 바탕 위의 연한 선은 바탕보다 어두워서 잡히고,
+ * 넓게 칠한 회색 바닥은 제 평균과 같아서 안 잡힌다.
+ *
+ * 적분 영상을 써서 창 크기와 무관하게 픽셀당 상수 시간에 계산한다.
+ */
+function adaptiveInk(gray: Uint8Array, w: number, h: number): Uint8Array {
+  // 적분 영상 (w+1) x (h+1). 1200x900 이면 108만 칸이라 Float64 로도 충분히 가볍다.
+  const iw = w + 1
+  const sum = new Float64Array(iw * (h + 1))
+  for (let y = 0; y < h; y++) {
+    let row = 0
+    for (let x = 0; x < w; x++) {
+      row += gray[y * w + x]
+      sum[(y + 1) * iw + (x + 1)] = sum[y * iw + (x + 1)] + row
+    }
+  }
+
+  const out = new Uint8Array(w * h)
+  const r = LOCAL_R
+  for (let y = 0; y < h; y++) {
+    const y0 = Math.max(0, y - r)
+    const y1 = Math.min(h - 1, y + r)
+    for (let x = 0; x < w; x++) {
+      const x0 = Math.max(0, x - r)
+      const x1 = Math.min(w - 1, x + r)
+      const n = (x1 - x0 + 1) * (y1 - y0 + 1)
+      const s =
+        sum[(y1 + 1) * iw + (x1 + 1)] -
+        sum[y0 * iw + (x1 + 1)] -
+        sum[(y1 + 1) * iw + x0] +
+        sum[y0 * iw + x0]
+      const mean = s / n
+      const v = gray[y * w + x]
+      // 비율과 절대 차이를 **둘 다** 요구한다. 비율만 보면 어두운 영역에서 잡티가 걸리고,
+      // 절대 차이만 보면 밝은 바탕의 연한 선을 놓친다.
+      if (v < mean * (1 - LOCAL_DROP) && mean - v >= LOCAL_MIN_DIFF) out[y * w + x] = 1
+    }
+  }
+  return out
+}
+
+/**
+ * 나란한 두 선을 한 벽으로 합친다.
+ *
+ * 벽을 속 빈 이중선으로 그린 도면에서 양쪽 면이 따로 잡히는 것을 되돌린다.
+ * 간격이 벽 두께로 볼 만하고(`maxPairPx` 이내) 서로 충분히 겹칠 때만 합친다 —
+ * 좁은 방을 사이에 둔 두 벽을 잘못 합치면 방이 통째로 사라진다.
+ */
+function mergeParallelPairs(segs: Seg[], maxPairPx: number): Seg[] {
+  // **서로가 서로의 가장 가까운 짝일 때만** 합친다.
+  // 한쪽만 보고 합치면 벽 하나가 엉뚱한 이웃을 붙잡아 중간으로 끌려가고,
+  // 그 자리에 있던 방이 열려 버린다(실측: 거실 41㎡ 가 방에서 빠졌다).
+  const nearest = segs.map((a, i) => {
+    let best = -1
+    let bestGap = Infinity
+    for (let j = 0; j < segs.length; j++) {
+      if (j === i) continue
+      const b = segs[j]
+      if (b.h !== a.h) continue
+      const gap = Math.abs(b.c - a.c)
+      // 간격 0 은 짝이 아니라 중복이다 — 여기서 다루지 않는다.
+      if (gap < 2 || gap > maxPairPx) continue
+      const ov = Math.min(a.b, b.b) - Math.max(a.a, b.a)
+      if (ov <= 0 || ov < Math.min(a.b - a.a, b.b - b.a) * 0.6) continue
+      if (gap < bestGap) {
+        bestGap = gap
+        best = j
+      }
+    }
+    return { best, gap: bestGap }
+  })
+
+  const used = new Array(segs.length).fill(false)
+  const out: Seg[] = []
+  for (let i = 0; i < segs.length; i++) {
+    if (used[i]) continue
+    const j = nearest[i].best
+    if (j < 0 || used[j] || nearest[j].best !== i) {
+      used[i] = true
+      out.push({ ...segs[i] })
+      continue
+    }
+    const a = segs[i]
+    const b = segs[j]
+    used[i] = true
+    used[j] = true
+    out.push({
+      h: a.h,
+      a: Math.min(a.a, b.a),
+      b: Math.max(a.b, b.b),
+      c: (a.c + b.c) / 2,
+      // 두 면 사이 간격이 벽 두께다. 선 자체의 굵기는 이미 그 안에 들어가 있다.
+      thick: Math.max(a.thick, b.thick, Math.round(nearest[i].gap)),
+    })
+  }
+  return out
+}
+
+/** 조각들이 차지하는 상자. 치수선처럼 건물 바깥에 있는 선을 떼어 낼 때 쓴다. */
+function bbox(segs: Seg[]): { x0: number; y0: number; x1: number; y1: number } | null {
+  if (segs.length === 0) return null
+  let x0 = Infinity
+  let y0 = Infinity
+  let x1 = -Infinity
+  let y1 = -Infinity
+  for (const s of segs) {
+    const ax = s.h ? s.a : s.c
+    const bx = s.h ? s.b : s.c
+    const ay = s.h ? s.c : s.a
+    const by = s.h ? s.c : s.b
+    x0 = Math.min(x0, ax, bx)
+    x1 = Math.max(x1, ax, bx)
+    y0 = Math.min(y0, ay, by)
+    y1 = Math.max(y1, ay, by)
+  }
+  return { x0, y0, x1, y1 }
+}
+
+/** 상자 안에 (약간의 여유를 두고) 들어오는가. 상자가 없으면 통과시킨다. */
+function insideBox(s: Seg, box: { x0: number; y0: number; x1: number; y1: number } | null): boolean {
+  if (!box) return true
+  const m = 6
+  const ax = s.h ? s.a : s.c
+  const bx = s.h ? s.b : s.c
+  const ay = s.h ? s.c : s.a
+  const by = s.h ? s.c : s.b
+  return (
+    Math.min(ax, bx) >= box.x0 - m &&
+    Math.max(ax, bx) <= box.x1 + m &&
+    Math.min(ay, by) >= box.y0 - m &&
+    Math.max(ay, by) <= box.y1 + m
+  )
+}
+
+/** 이미 진한 선으로 잡힌 자리인가. 같은 벽을 두 번 넣으면 3D 에 겹친 판이 생긴다. */
+function coveredBy(s: Seg, thick: Seg[]): boolean {
+  for (const t of thick) {
+    if (t.h !== s.h) continue
+    if (Math.abs(t.c - s.c) > t.thick / 2 + SAME_LINE) continue
+    const ov = Math.min(t.b, s.b) - Math.max(t.a, s.a)
+    if (ov > (s.b - s.a) * 0.6) return true
+  }
+  return false
+}
+
 function erode(src: Uint8Array, w: number, h: number, r: number): Uint8Array {
   const tmp = new Uint8Array(w * h)
   for (let y = 0; y < h; y++) {
@@ -257,7 +468,7 @@ function erode(src: Uint8Array, w: number, h: number, r: number): Uint8Array {
 
 type Band = { a: number; b: number; c: number; thick: number }
 
-function bands(core: Uint8Array, w: number, h: number, horizontal: boolean): Band[] {
+function bands(core: Uint8Array, w: number, h: number, horizontal: boolean, minLen = MIN_LEN): Band[] {
   const major = horizontal ? h : w
   const minor = horizontal ? w : h
   const at = (i: number, j: number) => (horizontal ? core[i * w + j] : core[j * w + i])
@@ -272,7 +483,7 @@ function bands(core: Uint8Array, w: number, h: number, horizontal: boolean): Ban
       const on = j < minor && at(i, j)
       if (on && start < 0) start = j
       if (!on && start >= 0) {
-        if (j - start >= MIN_LEN) runs.push({ a: start, b: j - 1 })
+        if (j - start >= minLen) runs.push({ a: start, b: j - 1 })
         start = -1
       }
     }
@@ -296,18 +507,18 @@ function bands(core: Uint8Array, w: number, h: number, horizontal: boolean): Ban
     }
     for (let k = open.length - 1; k >= 0; k--) {
       if (open[k].to < i) {
-        pushBand(done, open[k])
+        pushBand(done, open[k], minLen)
         open.splice(k, 1)
       }
     }
   }
-  for (const o of open) pushBand(done, o)
+  for (const o of open) pushBand(done, o, minLen)
   return done
 }
 
-function pushBand(done: Band[], o: { a: number; b: number; from: number; to: number }) {
+function pushBand(done: Band[], o: { a: number; b: number; from: number; to: number }, minLen: number) {
   const thick = o.to - o.from + 1
-  if (thick <= MAX_BAND && o.b - o.a >= MIN_LEN) {
+  if (thick <= MAX_BAND && o.b - o.a >= minLen) {
     done.push({ a: o.a, b: o.b, c: (o.from + o.to) / 2, thick })
   }
 }
@@ -456,19 +667,30 @@ function closeOuterBoundary(segs: Seg[], w: number, h: number) {
     }
     covers.sort((p, q) => p.a - q.a)
 
-    // **양쪽에 벽이 있는 틈만** 메운다.
+    // **양끝이 고정된 틈만** 메운다.
     //
-    // 변의 끝에 걸린 빈 구간은 대개 건물이 거기까지 없는 것이다(외곽은 사각형이지만 집은 계단 모양).
-    // 그걸 메우면 마당이나 여백까지 감싸 가짜 방이 생긴다. 반면 가운데가 비어 있고 양옆에 벽이
-    // 있으면 그건 못 찾은 벽이다.
+    // 고정이란 그 끝에 벽이 있다는 뜻이다 — 같은 선 위에 이어지는 벽이거나,
+    // 그 자리에서 꺾여 올라가는 직교 벽이거나. 둘 중 하나면 건물이 거기까지 있는 것이다.
+    //
+    // 변 끝에 걸린 빈 구간을 무조건 메우면 마당이나 여백까지 감싸 가짜 방이 생기고
+    // (실측: "84A Type" 제목이 적힌 여백), 무조건 놔두면 창이 연한 띠로 그려진
+    // 외벽이 통째로 빠진다(실측: 침실 39㎡ 가 바깥으로 새어 방에서 빠졌다).
+    // 모서리에 직교 벽이 닿았는지가 이 둘을 가른다.
+    const tol = thick + 6
+    const anchored = (pos: number) =>
+      segs.some(
+        (q) => q.h !== e.h && Math.abs(q.c - pos) <= tol && q.a - tol <= e.c && e.c <= q.b + tol,
+      )
+
+    const gaps: { a: number; b: number }[] = []
     let cursor = e.a
     let started = false
-    const gaps: { a: number; b: number }[] = []
     for (const c of covers) {
-      if (started && c.a > cursor) gaps.push({ a: cursor, b: c.a })
+      if (c.a > cursor && (started || anchored(e.a))) gaps.push({ a: cursor, b: c.a })
       cursor = Math.max(cursor, c.b)
       started = true
     }
+    if (started && cursor < e.b && anchored(e.b)) gaps.push({ a: cursor, b: e.b })
 
     for (const g of gaps) {
       // 아주 짧은 틈은 문일 수 있으니 둔다. 큰 구멍만 메운다.
@@ -528,7 +750,7 @@ function findRooms(
 ): Room[] {
   const mask = new Uint8Array(w * h)
   for (const s of segs) {
-    const half = Math.max(1, Math.round((s.thick + 2 * ERODE_R) / 2))
+    const half = Math.max(1, Math.round(s.thick / 2))
     if (s.h) {
       for (let y = Math.round(s.c) - half; y <= Math.round(s.c) + half; y++) {
         if (y < 0 || y >= h) continue
