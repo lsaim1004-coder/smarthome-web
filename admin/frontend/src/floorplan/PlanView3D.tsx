@@ -58,6 +58,8 @@ export default function PlanView3D({
     const group = new THREE.Group()
     scene.add(group)
 
+    const labelSprites: THREE.Sprite[] = []
+
     // ---- 바닥 (방 다각형) ----
     const floorMat = new THREE.MeshLambertMaterial({ color: '#d8dee9', side: THREE.DoubleSide })
     for (const r of geometry.rooms) {
@@ -70,10 +72,23 @@ export default function PlanView3D({
         else shape.lineTo(px, pz)
       })
       shape.closePath()
-      const mesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), floorMat)
+      // 얇은 면은 보는 각도에 따라 사라진다. 살짝 두께를 줘 바닥이 늘 보이게 한다.
+      const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.04, bevelEnabled: false })
+      const mesh = new THREE.Mesh(geo, floorMat)
       mesh.rotation.x = Math.PI / 2
-      mesh.position.y = 0.01
+      mesh.position.y = 0.04
       group.add(mesh)
+
+      // 방 이름을 바닥 위에 띄운다. 고객에게 보여 줄 때 이게 없으면 설명이 안 된다.
+      if (showLabels && r.name) {
+        const cx = r.points.reduce((n, pt) => n + toX(pt[0]), 0) / r.points.length
+        const cz = r.points.reduce((n, pt) => n + toZ(pt[1]), 0) / r.points.length
+        const tag = makeLabel(r.name, '#2a78d6')
+        tag.scale.multiplyScalar(1.5)
+        tag.position.set(cx, 0.55, cz)
+        group.add(tag)
+        labelSprites.push(tag)
+      }
     }
 
     // ---- 벽 (문·창을 빼고 조각으로) ----
@@ -123,7 +138,11 @@ export default function PlanView3D({
         })
         .sort((p, q) => p.a - q.a)
 
-      let cursor = 0
+      // 모서리에서 두 벽이 맞물리도록 양 끝을 반 두께만큼 늘린다.
+      // 늘리지 않으면 직각으로 만나는 자리에 벽 두께만 한 홈이 남아 3D 가 뚫려 보인다.
+      const ext = t / 2
+
+      let cursor = -ext
       for (const h of holes) {
         slab(cursor, h.a, 0, H)                                   // 개구부 사이 온전한 벽
         const sill = h.o.sillMm / 1000
@@ -132,11 +151,10 @@ export default function PlanView3D({
         if (top < H - 0.01) slab(h.a, h.b, top, H)                // 개구부 위 인방
         cursor = h.b
       }
-      slab(cursor, len, 0, H)
+      slab(cursor, len + ext, 0, H)
     }
 
     // ---- 기기 마커 ----
-    const labelSprites: THREE.Sprite[] = []
     for (const d of devices) {
       const st = styleOf(d.item)
       const y = Math.min(d.mountMm, wallHeightMm) / 1000

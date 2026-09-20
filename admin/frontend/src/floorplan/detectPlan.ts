@@ -54,6 +54,11 @@ const SAME_LINE = 5
 const MAX_GAP_MM = 2600
 /** 이보다 좁은 틈은 문, 넓으면 창으로 본다. */
 const DOOR_MAX_MM = 1200
+/**
+ * 개구부로 인정할 최소 폭. 이보다 좁은 틈은 검출이 튄 것이지 문이 아니다.
+ * 구멍을 함부로 내면 3D 에 빈 곳이 생긴다 — 애매하면 막아 두는 쪽이 낫다.
+ */
+const OPENING_MIN_MM = 600
 /** 이보다 작은 영역은 방이 아니다(벽 사이 틈·다용도 공간). */
 const MIN_ROOM_M2 = 2.0
 /** 이보다 색이 진하면 벽이 아니다(치수선·바닥 채색). */
@@ -114,9 +119,16 @@ export function detectPlan(img: HTMLImageElement): PlanResult {
 
   // 모서리에 문이 있으면 벽이 직교 벽에 닿지 않고 끊긴다. 거기까지 늘려야 방이 닫힌다.
   // 한 번 늘리면 다른 벽이 새로 닿을 수 있어 두 번 돈다 — 실측에서 방 3개 → 6개가 됐다.
+  //
+  // 여기서 늘린 구간은 **구멍을 내지 않는다.** 모서리 근처의 끊김은 실제 문일 수도 있지만
+  // 검출이 벽 끝을 놓친 것일 때가 더 많고, 잘못 뚫으면 3D 에 빈 구석이 남는다.
   for (let pass = 0; pass < 2; pass++) {
-    holes.push(...extendToCorners(merged, maxGapPx))
+    extendToCorners(merged, maxGapPx)
   }
+
+  // 방 둘레에 벽이 빠진 곳을 메운다. 3D 에서 뻥 뚫려 보이는 자리가 대부분 여기다.
+  const rooms0 = findRooms(merged, w, h, mmPerPx, scale)
+  closeRoomEdges(merged, rooms0, w, h)
 
   const walls: Wall[] = merged.map((s) =>
     s.h
@@ -129,6 +141,8 @@ export function detectPlan(img: HTMLImageElement): PlanResult {
       const wall = walls[hole.wallIndex]
       if (!wall) return null
       const widthMm = mmPerWorkPx ? Math.round(hole.width * mmPerWorkPx) : 900
+      // 문·창으로 볼 수 없는 크기면 뚫지 않는다. 벽으로 남겨 두는 편이 안전하다.
+      if (widthMm < OPENING_MIN_MM || widthMm > MAX_GAP_MM) return null
       const door = widthMm <= DOOR_MAX_MM
       return {
         id: newId('o'),
@@ -142,7 +156,7 @@ export function detectPlan(img: HTMLImageElement): PlanResult {
     })
     .filter((o): o is Opening => o !== null)
 
-  // 3) 방 — 이어진 벽으로 닫힌 영역
+  // 3) 방 — 둘레를 메운 벽으로 다시 찾는다(메우면서 새로 닫히는 방이 생긴다)
   const rooms = findRooms(merged, w, h, mmPerPx, scale)
 
   const note =
@@ -381,6 +395,48 @@ function extendToCorners(segs: Seg[], maxGapPx: number): Hole[] {
     hole.t = Math.min(0.94, Math.max(0.06, hole.t))
   }
   return holes
+}
+
+/**
+ * 방 네 변에 벽이 없으면 채워 넣는다.
+ *
+ * 검출이 벽 한 토막을 놓치면 3D 에서 그 자리가 뻥 뚫려 보인다. 방이 닫혔다는 것은
+ * 그 둘레가 실제로 벽이라는 뜻이므로, 덮이지 않은 구간만 벽으로 보충한다.
+ */
+function closeRoomEdges(segs: Seg[], rooms: Room[], w: number, h: number) {
+  const thick = segs.length
+    ? segs.map((s) => s.thick).sort((a, b) => a - b)[Math.floor(segs.length / 2)]
+    : 4
+
+  for (const r of rooms) {
+    const xs = r.points.map((pt) => pt[0] * w)
+    const ys = r.points.map((pt) => pt[1] * h)
+    const x1 = Math.min(...xs)
+    const x2 = Math.max(...xs)
+    const y1 = Math.min(...ys)
+    const y2 = Math.max(...ys)
+
+    const edges: { h: boolean; c: number; a: number; b: number }[] = [
+      { h: true, c: y1, a: x1, b: x2 },
+      { h: true, c: y2, a: x1, b: x2 },
+      { h: false, c: x1, a: y1, b: y2 },
+      { h: false, c: x2, a: y1, b: y2 },
+    ]
+
+    for (const e of edges) {
+      const span = e.b - e.a
+      if (span < 6) continue
+      // 이 변을 덮는 기존 벽의 길이를 센다
+      let covered = 0
+      for (const s of segs) {
+        if (s.h !== e.h) continue
+        if (Math.abs(s.c - e.c) > thick + 4) continue
+        covered += Math.max(0, Math.min(s.b, e.b) - Math.max(s.a, e.a))
+      }
+      if (covered >= span * 0.6) continue
+      segs.push({ h: e.h, a: e.a, b: e.b, c: e.c, thick })
+    }
+  }
 }
 
 // ---------- 방 찾기 ----------
