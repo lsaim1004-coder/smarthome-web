@@ -126,7 +126,11 @@ export function detectPlan(img: HTMLImageElement): PlanResult {
     extendToCorners(merged, maxGapPx)
   }
 
-  // 방 둘레에 벽이 빠진 곳을 메운다. 3D 에서 뻥 뚫려 보이는 자리가 대부분 여기다.
+  // 바깥 둘레를 먼저 닫는다. 집은 반드시 닫힌 외벽을 갖는데, 도면에서 그 일부가 연한 선으로
+  // 그려져 있으면 걸러진다. 끊긴 자리를 메워야 3D 에 큰 구멍이 남지 않고 방도 제대로 닫힌다.
+  closeOuterBoundary(merged, w, h)
+
+  // 방 둘레에 벽이 빠진 곳도 메운다.
   const rooms0 = findRooms(merged, w, h, mmPerPx, scale)
   closeRoomEdges(merged, rooms0, w, h)
 
@@ -395,6 +399,83 @@ function extendToCorners(segs: Seg[], maxGapPx: number): Hole[] {
     hole.t = Math.min(0.94, Math.max(0.06, hole.t))
   }
   return holes
+}
+
+/**
+ * 바깥 둘레(외벽)를 닫는다.
+ *
+ * 집은 반드시 닫힌 외벽을 갖는다. 도면에서 그 일부가 연한 색이나 얇은 선이면 걸러져
+ * 3D 에 큰 구멍으로 남는다. 긴 벽들로 외곽 사각형을 잡고, 네 변에서 덮이지 않은
+ * 구간만 벽으로 보충한다.
+ *
+ * 외곽을 잡을 때 **긴 벽만** 쓴다 — 치수선 조각 하나가 끼면 범위가 엉뚱하게 넓어진다.
+ */
+function closeOuterBoundary(segs: Seg[], w: number, h: number) {
+  if (segs.length === 0) {
+    return
+  }
+  const longEnough = Math.min(w, h) * 0.15
+  const spine = segs.filter((s) => s.b - s.a >= longEnough)
+  const base = spine.length >= 4 ? spine : segs
+  const thick = segs.map((s) => s.thick).sort((a, b) => a - b)[Math.floor(segs.length / 2)]
+
+  let x1 = w
+  let x2 = 0
+  let y1 = h
+  let y2 = 0
+  for (const s of base) {
+    const ax = s.h ? s.a : s.c
+    const bx = s.h ? s.b : s.c
+    const ay = s.h ? s.c : s.a
+    const by = s.h ? s.c : s.b
+    x1 = Math.min(x1, ax, bx)
+    x2 = Math.max(x2, ax, bx)
+    y1 = Math.min(y1, ay, by)
+    y2 = Math.max(y2, ay, by)
+  }
+  if (x2 - x1 < 20 || y2 - y1 < 20) {
+    return
+  }
+
+  const edges: { h: boolean; c: number; a: number; b: number }[] = [
+    { h: true, c: y1, a: x1, b: x2 },
+    { h: true, c: y2, a: x1, b: x2 },
+    { h: false, c: x1, a: y1, b: y2 },
+    { h: false, c: x2, a: y1, b: y2 },
+  ]
+
+  for (const e of edges) {
+    // 이 변 위에서 이미 벽이 덮은 구간을 모아 빈 곳만 채운다
+    const covers: { a: number; b: number }[] = []
+    for (const s of segs) {
+      if (s.h !== e.h) continue
+      if (Math.abs(s.c - e.c) > thick + 6) continue
+      const a = Math.max(s.a, e.a)
+      const b = Math.min(s.b, e.b)
+      if (b > a) covers.push({ a, b })
+    }
+    covers.sort((p, q) => p.a - q.a)
+
+    // **양쪽에 벽이 있는 틈만** 메운다.
+    //
+    // 변의 끝에 걸린 빈 구간은 대개 건물이 거기까지 없는 것이다(외곽은 사각형이지만 집은 계단 모양).
+    // 그걸 메우면 마당이나 여백까지 감싸 가짜 방이 생긴다. 반면 가운데가 비어 있고 양옆에 벽이
+    // 있으면 그건 못 찾은 벽이다.
+    let cursor = e.a
+    let started = false
+    const gaps: { a: number; b: number }[] = []
+    for (const c of covers) {
+      if (started && c.a > cursor) gaps.push({ a: cursor, b: c.a })
+      cursor = Math.max(cursor, c.b)
+      started = true
+    }
+
+    for (const g of gaps) {
+      // 아주 짧은 틈은 문일 수 있으니 둔다. 큰 구멍만 메운다.
+      if (g.b - g.a < thick * 2) continue
+      segs.push({ h: e.h, a: g.a, b: g.b, c: e.c, thick })
+    }
+  }
 }
 
 /**
