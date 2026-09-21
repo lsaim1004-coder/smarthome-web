@@ -47,13 +47,13 @@ const STEPS: { mode: Mode; no: string; label: string; hint: string }[] = [
     mode: 'wall',
     no: '2',
     label: '벽',
-    hint: '벽을 따라 클릭해 이어 그으세요. 수평·수직에 가까우면 자동으로 반듯해지고, 기존 끝점 근처는 달라붙습니다. 더블클릭하면 끊깁니다.',
+    hint: '벽을 따라 클릭해 이어 그으세요. 수평·수직에 가까우면 자동으로 반듯해지고, 기존 끝점 근처는 달라붙습니다. Esc 를 누르면 끊깁니다. 잘못 그었으면 Ctrl+Z.',
   },
   {
     mode: 'room',
     no: '3',
     label: '방',
-    hint: '방 모서리를 돌아가며 클릭하고, 첫 점을 다시 누르면 닫힙니다. 닫히면 면적이 나옵니다.',
+    hint: '방 안쪽을 한 번 클릭하면 벽을 따라 저절로 채워집니다. 벽이 안 닫혀 있으면 채워지지 않으니, 그때는 모서리를 돌아가며 클릭하고 첫 점을 다시 누르세요.',
   },
   {
     mode: 'opening',
@@ -97,6 +97,13 @@ export default function FloorplanPage() {
   const [autoNote, setAutoNote] = useState<string | null>(null)
   const [extent, setExtent] = useState<{ x1: number; x2: number; y: number } | null>(null)
   const [totalWidthM, setTotalWidthM] = useState('')
+
+  // 되돌리기 — change() 한 곳만 지나가므로 여기서 직전 상태를 쌓으면 된다.
+  // 사람은 실수를 되돌릴 수 있을 때 훨씬 빨리 긋는다. 편집기를 주 경로로 쓰려면 이게 먼저다.
+  type Snap = { geometry: Geometry; devices: PlacedDevice[] }
+  const undoRef = useRef<Snap[]>([])
+  const redoRef = useRef<Snap[]>([])
+  const [histDepth, setHistDepth] = useState({ undo: 0, redo: 0 })
 
   const [dirty, setDirty] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -224,10 +231,74 @@ export default function FloorplanPage() {
   }
 
   function change(next: { geometry?: Geometry; devices?: PlacedDevice[] }) {
+    undoRef.current.push({ geometry, devices })
+    // 한 번 되돌린 뒤 새로 그으면 앞으로 가기는 의미가 없어진다.
+    redoRef.current = []
+    if (undoRef.current.length > 200) undoRef.current.shift()
+    setHistDepth({ undo: undoRef.current.length, redo: 0 })
     if (next.geometry) setGeometry(next.geometry)
     if (next.devices) setDevices(next.devices)
     setDirty(true)
   }
+
+  function undo() {
+    const prev = undoRef.current.pop()
+    if (!prev) return
+    redoRef.current.push({ geometry, devices })
+    setGeometry(prev.geometry)
+    setDevices(prev.devices)
+    setSelectedId(null)
+    setDirty(true)
+    setHistDepth({ undo: undoRef.current.length, redo: redoRef.current.length })
+  }
+
+  function redo() {
+    const next = redoRef.current.pop()
+    if (!next) return
+    undoRef.current.push({ geometry, devices })
+    setGeometry(next.geometry)
+    setDevices(next.devices)
+    setSelectedId(null)
+    setDirty(true)
+    setHistDepth({ undo: undoRef.current.length, redo: redoRef.current.length })
+  }
+
+  // 도면을 바꾸면 이전 도면의 되돌리기 기록은 의미가 없다.
+  useEffect(() => {
+    undoRef.current = []
+    redoRef.current = []
+    setHistDepth({ undo: 0, redo: 0 })
+  }, [current?.id])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      // 입력칸에서 친 건 그대로 둔다. 방 이름을 고치다가 Ctrl+Z 가 도면을 되돌리면 곤란하다.
+      const el = e.target as HTMLElement | null
+      const typing =
+        el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el?.isContentEditable
+      if (typing) return
+
+      const ctrl = e.ctrlKey || e.metaKey
+      if (ctrl && e.key.toLowerCase() === 'z') {
+        e.preventDefault()
+        if (e.shiftKey) redo()
+        else undo()
+        return
+      }
+      if (ctrl && e.key.toLowerCase() === 'y') {
+        e.preventDefault()
+        redo()
+        return
+      }
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (!selectedId) return
+        e.preventDefault()
+        removeSelected()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  })
 
   async function upload(file: File) {
     setBusy(true)
@@ -493,6 +564,30 @@ export default function FloorplanPage() {
                     </button>
                   )
                 })}
+
+                {/* 되돌리기는 단축키만으로 두면 아무도 모른다. 눈에 보이게 둔다. */}
+                <div className="ms-auto d-flex gap-1">
+                  <CButton
+                    size="sm"
+                    color="secondary"
+                    variant="outline"
+                    disabled={histDepth.undo === 0}
+                    onClick={undo}
+                    title="되돌리기 (Ctrl+Z)"
+                  >
+                    ↶ 되돌리기
+                  </CButton>
+                  <CButton
+                    size="sm"
+                    color="secondary"
+                    variant="outline"
+                    disabled={histDepth.redo === 0}
+                    onClick={redo}
+                    title="다시 하기 (Ctrl+Shift+Z)"
+                  >
+                    ↷
+                  </CButton>
+                </div>
               </div>
 
               <div className="small mt-2">

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Geometry, Opening, PlacedDevice, Room, Scale, Wall } from './types'
 import { newId, styleOf } from './types'
+import { roomAtPoint } from './roomAtPoint'
 
 /**
  * 도면 위에 구조를 그리는 2D 편집기.
@@ -8,9 +9,10 @@ import { newId, styleOf } from './types'
  * 도면 이미지를 배경에 깔고 그 위에 SVG 를 겹친다. 좌표는 비율(0~1)로 들고 있다가
  * 그릴 때만 픽셀로 바꾼다 — 창 크기가 바뀌어도 선이 따라 움직이고, 저장된 값은 해상도와 무관하다.
  *
- * 벽을 자동으로 인식하지 않는 이유: 인테리어 도면은 축척·선 두께·범례가 제각각이라
- * 자동 인식 결과를 고치는 편이 처음부터 긋는 것보다 오래 걸린다. 대신 각도 스냅과
- * 끝점 스냅을 넣어 손으로 긋는 속도를 올렸다.
+ * **손으로 긋는 쪽이 주 경로다.** 인테리어 도면은 축척·선 두께·범례가 제각각이라 자동
+ * 인식은 도면마다 다르게 틀린다. 자동 검출은 초안일 뿐이고, 여기서 빠르게 고치거나 처음부터
+ * 긋는 게 확실하다. 그래서 속도에 드는 것부터 넣었다 — 이어 긋기, 각도·끝점 스냅,
+ * 그리고 **방은 안쪽을 한 번 클릭하면 채워진다**(모서리를 찍어 돌 필요가 없다).
  */
 
 export type Mode = 'select' | 'scale' | 'wall' | 'room' | 'opening' | 'device'
@@ -77,6 +79,15 @@ export default function PlanEditor({
   useEffect(() => {
     setDraft([])
   }, [mode])
+
+  // Esc 로 긋던 줄을 끊는다. 벽은 이어 긋기라 끊을 방법이 없으면 모드를 왔다 갔다 해야 했다.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDraft([])
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   const toRatio = useCallback(
     (e: { clientX: number; clientY: number }): Point => {
@@ -168,6 +179,21 @@ export default function PlanEditor({
           return
         }
       }
+      // 그리던 게 없으면 먼저 자동으로 채워 본다. 벽이 닫혀 있으면 클릭 한 번으로 끝난다.
+      if (draft.length === 0 && size.w > 0) {
+        const poly = roomAtPoint(geometry.walls, toRatio(e), size.h / size.w)
+        if (poly) {
+          onGeometry({
+            ...geometry,
+            rooms: [
+              ...geometry.rooms,
+              { id: newId('r'), name: '방 ' + (geometry.rooms.length + 1), points: poly },
+            ],
+          })
+          return
+        }
+      }
+      // 안 닫혀 있으면 직접 그리는 쪽으로 넘어간다.
       setDraft([...draft, p])
       return
     }
