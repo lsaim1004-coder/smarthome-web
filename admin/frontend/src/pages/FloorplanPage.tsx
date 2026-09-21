@@ -36,6 +36,12 @@ import type { InquiryDetail, RequirementSheet } from '../data/types'
  * 그리는 순서. 벽을 자동으로 인식하지 않으므로 사람이 이 차례로 짚어 나간다.
  * 화면이 이걸 말해 주지 않으면 올려 놓고 아무 일도 안 일어나는 것처럼 보인다.
  */
+/**
+ * 손으로 칠 일이 아닌 이름들. 아파트 평면도에 나오는 순서대로 뒀다.
+ * 판독 키가 없어도 클릭 한 번이면 끝나게 하려는 것이다.
+ */
+const ROOM_NAMES = ['거실', '안방', '침실', '주방', '화장실', '드레스룸', '발코니', '현관', '다용도실', '서재']
+
 const STEPS: { mode: Mode; no: string; label: string; hint: string }[] = [
   {
     mode: 'scale',
@@ -407,6 +413,22 @@ export default function FloorplanPage() {
     } finally {
       setNameBusy(false)
     }
+  }
+
+  /**
+   * 방 이름을 정한다. 같은 이름이 이미 있으면 번호를 붙인다 —
+   * 3D 라벨과 기기 목록에 "침실"이 둘이면 어느 쪽인지 알 수 없다.
+   */
+  function setRoomName(roomId: string, base: string) {
+    const taken = new Set(geometry.rooms.filter((r) => r.id !== roomId).map((r) => r.name))
+    let name = base
+    for (let n = 2; taken.has(name); n++) name = base + ' ' + n
+    change({
+      geometry: {
+        ...geometry,
+        rooms: geometry.rooms.map((r) => (r.id === roomId ? { ...r, name } : r)),
+      },
+    })
   }
 
   function removeSelected() {
@@ -817,6 +839,21 @@ export default function FloorplanPage() {
                               })
                             }
                           />
+                          <div className="room-names mt-2">
+                            {ROOM_NAMES.map((n) => (
+                              <button
+                                key={n}
+                                type="button"
+                                className={
+                                  // "침실 2" 처럼 번호가 붙어도 같은 종류로 본다.
+                                  'room-name' + (selectedRoom.name.replace(/ \d+$/, '') === n ? ' on' : '')
+                                }
+                                onClick={() => setRoomName(selectedRoom.id, n)}
+                              >
+                                {n}
+                              </button>
+                            ))}
+                          </div>
                         </>
                       ) : null}
 
