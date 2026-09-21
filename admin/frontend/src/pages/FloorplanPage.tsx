@@ -93,6 +93,7 @@ export default function FloorplanPage() {
   const [pendingScale, setPendingScale] = useState<{ a: { x: number; y: number }; b: { x: number; y: number } } | null>(null)
   const [scaleMm, setScaleMm] = useState('')
 
+  const [nameBusy, setNameBusy] = useState(false)
   const [autoBusy, setAutoBusy] = useState(false)
   const [autoNote, setAutoNote] = useState<string | null>(null)
   const [extent, setExtent] = useState<{ x1: number; x2: number; y: number } | null>(null)
@@ -365,6 +366,49 @@ export default function FloorplanPage() {
     setNotice('축척을 잡았습니다. 이제 벽을 따라 그으시면 됩니다.')
   }
 
+  /**
+   * 도면을 읽어 방 이름을 채운다.
+   *
+   * 규칙으로는 못 가른다 — 어떤 도면은 욕실에 변기를 안 그리고 "욕실" 글자만 적고,
+   * 어떤 도면은 변기·욕조를 그려 놓고 글자를 안 적는다. 굽은 선 비율로 찾아보려 했더니
+   * 1등이 욕실이 아니라 발코니였다(문 열림 호가 모든 방에 있다). 서버가 모델에 넘긴다.
+   *
+   * 채운 결과도 change() 를 지나가므로 마음에 안 들면 Ctrl+Z 로 되돌린다.
+   */
+  async function autoNameRooms() {
+    if (!current || geometry.rooms.length === 0) return
+    setNameBusy(true)
+    setError(null)
+    setNotice(null)
+    try {
+      const centers = geometry.rooms.map((r) => {
+        const xs = r.points.map((p) => p[0])
+        const ys = r.points.map((p) => p[1])
+        return [(Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2]
+      })
+      const res = await api<{ names: { no: number; name: string | null; confidence: number | null }[] }>(
+        `/api/admin/floorplans/${current.id}/room-names`,
+        { method: 'POST', body: JSON.stringify({ centers }) },
+      )
+      const byNo = new Map(res.names.filter((n) => n.name).map((n) => [n.no, n.name as string]))
+      if (byNo.size === 0) {
+        setNotice('도면에서 방 이름을 읽지 못했습니다. 직접 적어 주세요.')
+        return
+      }
+      change({
+        geometry: {
+          ...geometry,
+          rooms: geometry.rooms.map((r, i) => ({ ...r, name: byNo.get(i + 1) ?? r.name })),
+        },
+      })
+      setNotice(`방 ${byNo.size}개의 이름을 채웠습니다. 틀린 곳은 고치시고, 되돌리려면 Ctrl+Z 를 누르세요.`)
+    } catch (e) {
+      setError(errorMessage(e))
+    } finally {
+      setNameBusy(false)
+    }
+  }
+
   function removeSelected() {
     if (!selectedId) return
     change({
@@ -565,8 +609,22 @@ export default function FloorplanPage() {
                   )
                 })}
 
-                {/* 되돌리기는 단축키만으로 두면 아무도 모른다. 눈에 보이게 둔다. */}
                 <div className="ms-auto d-flex gap-1">
+                  {/* 방 이름은 도면에 적혀 있거나 기구로 알아볼 수 있다. 사람이 다시 칠 일이 아니다. */}
+                  <CButton
+                    size="sm"
+                    color="primary"
+                    variant="outline"
+                    disabled={nameBusy || geometry.rooms.length === 0}
+                    onClick={() => void autoNameRooms()}
+                    title="도면을 읽어 방 이름을 채웁니다"
+                  >
+                    {nameBusy ? <CSpinner size="sm" /> : '방 이름 읽기'}
+                  </CButton>
+                </div>
+
+                {/* 되돌리기는 단축키만으로 두면 아무도 모른다. 눈에 보이게 둔다. */}
+                <div className="d-flex gap-1">
                   <CButton
                     size="sm"
                     color="secondary"
