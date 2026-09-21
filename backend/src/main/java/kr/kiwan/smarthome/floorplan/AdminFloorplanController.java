@@ -45,13 +45,47 @@ public class AdminFloorplanController {
     private final InquiryService inquiries;
     private final AdminAccess access;
     private final AuditRepository audit;
+    private final RoomNamingService roomNames;
 
     public AdminFloorplanController(FloorplanService floorplans, InquiryService inquiries,
-                                    AdminAccess access, AuditRepository audit) {
+                                    AdminAccess access, AuditRepository audit,
+                                    RoomNamingService roomNames) {
         this.floorplans = floorplans;
         this.inquiries = inquiries;
         this.access = access;
         this.audit = audit;
+        this.roomNames = roomNames;
+    }
+
+    /** 방 이름 자동 채우기 요청. 방 중심점을 화면에서 보낸 순서 그대로 받는다. */
+    public record RoomNameRequest(List<double[]> centers) {}
+
+    /**
+     * 도면을 읽어 방 이름을 채운다.
+     *
+     * 규칙으로는 못 가른다 — 어떤 도면은 욕실에 변기를 안 그리고 글자만 적고, 어떤 도면은
+     * 변기는 그리고 글자를 안 적는다. 굽은 선 비율로 찾아보려 했더니 1등이 욕실이 아니라
+     * 발코니였다(문 열림 호가 모든 방에 있다). 그림을 이해해야 하는 일이라 모델에 넘긴다.
+     */
+    @PostMapping("/api/admin/floorplans/{fid}/room-names")
+    public Map<String, Object> roomNames(@PathVariable long fid, @RequestBody RoomNameRequest req,
+                                         Authentication authentication) {
+        UserRow me = access.require(authentication);
+        FloorplanResponse f = floorplans.get(fid);
+        access.requireOwns(me, inquiries.get(f.inquiryId()).partnerId());
+
+        if (!roomNames.ready()) {
+            throw new ApiException(HttpStatus.CONFLICT, "NO_VISION_KEY",
+                    "도면 판독 키가 없어 방 이름을 읽을 수 없습니다. 서버 설정에 APP_ANALYSIS_API_KEY 를 넣어 주세요.");
+        }
+        List<double[]> centers = req.centers() == null ? List.of() : req.centers();
+        if (centers.isEmpty()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "NO_ROOMS", "먼저 방을 만들어 주세요.");
+        }
+        List<RoomNamingService.Named> named = roomNames.name(fid, centers);
+        audit.log(access.actor(me), "FLOORPLAN_ROOM_NAMES", String.valueOf(fid),
+                "방 " + centers.size() + "개 중 " + named.size() + "개 읽음");
+        return Map.of("names", named);
     }
 
     @GetMapping("/api/admin/inquiries/{id}/floorplans")
