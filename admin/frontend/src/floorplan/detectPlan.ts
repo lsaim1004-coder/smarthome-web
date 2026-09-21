@@ -63,6 +63,14 @@ const THIN_MIN_LEN_RATIO = 0.045
  * 벽은 아무리 두꺼워도 이 정도고, 붙박이장 같은 좁은 공간도 이보다는 넓다.
  */
 const PAIR_MAX_MM = 320
+/**
+ * 종이보다 이만큼 어두우면 "그려진 것"으로 본다.
+ *
+ * 고정 밝기로 자를 수 없다. 실측한 도면은 바탕이 251, 배경 격자가 247 이라 247 로 자르면
+ * 격자가 통째로 그림이 되고 화면 전체가 건물이 된다. 종이 밝기를 도면에서 직접 재고
+ * 거기서 떨어진 정도로 판단해야 한다.
+ */
+const CONTENT_DROP = 14
 /** 아파트 도면의 벽 두께(내벽 150·외벽 200)에서 중앙값으로 잡은 값. 실측으로 맞췄다. */
 const ASSUMED_WALL_MM = 200
 
@@ -84,7 +92,8 @@ const MIN_ROOM_M2 = 2.0
 /** 이보다 색이 진하면 벽이 아니다(치수선·바닥 채색). */
 const SATURATION_MAX = 40
 
-type Seg = { h: boolean; a: number; b: number; c: number; thick: number }
+/** `keep` 은 건물 외곽선에서 나온 조각이라는 표시다 — 얇아도 버리지 않는다. */
+type Seg = { h: boolean; a: number; b: number; c: number; thick: number; keep?: boolean }
 
 export function detectPlan(img: HTMLImageElement): PlanResult {
   const empty: PlanResult = { walls: [], openings: [], rooms: [], mmPerPx: null, extent: null, note: '' }
@@ -153,19 +162,38 @@ export function detectPlan(img: HTMLImageElement): PlanResult {
 
   // 치수선은 길고 얇고 검다 — 길이만으로는 벽과 못 가른다. 대신 **건물 바깥에** 있다.
   // 진한 선이 이루는 상자 안쪽만 남겨서 떼어 낸다.
+  // 건물 외곽선 — **창(샤시)이 있는 외벽은 어두운 선이 아예 없다.** 연한 회색 띠로 그려져
+  // 있어서 어두운 선을 찾는 방식으로는 원리적으로 못 잡는다. 대신 "그려진 것 전체"의
+  // 실루엣을 떠서 그 테두리를 벽으로 쓴다. 창도 종이가 아니라 그려진 것이므로 여기 들어온다.
+  const outline = buildingOutline(gray, w, h)
+
   const box = bbox(thickSegs)
-  const found = [...thickSegs, ...thinSegs.filter((s) => insideBox(s, box) && !coveredBy(s, thickSegs))]
+  const found = [
+    ...thickSegs,
+    ...thinSegs.filter((s) => insideBox(s, box) && !coveredBy(s, thickSegs)),
+    ...outline,
+  ]
   if (found.length === 0) {
     return { ...empty, note: '벽으로 볼 만한 선이 없습니다. 도면이 너무 흐리면 직접 그으셔야 합니다.' }
   }
 
+  // 2) 잇고, 메운 틈을 문·창으로
+  const { merged: joined, holes: holes0 } = joinAndPunch(found, maxGapPx)
+
   // 마주 보는 두 선을 한 벽으로 합친다. 도면이 벽을 속 빈 이중선으로 그리면 양쪽 면이
   // 따로 잡히는데, 그대로 두면 3D 에 얇은 판이 두 장 서고 그 사이가 빈다.
   // 합치면 두 면 사이 간격이 곧 벽 두께가 되므로 두께도 실제에 가까워진다.
-  const segs = mergeParallelPairs(found, mmPerWorkPx ? PAIR_MAX_MM / mmPerWorkPx : 20)
+  //
+  // **조각을 이은 뒤에** 합친다. 잇기 전에는 같은 벽의 두 면이 서로 어긋난 토막이라
+  // 겹침이 모자라 짝으로 안 잡히고, 그 뒤 잇기가 둘을 나란한 전체 길이로 늘려 놓는다
+  // — 방과 방 사이에 벽이 두 줄 서 보이는 게 이것이다.
+  const paired = mergeParallelPairs(joined, mmPerWorkPx ? PAIR_MAX_MM / mmPerWorkPx : 20)
 
-  // 2) 잇고, 메운 틈을 문·창으로
-  const { merged, holes } = joinAndPunch(segs, maxGapPx)
+  // 짝 없는 홑선은 벽이 아니다. 벽은 두 면으로 그리지만 치수선·가구 윤곽·타일 무늬는
+  // 한 줄이다. 실측: 욕실 한 칸에 가로선이 다섯 겹 쌓여 방을 잘랐다.
+  // 굵기로 가른다 — 짝지은 벽 두께의 절반에도 못 미치면 벽으로 볼 수 없다.
+  // 이 때문에 진짜 외벽이 빠지더라도 뒤의 closeOuterBoundary 가 되메운다.
+  const { segs: merged, holes } = dropLoneThinSegs(paired, holes0, joined)
 
   // 모서리에 문이 있으면 벽이 직교 벽에 닿지 않고 끊긴다. 거기까지 늘려야 방이 닫힌다.
   // 한 번 늘리면 다른 벽이 새로 닿을 수 있어 두 번 돈다 — 실측에서 방 3개 → 6개가 됐다.
@@ -342,7 +370,9 @@ function adaptiveInk(gray: Uint8Array, w: number, h: number): Uint8Array {
  * 간격이 벽 두께로 볼 만하고(`maxPairPx` 이내) 서로 충분히 겹칠 때만 합친다 —
  * 좁은 방을 사이에 둔 두 벽을 잘못 합치면 방이 통째로 사라진다.
  */
-function mergeParallelPairs(segs: Seg[], maxPairPx: number): Seg[] {
+type Paired = { out: Seg[]; map: number[]; isPair: boolean[] }
+
+function mergeParallelPairs(segs: Seg[], maxPairPx: number): Paired {
   // **서로가 서로의 가장 가까운 짝일 때만** 합친다.
   // 한쪽만 보고 합치면 벽 하나가 엉뚱한 이웃을 붙잡아 중간으로 끌려가고,
   // 그 자리에 있던 방이 열려 버린다(실측: 거실 41㎡ 가 방에서 빠졌다).
@@ -367,12 +397,16 @@ function mergeParallelPairs(segs: Seg[], maxPairPx: number): Seg[] {
   })
 
   const used = new Array(segs.length).fill(false)
+  const map = new Array(segs.length).fill(-1)
+  const isPair: boolean[] = []
   const out: Seg[] = []
   for (let i = 0; i < segs.length; i++) {
     if (used[i]) continue
     const j = nearest[i].best
     if (j < 0 || used[j] || nearest[j].best !== i) {
       used[i] = true
+      map[i] = out.length
+      isPair.push(false)
       out.push({ ...segs[i] })
       continue
     }
@@ -380,6 +414,9 @@ function mergeParallelPairs(segs: Seg[], maxPairPx: number): Seg[] {
     const b = segs[j]
     used[i] = true
     used[j] = true
+    map[i] = out.length
+    map[j] = out.length
+    isPair.push(true)
     out.push({
       h: a.h,
       a: Math.min(a.a, b.a),
@@ -387,9 +424,174 @@ function mergeParallelPairs(segs: Seg[], maxPairPx: number): Seg[] {
       c: (a.c + b.c) / 2,
       // 두 면 사이 간격이 벽 두께다. 선 자체의 굵기는 이미 그 안에 들어가 있다.
       thick: Math.max(a.thick, b.thick, Math.round(nearest[i].gap)),
+      keep: a.keep || b.keep,
     })
   }
+  return { out, map, isPair }
+}
+
+/**
+ * 짝 없는 홑선을 버린다.
+ *
+ * 도면은 벽을 두 면으로 그린다. 한 줄로만 그어진 선은 치수선·가구 윤곽·타일 무늬 쪽이
+ * 훨씬 많고, 이것들이 방 안을 가로질러 방을 잘라 놓는다.
+ *
+ * 기준은 **짝지은 벽 두께의 중앙값 절반**이다. 절대 치수를 쓰지 않는 이유는 축척 추정이
+ * 도면 양식을 타기 때문이다 — 같은 도면 안의 벽끼리 견주는 편이 훨씬 안정적이다.
+ * 짝이 하나도 없으면(벽을 홑선으로 그린 도면) 아무것도 버리지 않는다.
+ */
+function dropLoneThinSegs(p: Paired, holes: Hole[], from: Seg[]): { segs: Seg[]; holes: Hole[] } {
+  const pairThicks = p.out.filter((_, i) => p.isPair[i]).map((s) => s.thick).sort((a, b) => a - b)
+  if (pairThicks.length < 3) return { segs: p.out, holes: remapHoles(holes, from, p.out, p.map) }
+  const cut = pairThicks[Math.floor(pairThicks.length / 2)] / 2
+
+  const compact = new Array(p.out.length).fill(-1)
+  const segs: Seg[] = []
+  for (let i = 0; i < p.out.length; i++) {
+    if (!p.isPair[i] && !p.out[i].keep && p.out[i].thick < cut) continue
+    compact[i] = segs.length
+    segs.push(p.out[i])
+  }
+  const map = p.map.map((i) => (i < 0 ? -1 : compact[i]))
+  return { segs, holes: remapHoles(holes, from, segs, map) }
+}
+
+/**
+ * 짝을 합치면서 벽 번호가 바뀐다. 문·창이 붙어 있던 자리를 새 벽 위로 옮긴다.
+ *
+ * 한 벽의 두 면에 같은 문이 따로 기록돼 있으므로, 합쳐진 뒤 같은 자리에 겹치는 것은
+ * 하나만 남긴다 — 안 그러면 같은 문이 두 번 뚫린다.
+ */
+function remapHoles(holes: Hole[], from: Seg[], to: Seg[], map: number[]): Hole[] {
+  const out: Hole[] = []
+  for (const hole of holes) {
+    const src = from[hole.wallIndex]
+    const dstIndex = map[hole.wallIndex]
+    if (dstIndex < 0) continue
+    const dst = to[dstIndex]
+    if (!src || !dst) continue
+    const pos = src.a + hole.t * (src.b - src.a)
+    const span = dst.b - dst.a
+    if (span <= 0) continue
+    const t = (pos - dst.a) / span
+    if (t < 0 || t > 1) continue
+    const dup = out.some(
+      (o) => o.wallIndex === dstIndex && Math.abs((o.t - t) * span) < hole.width,
+    )
+    if (dup) continue
+    out.push({ wallIndex: dstIndex, t, width: hole.width })
+  }
   return out
+}
+
+/**
+ * 건물 실루엣의 테두리를 벽 조각으로 뽑는다.
+ *
+ * **창(샤시)이 있는 외벽에는 어두운 선이 없다.** 도면은 거기를 연한 회색 띠로 그린다.
+ * 어두운 선을 찾는 방식으로는 원리적으로 못 잡으므로, 기준을 진하기에서 "그려졌는가"로
+ * 바꾼다 — 종이(흰색)가 아니면 전부 건물의 일부다.
+ *
+ *   1. 흰색이 아닌 픽셀을 모은다 (창의 연한 띠도 들어온다)
+ *   2. 1px 짜리 치수선·글자를 열기 연산으로 떨어뜨린다. 안 그러면 실루엣이 그쪽으로 끌려간다
+ *   3. 바깥 흰 곳에서 번져 들어간다. 닿지 않은 곳이 건물 안쪽이다 — 방 안이 희어도
+ *      테두리가 닫혀 있으므로 통째로 안쪽으로 잡힌다
+ *   4. 가장 큰 덩어리만 남긴다 (도면 밖의 제목·범례는 따로 떨어진 작은 덩어리다)
+ *   5. 그 덩어리의 테두리를 띠 검출에 넘겨 축에 나란한 조각으로 만든다
+ */
+function buildingOutline(gray: Uint8Array, w: number, h: number): Seg[] {
+  const n = w * h
+  // 종이 밝기 = 밝은 쪽에서 가장 흔한 값. 도면마다 흰 바탕이 다르고 배경 격자가 깔린 것도 있다.
+  const hist = new Array(256).fill(0)
+  for (let i = 0; i < n; i++) hist[gray[i]]++
+  let paper = 255
+  let bestCount = -1
+  for (let v = 200; v < 256; v++) {
+    if (hist[v] > bestCount) {
+      bestCount = hist[v]
+      paper = v
+    }
+  }
+  const contentMax = paper - CONTENT_DROP
+  const content = new Uint8Array(n)
+  for (let i = 0; i < n; i++) content[i] = gray[i] < contentMax ? 1 : 0
+
+  // 열기(침식 후 팽창) — 가는 선은 사라지고 벽·창 띠는 남는다
+  const solid = dilate(erode(content, w, h, 1), w, h, 1)
+
+  // 바깥 흰 곳에서 번지기
+  const outer = new Uint8Array(n)
+  const stack: number[] = []
+  const push = (x: number, y: number) => {
+    if (x < 0 || y < 0 || x >= w || y >= h) return
+    const i = y * w + x
+    if (outer[i] || solid[i]) return
+    outer[i] = 1
+    stack.push(i)
+  }
+  for (let x = 0; x < w; x++) {
+    push(x, 0)
+    push(x, h - 1)
+  }
+  for (let y = 0; y < h; y++) {
+    push(0, y)
+    push(w - 1, y)
+  }
+  while (stack.length) {
+    const i = stack.pop()!
+    const x = i % w
+    const y = (i / w) | 0
+    push(x + 1, y)
+    push(x - 1, y)
+    push(x, y + 1)
+    push(x, y - 1)
+  }
+
+  // 가장 큰 덩어리 = 건물
+  const seen = new Uint8Array(n)
+  let best: number[] | null = null
+  for (let start = 0; start < n; start++) {
+    if (seen[start] || outer[start]) continue
+    const cells: number[] = []
+    const q = [start]
+    seen[start] = 1
+    while (q.length) {
+      const i = q.pop()!
+      cells.push(i)
+      const x = i % w
+      const y = (i / w) | 0
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+        const xx = x + dx
+        const yy = y + dy
+        if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue
+        const j = yy * w + xx
+        if (seen[j] || outer[j]) continue
+        seen[j] = 1
+        q.push(j)
+      }
+    }
+    if (!best || cells.length > best.length) best = cells
+  }
+  // 도면이 화면의 일부만 차지해야 말이 된다. 너무 작으면 실루엣을 못 믿는다.
+  if (!best || best.length < n * 0.05) return []
+
+  const blob = new Uint8Array(n)
+  for (const i of best) blob[i] = 1
+
+  // 테두리 한 겹
+  const inner = erode(blob, w, h, 1)
+  const edge = new Uint8Array(n)
+  for (let i = 0; i < n; i++) edge[i] = blob[i] && !inner[i] ? 1 : 0
+
+  // 축에 나란한 **긴** 구간만 벽으로 본다. 비스듬하거나 굽은 구간은 1~2px 씩 끊겨 알아서 빠진다.
+  //
+  // 기준을 0.03 까지 낮춰 봤더니 벽이 35 -> 66 으로 늘고 화면이 지저분해졌다. 실루엣 테두리는
+  // 1px 이라 짧은 조각끼리 짝을 지으면 "짝지은 벽 두께의 중앙값"이 무너지고, 그러면 홑선을
+  // 걸러 내는 기준까지 같이 낮아져 치수선이 다시 들어온다. 길게 잡아 둘 것.
+  const minLen = Math.max(MIN_LEN, Math.round(Math.min(w, h) * 0.08))
+  return [
+    ...bands(edge, w, h, true, minLen).map((b) => ({ h: true, ...b, keep: true })),
+    ...bands(edge, w, h, false, minLen).map((b) => ({ h: false, ...b, keep: true })),
+  ]
 }
 
 /** 조각들이 차지하는 상자. 치수선처럼 건물 바깥에 있는 선을 떼어 낼 때 쓴다. */
@@ -561,6 +763,7 @@ function joinAndPunch(segs: Seg[], maxGapPx: number): { merged: Seg[]; holes: Ho
         cur.b = Math.max(cur.b, s.b)
         cur.c = (cur.c + s.c) / 2
         cur.thick = Math.max(cur.thick, s.thick)
+        cur.keep = cur.keep || s.keep
       } else {
         flush()
         cur = { ...s }

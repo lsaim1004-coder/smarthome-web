@@ -31,7 +31,7 @@ services:
 
   backend:
     build: ./backend
-    image: smarthome-web/backend:0.7.2
+    image: smarthome-web/backend:0.7.3
     container_name: smarthome-backend
     restart: unless-stopped
     environment:
@@ -78,7 +78,7 @@ services:
 
   frontend:
     build: ./frontend
-    image: smarthome-web/frontend:0.7.2
+    image: smarthome-web/frontend:0.7.3
     container_name: smarthome-frontend
     restart: unless-stopped
     ports:
@@ -89,7 +89,7 @@ services:
 
   admin-api:
     build: ./backend
-    image: smarthome-web/backend:0.7.2
+    image: smarthome-web/backend:0.7.3
     container_name: smarthome-admin-api
     restart: unless-stopped
     environment:
@@ -133,7 +133,7 @@ services:
 
   admin-web:
     build: ./admin/frontend
-    image: smarthome-web/admin:0.7.2
+    image: smarthome-web/admin:0.7.3
     container_name: smarthome-admin-web
     restart: unless-stopped
     ports:
