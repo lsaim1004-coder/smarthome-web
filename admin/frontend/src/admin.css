@@ -213,3 +213,33 @@ body {
   box-shadow: 0 0 0 2px rgba(42, 120, 214, 0.18);
   font-weight: 600;
 }
+
+/* 방 이름 빠른 고르기. 손가락으로도 눌러야 해서 높이를 넉넉히 둔다. */
+.room-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.room-name {
+  border: 1px solid var(--cui-border-color);
+  background: var(--cui-body-bg);
+  color: var(--cui-body-color);
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  min-height: 2rem;
+  cursor: pointer;
+}
+
+.room-name:hover {
+  border-color: var(--cui-primary);
+  color: var(--cui-primary);
+}
+
+.room-name.on {
+  background: var(--cui-primary);
+  border-color: var(--cui-primary);
+  color: #fff;
+}
