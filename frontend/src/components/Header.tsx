@@ -26,7 +26,7 @@ export default function Header() {
           패키지
         </NavLink>
         <NavLink to="/lab" className="nav-link">
-          한 달 실험실
+          첫 세 집
         </NavLink>
         <NavLink to="/contact" className="nav-btn">
           상담 신청
