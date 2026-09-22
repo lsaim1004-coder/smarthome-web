@@ -1017,6 +1017,8 @@ html.lab-on .foot { background: var(--navy); color: #7d92b3; border-top: 1px sol
 
 .lab-s {
   scroll-snap-align: start;
+  /* 첫 구간까지 스냅하면 그 위의 헤더가 화면 밖으로 밀려 브랜드·메뉴에 닿을 수 없다 */
+  scroll-snap-stop: normal;
   min-height: 82svh;
   display: flex;
   flex-direction: column;
@@ -1027,6 +1029,7 @@ html.lab-on .foot { background: var(--navy); color: #7d92b3; border-top: 1px sol
   margin: 0 auto;
 }
 .lab-s + .lab-s { border-top: 1px solid var(--lab-line); }
+.lab-s:first-child { scroll-snap-align: none; }
 
 .lab-eye { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: var(--lab-amber); }
 .lab-h1 { font-size: clamp(30px, 7vw, 54px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.25; text-wrap: balance; }
