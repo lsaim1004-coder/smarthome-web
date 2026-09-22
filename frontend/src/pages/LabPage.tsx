@@ -120,9 +120,9 @@ export default function LabPage() {
           합니다. 저는 지금 쓰시는 걸 그대로 씁니다. 그게 제가 제일 자신 있는 부분입니다.
         </p>
         <figure className="lab-fig">
-          <a href="/lab/ha-dashboard.jpg" target="_blank" rel="noreferrer">
+          <a href="/images/ha-dashboard.jpg" target="_blank" rel="noreferrer">
             <img
-              src="/lab/ha-dashboard.jpg"
+              src="/images/ha-dashboard.jpg"
               width="1400"
               height="1183"
               alt="한 화면에 모인 거실·안방 온습도, LG 에어컨 네 대, 커튼과 블라인드, 공기청정기, 셋탑박스와 TV, 플러그, 로봇청소기, 전력 그래프"
@@ -272,9 +272,9 @@ export default function LabPage() {
           </div>
         </div>
         <figure className="lab-fig">
-          <a href="/lab/ha-energy.jpg" target="_blank" rel="noreferrer">
+          <a href="/images/ha-energy.jpg" target="_blank" rel="noreferrer">
             <img
-              src="/lab/ha-energy.jpg"
+              src="/images/ha-energy.jpg"
               width="1400"
               height="1110"
               alt="9월 한 달 전기 사용량 화면 — 날짜별 막대와 기기별 색 구분, 거실 에어컨·안방 에어컨·전기레인지·정수기·컴퓨터 등이 따로 표시됨"
