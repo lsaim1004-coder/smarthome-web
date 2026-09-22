@@ -1159,9 +1159,39 @@ html.lab-on .foot { background: var(--navy); color: #7d92b3; border-top: 1px sol
 .lab-step-n { font-size: 13px; font-weight: 800; color: var(--lab-amber); }
 .lab-steps small { display: block; font-size: 13px; color: var(--lab-muted); }
 
+/* 영상 링크 */
+.lab-links { display: flex; flex-direction: column; gap: 10px; max-width: 560px; }
+.lab-link {
+  display: flex; flex-direction: column; gap: 3px;
+  background: var(--lab-panel); border-left: 3px solid var(--lab-amber);
+  border-radius: 10px; padding: 14px 16px; text-decoration: none; color: var(--lab-text);
+}
+.lab-link:hover { background: #143061; }
+.lab-link-t { font-size: 15px; font-weight: 700; }
+.lab-link-s { font-size: 12.5px; color: var(--lab-muted); }
+
+/* 얼마면 되나 */
+.lab-price { display: flex; flex-direction: column; max-width: 620px; }
+.lab-price-r {
+  display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; align-items: baseline;
+  padding: 12px 0; border-bottom: 1px solid var(--lab-line);
+}
+.lab-price-r:last-child { border-bottom: 0; }
+.lab-price-w { font-size: 15px; font-weight: 700; }
+.lab-price-v { font-size: 15px; font-weight: 800; color: var(--lab-amber); grid-row: 1 / 3; align-self: center; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lab-price-d { font-size: 12.5px; color: var(--lab-muted); grid-column: 1; }
+
+/* 카카오톡 */
+.lab-kakao { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.lab-kakao-l { font-size: 13.5px; color: var(--lab-muted); }
+.lab-kakao-h { font-size: 12.5px; color: var(--lab-muted); }
+
 .lab-cta { font-size: clamp(21px, 3.6vw, 30px) !important; font-weight: 800; color: var(--lab-amber); line-height: 1.45; }
 .lab-btn {
   align-self: flex-start;
+  border: 0;
+  cursor: pointer;
+  letter-spacing: 0.02em;
   background: var(--lab-amber); color: #2a1c00;
   font-weight: 800; font-size: 15px;
   padding: 13px 26px; border-radius: 10px; text-decoration: none;

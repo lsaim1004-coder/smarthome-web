@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
 
 /**
  * 지인에게 "첫 세 집이 되어 주시겠어요" 라고 부탁하는 화면.
@@ -19,6 +18,23 @@ export default function LabPage() {
   useEffect(() => {
     document.documentElement.classList.add('lab-on')
     return () => document.documentElement.classList.remove('lab-on')
+  }, [])
+
+  // 카카오톡은 아이디로 바로 여는 링크가 없다. 눌러서 복사하는 게 폰에서 제일 빠르다.
+  useEffect(() => {
+    const btn = document.getElementById('lab-kakao-copy')
+    const hint = document.getElementById('lab-kakao-hint')
+    if (!btn || !hint) return
+    const onClick = async () => {
+      try {
+        await navigator.clipboard.writeText('lsaim')
+        hint.textContent = '복사했습니다. 카카오톡 친구 추가에 붙여 넣으세요'
+      } catch {
+        hint.textContent = '아이디는 lsaim 입니다'
+      }
+    }
+    btn.addEventListener('click', onClick)
+    return () => btn.removeEventListener('click', onClick)
   }, [])
 
   return (
@@ -188,6 +204,96 @@ export default function LabPage() {
         <p className="lab-note">
           댁의 생활에 맞춰 만들어 드리고, 한 달 동안 안 맞는 건 고칩니다.{' '}
           <b>기기를 파는 게 아니라 이걸 만들어 드리는 일입니다.</b>
+        </p>
+      </section>
+
+      <section className="lab-s">
+        <span className="lab-eye">말보다 보는 게 빠릅니다</span>
+        <h2 className="lab-h2">
+          남이 해놓은 걸
+          <br />
+          한번 보세요
+        </h2>
+        <p>
+          제가 백 마디 하는 것보다 3분짜리 영상 하나가 낫습니다. 집이 어떻게 움직이는지
+          감이 잡히실 겁니다.
+        </p>
+        <div className="lab-links">
+          <a
+            className="lab-link"
+            href="https://www.youtube.com/watch?v=3PbYr8lJKJE"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span className="lab-link-t">모든 게 자동으로 움직이는 집, 직접 가봤습니다</span>
+            <span className="lab-link-s">유튜브 · 테킷</span>
+          </a>
+          <a
+            className="lab-link"
+            href="https://www.youtube.com/watch?v=hWP0frQPQsk"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span className="lab-link-t">자동화 하나 만드는 데 몇 분 안 걸립니다</span>
+            <span className="lab-link-s">유튜브 · 삼성전자 공식</span>
+          </a>
+        </div>
+        <p className="lab-note">
+          첫 영상은 <b>끝까지 다 해놓은 집</b>이라 좀 화려합니다. 저렇게까지 할 필요는 없습니다 —
+          다음 장에 <b>얼마면 되는지</b> 적어 뒀습니다.
+        </p>
+      </section>
+
+      <section className="lab-s">
+        <span className="lab-eye">제일 많이 물어보시는 것</span>
+        <h2 className="lab-h2">
+          생각보다
+          <br />
+          비싸지 않습니다
+        </h2>
+        <p>
+          스마트홈 하면 수백만 원짜리를 떠올리시는데, 그건 집 전체를 다 할 때 얘기입니다.
+          <b> 하고 싶은 것 하나씩만 하면 몇 만 원입니다.</b>
+        </p>
+        <div className="lab-price">
+          <div className="lab-price-r">
+            <span className="lab-price-w">욕실 환풍기 자동으로</span>
+            <span className="lab-price-d">스위치 54,900 + 모션센서 9,900</span>
+            <span className="lab-price-v">64,800원</span>
+          </div>
+          <div className="lab-price-r">
+            <span className="lab-price-w">나가면 대기전력 차단</span>
+            <span className="lab-price-d">스마트 플러그 15,210 × 2개</span>
+            <span className="lab-price-v">30,420원</span>
+          </div>
+          <div className="lab-price-r">
+            <span className="lab-price-w">옛날 에어컨·TV 도 폰으로</span>
+            <span className="lab-price-d">리모컨 학습 허브 1대</span>
+            <span className="lab-price-v">38,800원</span>
+          </div>
+          <div className="lab-price-r">
+            <span className="lab-price-w">문 열리면 폰으로 알림</span>
+            <span className="lab-price-d">문·창문 센서</span>
+            <span className="lab-price-v">12,900원</span>
+          </div>
+          <div className="lab-price-r">
+            <span className="lab-price-w">물 새면 바로 알림</span>
+            <span className="lab-price-d">누수 센서</span>
+            <span className="lab-price-v">9,900원</span>
+          </div>
+        </div>
+        <p className="lab-note">
+          여기에 <b>허브 한 대 36,000원</b>이 한 번만 듭니다. 기기들이 서로 말이 통하게 해주는
+          그 상자입니다. 나중에 뭘 더 붙여도 허브는 그대로 씁니다.
+        </p>
+        <p>
+          <em>허브 하나에 하고 싶은 것 두세 개</em>면 <b>10만 원 안쪽</b>으로 시작됩니다.
+          이번에는 <b>설치와 설정에 값을 받지 않으니</b> 기기값만 드시면 됩니다.
+        </p>
+        <p className="lab-note">
+          가격은 2026년 9월에 제가 직접 찾아본 값이라 조금씩 달라집니다. 그리고 집에 따라
+          허브가 하나 더 필요할 수 있는데, <b>그런 게 있는지 확인하는 것도 이번에 제가
+          알아보려는 것</b>입니다. 필요하면 미리 말씀드리고 정합니다.
         </p>
       </section>
 
@@ -464,9 +570,15 @@ export default function LabPage() {
           </li>
         </ol>
         <p className="lab-cta">세 분만 모십니다</p>
-        <Link to="/contact" className="lab-btn">
-          이야기 나눠보기
-        </Link>
+        <div className="lab-kakao">
+          <span className="lab-kakao-l">카카오톡에서 찾아 주세요</span>
+          <button type="button" className="lab-btn" id="lab-kakao-copy">
+            lsaim
+          </button>
+          <span className="lab-kakao-h" id="lab-kakao-hint">
+            누르면 아이디가 복사됩니다
+          </span>
+        </div>
         <p className="lab-foot">
           전기 사용량은 2026년 9월 저희 집에서 실제로 잰 값입니다
           <br />
