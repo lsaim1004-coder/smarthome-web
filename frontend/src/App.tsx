@@ -4,6 +4,7 @@ import Header from './components/Header'
 import WelcomePage from './pages/WelcomePage'
 import PackagesPage from './pages/PackagesPage'
 import ContactPage from './pages/ContactPage'
+import LabPage from './pages/LabPage'
 
 /**
  * 공개 사이트에는 로그인이 없다.
@@ -19,6 +20,7 @@ export default function App() {
             <Route path="/" element={<WelcomePage />} />
             <Route path="/packages" element={<PackagesPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/lab" element={<LabPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

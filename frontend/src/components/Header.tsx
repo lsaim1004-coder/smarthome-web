@@ -25,6 +25,9 @@ export default function Header() {
         <NavLink to="/packages" className="nav-link">
           패키지
         </NavLink>
+        <NavLink to="/lab" className="nav-link">
+          한 달 실험실
+        </NavLink>
         <NavLink to="/contact" className="nav-btn">
           상담 신청
         </NavLink>

@@ -987,3 +987,189 @@ button { font: inherit; }
 }
 .chip-step-sub:hover { background: #fee2e2; color: var(--err); }
 .chip-step-add:focus-visible, .chip-step-sub:focus-visible { outline: 2px solid var(--amber-2); outline-offset: -2px; }
+
+
+/* ─────────────────────────────────────────────────────────────
+   한 달 실험실 (/lab)
+   지인에게 부탁하는 화면이라 파는 화면과 톤이 다르다. 헤더가 이미 네이비+앰버라
+   같은 색으로 아래를 채우면 위아래가 한 덩어리로 이어진다.
+   ───────────────────────────────────────────────────────────── */
+.lab {
+  --lab-ink: var(--navy);
+  --lab-panel: #102647;
+  --lab-line: rgba(226, 232, 240, 0.14);
+  --lab-text: #eaf0fa;
+  --lab-muted: #9fb2cd;
+  --lab-amber: var(--amber);
+  --lab-cool: #5ec8d8;
+
+  background: var(--lab-ink);
+  color: var(--lab-text);
+  font-weight: 350;
+  line-height: 1.75;
+}
+
+/* 이 페이지에 있는 동안만 건다 — html 에 직접 걸면 다른 페이지까지 따라간다 */
+html.lab-on { scroll-snap-type: y proximity; scroll-behavior: smooth; }
+html.lab-on body { background: var(--navy); }
+html.lab-on .foot { background: var(--navy); color: #7d92b3; border-top: 1px solid rgba(226, 232, 240, 0.12); }
+@media (prefers-reduced-motion: reduce) { html.lab-on { scroll-behavior: auto; } }
+
+.lab-s {
+  scroll-snap-align: start;
+  min-height: 82svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  padding: 56px clamp(16px, 4vw, 32px);
+  max-width: 960px;
+  margin: 0 auto;
+}
+.lab-s + .lab-s { border-top: 1px solid var(--lab-line); }
+
+.lab-eye { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: var(--lab-amber); }
+.lab-h1 { font-size: clamp(30px, 7vw, 54px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.25; text-wrap: balance; }
+.lab-h2 { font-size: clamp(23px, 4.4vw, 34px); font-weight: 800; letter-spacing: -0.015em; line-height: 1.3; text-wrap: balance; }
+.lab h3 { font-size: 15px; font-weight: 700; }
+.lab p { max-width: 34em; font-size: clamp(15px, 1.7vw, 16px); }
+.lab-lead { color: var(--lab-muted); font-size: clamp(16px, 2.1vw, 18px) !important; }
+.lab b { font-weight: 700; color: #fff; }
+.lab em { font-style: normal; font-weight: 700; color: var(--lab-amber); }
+.lab-cue { font-size: 12px !important; color: var(--lab-muted); letter-spacing: 0.06em; }
+.lab-note {
+  font-size: 13.5px !important;
+  color: var(--lab-muted);
+  border-left: 2px solid var(--lab-line);
+  padding-left: 14px;
+  max-width: 40em !important;
+}
+
+/* 사진 */
+.lab-fig { display: flex; flex-direction: column; gap: 8px; }
+.lab-fig img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid var(--lab-line);
+  border-radius: 12px;
+}
+.lab-cap { font-size: 12.5px; color: var(--lab-muted); }
+.lab-fig a { display: block; }
+.lab-zoom { color: var(--lab-amber); white-space: nowrap; }
+
+/* 쉬운 말 풀이 */
+.lab-plain {
+  background: var(--lab-panel);
+  border-left: 3px solid var(--lab-cool);
+  padding: 16px 18px;
+  max-width: 560px;
+}
+.lab-plain dt { font-weight: 700; font-size: 14.5px; }
+.lab-plain dd { margin: 0 0 10px; font-size: 13.5px; color: var(--lab-muted); }
+.lab-plain dd:last-child { margin-bottom: 0; }
+
+/* 앱이 흩어진 문제 */
+.lab-chores { max-width: 620px; }
+.lab-chore {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+  padding: 10px 0; border-bottom: 1px solid var(--lab-line); font-size: 15px;
+}
+.lab-app { font-size: 12.5px; color: var(--lab-muted); white-space: nowrap; }
+.lab-verdict { font-size: clamp(18px, 3vw, 24px) !important; font-weight: 800; color: var(--lab-amber); line-height: 1.45; }
+
+.lab-one {
+  background: var(--lab-panel);
+  border: 1px solid rgba(245, 181, 68, 0.3);
+  border-left: 3px solid var(--lab-amber);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  max-width: 560px;
+}
+.lab-one p { font-size: 14.5px !important; color: var(--lab-muted); }
+
+/* 자동화 */
+.lab-scenes { display: flex; flex-direction: column; }
+.lab-scene {
+  display: grid; grid-template-columns: 82px 1fr; gap: 16px; align-items: baseline;
+  padding: 11px 0; border-bottom: 1px solid var(--lab-line);
+}
+.lab-scene:last-child { border-bottom: 0; }
+.lab-scene-n { font-weight: 700; color: var(--lab-amber); font-size: 15px; }
+.lab-scene-f { font-size: 14.5px; color: var(--lab-muted); }
+
+/* 욕실 타임라인 */
+.lab-tl { display: flex; flex-direction: column; max-width: 640px; }
+.lab-tl-r {
+  display: grid; grid-template-columns: 62px 1fr auto; gap: 14px; align-items: baseline;
+  padding: 11px 0; border-bottom: 1px solid var(--lab-line); font-size: 14.5px;
+}
+.lab-tl-r:last-child { border-bottom: 0; }
+.lab-tl-t { font-size: 12.5px; color: var(--lab-muted); font-variant-numeric: tabular-nums; }
+.lab-tl-s { font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.lab-tl-s.on { color: var(--lab-amber); }
+.lab-tl-s.off { color: var(--lab-cool); }
+
+/* 실측 막대 */
+.lab-chart { display: flex; flex-direction: column; gap: 9px; max-width: 600px; }
+.lab-bar { display: grid; grid-template-columns: 112px 1fr 52px; align-items: center; gap: 11px; }
+.lab-bar-n { font-size: 13.5px; color: var(--lab-muted); }
+.lab-bar-t { background: var(--lab-panel); height: 21px; border-radius: 3px; overflow: hidden; }
+.lab-bar-f { display: block; height: 100%; background: var(--lab-amber); }
+.lab-bar-f.cool { background: var(--lab-cool); }
+.lab-bar-v { font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
+.lab-axis {
+  display: flex; justify-content: space-between; gap: 12px;
+  max-width: 600px; font-size: 11.5px; color: var(--lab-muted);
+  border-top: 1px solid var(--lab-line); padding-top: 7px;
+}
+.lab-stats { display: flex; flex-wrap: wrap; gap: 28px; }
+.lab-stats > div { display: flex; flex-direction: column; }
+.lab-stat-n { font-size: clamp(26px, 5vw, 36px); font-weight: 800; color: var(--lab-amber); line-height: 1.15; font-variant-numeric: tabular-nums; }
+.lab-stat-n small { font-size: 14px; font-weight: 700; }
+.lab-stat-l { font-size: 12.5px; color: var(--lab-muted); }
+
+/* 되는 것 / 안 되는 것 */
+.lab-two { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.lab-two > div { display: flex; flex-direction: column; gap: 10px; }
+.lab-col {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+  padding-bottom: 7px; border-bottom: 1px solid var(--lab-line);
+}
+.lab-col.yes { color: var(--lab-amber); }
+.lab-col.no { color: var(--lab-cool); }
+.lab ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; list-style: disc; }
+.lab li { font-size: 14.5px; }
+.lab li::marker { color: var(--lab-muted); }
+.lab li small { color: var(--lab-muted); }
+
+/* 교환 조건 */
+.lab-deal { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.lab-card { background: var(--lab-panel); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.lab-card.give { border-top: 3px solid var(--lab-amber); }
+.lab-card.ask { border-top: 3px solid var(--lab-cool); }
+
+/* 진행 순서 */
+.lab-steps { display: flex; flex-direction: column; gap: 9px; max-width: 600px; list-style: none; padding: 0; }
+.lab-steps li { display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: baseline; font-size: 15px; }
+.lab-step-n { font-size: 13px; font-weight: 800; color: var(--lab-amber); }
+.lab-steps small { display: block; font-size: 13px; color: var(--lab-muted); }
+
+.lab-cta { font-size: clamp(21px, 3.6vw, 30px) !important; font-weight: 800; color: var(--lab-amber); line-height: 1.45; }
+.lab-btn {
+  align-self: flex-start;
+  background: var(--lab-amber); color: #2a1c00;
+  font-weight: 800; font-size: 15px;
+  padding: 13px 26px; border-radius: 10px; text-decoration: none;
+}
+.lab-btn:hover { background: var(--amber-2); }
+.lab-foot { font-size: 11.5px !important; color: var(--lab-muted); border-top: 1px solid var(--lab-line); padding-top: 14px; line-height: 1.9; }
+
+@media (max-width: 520px) {
+  .lab-scene { grid-template-columns: 1fr; gap: 2px; }
+  .lab-tl-r { grid-template-columns: 54px 1fr; }
+  .lab-tl-s { grid-column: 2; }
+  .lab-bar { grid-template-columns: 88px 1fr 44px; gap: 8px; }
+  .lab-chore { flex-direction: column; gap: 0; }
+}
