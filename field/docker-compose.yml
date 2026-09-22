@@ -1,0 +1,53 @@
+# 세대용 스마트홈 서버. 미니PC 한 대에 이것만 뜬다.
+#
+# 세대마다 똑같은 상태를 만드는 것이 목적이라 버전을 고정한다. "latest" 로 두면
+# 이번 달에 설치한 집과 다음 달에 설치한 집이 달라지고, 나중에 원격으로 고칠 때
+# 어느 버전인지 매번 확인해야 한다.
+#
+# 이미지는 전부 amd64 · arm64 를 지원한다 — 맥북(M2)에서 똑같이 띄워 미리 연습할 수 있다.
+
+name: smarthome
+
+services:
+  # 집의 두뇌. 브랜드가 다른 기기·계정을 여기로 모은다.
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:2026.9
+    container_name: homeassistant
+    restart: unless-stopped
+    # 기기 발견(mDNS)과 Matter·Zigbee 온보딩이 같은 LAN 기준이라 호스트 네트워크가 필요하다.
+    # 브리지 네트워크로 두면 "기기를 못 찾는" 증상이 난다.
+    network_mode: host
+    privileged: true
+    volumes:
+      - ./ha:/config
+      - /run/dbus:/run/dbus:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      TZ: Asia/Seoul
+
+  # SmartThings 앱에서 HA 의 기기를 보이게 하는 다리.
+  # 고객이 이미 SmartThings 를 쓰고 있으면 이쪽이 익숙하다.
+  matterbridge:
+    image: luligu/matterbridge:2.2.5
+    container_name: matterbridge
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./matterbridge:/root/.matterbridge
+      - ./matterbridge-node:/root/Matterbridge
+    environment:
+      TZ: Asia/Seoul
+
+  # Zigbee·Tasmota 등 로컬 기기용 메시지 버스.
+  # 쓰지 않는 세대에서는 이 블록을 지우면 된다 — 없어도 HA 는 돈다.
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+    environment:
+      TZ: Asia/Seoul
