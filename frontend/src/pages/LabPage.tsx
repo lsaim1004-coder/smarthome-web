@@ -2,7 +2,11 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 /**
- * 지인에게 "댁에서 한 달만 해보게 해주세요" 라고 부탁하는 화면.
+ * 지인에게 "첫 세 집이 되어 주시겠어요" 라고 부탁하는 화면.
+ *
+ * 처음엔 "댁을 한 달만 빌려주시겠어요" 로 썼다가 **표현이 과하다**는 말을 들었다.
+ * 집을 통째로 내놓으라는 말처럼 들리는데, 실제로는 한 달 정도 상의해 가며 몇 번 들르는
+ * 일이다. 받는 사람이 부담을 느끼면 부탁 자체가 실패한다.
  *
  * 파는 화면이 아니라 **부탁하는 화면**이다. 그래서 톤이 다르다 — 사이트의 다른 페이지가
  * 밝은 바탕에 가격을 보여준다면 여기는 어두운 바탕에 솔직한 말을 한다.
@@ -22,13 +26,16 @@ export default function LabPage() {
       <section className="lab-s">
         <span className="lab-eye">부탁 하나 드립니다</span>
         <h1 className="lab-h1">
-          댁을 한 달만
+          첫 세 집을
           <br />
-          빌려주시겠어요?
+          찾습니다
         </h1>
         <p className="lab-lead">
           집에 있는 가전과 조명을 <b>하나로 묶어서 알아서 돌아가게</b> 만드는 일을 사업으로
           준비하고 있습니다. 제 집에는 몇 년째 해두고 쓰는데, <b>남의 집에 해본 적이 없습니다.</b>
+        </p>
+        <p className="lab-lead">
+          한 달쯤 <b>상의해 가며 몇 번 들르는</b> 일입니다. 시간은 편하신 때로 맞춥니다.
         </p>
         <p className="lab-cue">↓ 넘기시면 무슨 얘긴지 나옵니다</p>
       </section>
@@ -324,7 +331,7 @@ export default function LabPage() {
       </section>
 
       <section className="lab-s">
-        <span className="lab-eye">이번 실험의 범위</span>
+        <span className="lab-eye">어디까지 하나</span>
         <h2 className="lab-h2">
           어디까지 하고
           <br />
@@ -383,7 +390,7 @@ export default function LabPage() {
                 <b>기기값만</b> 받습니다. 설치·설정·교육은 값을 받지 않습니다
               </li>
               <li>
-                실험이 끝나도 <b>그대로 두고 갑니다</b>
+                한 달이 지나도 <b>그대로 두고 갑니다</b>
               </li>
               <li>한 달간 안 되는 건 멀리서 고쳐 드립니다</li>
               <li>
@@ -395,7 +402,7 @@ export default function LabPage() {
             <h3>부탁드리는 것</h3>
             <ul>
               <li>
-                반나절씩 <b>두 번</b> 집에 계셔 주세요
+                한 달쯤 <b>상의해 가며 몇 번 들르는 것</b>을 허락해 주세요. 날짜는 맞춰서 갑니다
               </li>
               <li>인터넷 회사와 가전 목록을 미리 알려 주세요</li>
               <li>
@@ -411,7 +418,11 @@ export default function LabPage() {
 
       <section className="lab-s">
         <span className="lab-eye">이렇게 진행됩니다</span>
-        <h2 className="lab-h2">2주면 끝납니다</h2>
+        <h2 className="lab-h2">
+          한 달쯤
+          <br />
+          오가면서 맞춥니다
+        </h2>
         <ol className="lab-steps">
           <li>
             <span className="lab-step-n">1</span>
@@ -429,25 +440,30 @@ export default function LabPage() {
           <li>
             <span className="lab-step-n">3</span>
             <span>
-              첫 방문 — 설치하고 묶기<small>반나절</small>
+              첫 방문 — 설치하고 묶기<small>반나절, 편하신 날로</small>
             </span>
           </li>
           <li>
             <span className="lab-step-n">4</span>
             <span>
-              두 번째 방문 — 생활 장면 만들기<small>일주일 써보신 뒤, 반나절</small>
+              일주일쯤 써보시고 말씀해 주세요
+              <small>멀리서 고칠 수 있는 건 들르지 않고 고칩니다</small>
             </span>
           </li>
           <li>
             <span className="lab-step-n">5</span>
-            <span>한 달간 멀리서 손봐 드리기</span>
+            <span>
+              생활에 안 맞는 게 있으면 한 번 더<small>필요할 때만, 상의해서</small>
+            </span>
+          </li>
+          <li>
+            <span className="lab-step-n">6</span>
+            <span>
+              한 달쯤 되면 마무리<small>그대로 두고 갑니다</small>
+            </span>
           </li>
         </ol>
-        <p className="lab-cta">
-          세 집 중 한 집,
-          <br />
-          맡겨주시겠어요?
-        </p>
+        <p className="lab-cta">세 분만 모십니다</p>
         <Link to="/contact" className="lab-btn">
           이야기 나눠보기
         </Link>
