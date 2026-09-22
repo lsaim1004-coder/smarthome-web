@@ -1054,6 +1054,9 @@ html.lab-on .foot { background: var(--navy); color: #7d92b3; border-top: 1px sol
   display: block;
   width: 100%;
   max-width: 100%;
+  /* width/height 속성을 적어 두면(로딩 중 레이아웃 밀림 방지) height 도 같이 풀어 줘야 한다.
+     안 그러면 세로가 속성값에 고정돼 비율이 깨진다. */
+  height: auto;
   border: 1px solid var(--lab-line);
   border-radius: 12px;
 }
