@@ -171,6 +171,110 @@ export default function PackagesPage() {
           </p>
         </div>
       </section>
+
+      {/*
+        리모델링 중인 고객에게만 팔 수 있는 것들. 패키지(기기)와 성격이 달라 따로 뗐다.
+        천장이 닫히고 벽이 마감되면 이 항목들은 값이 몇 배가 되거나 아예 못 한다.
+      */}
+      <section className="page-head">
+        <p className="kicker amber">지금 공사 중이시라면</p>
+        <h1>기기보다 먼저 정해야 하는 것</h1>
+        <p>
+          스마트 기기는 몇 년 뒤에도 바꿀 수 있습니다. <b>전기 배선은 못 바꿉니다.</b> 천장이 닫히고 도배가 끝나면
+          다시 뜯어야 하고, 그때는 비용이 몇 배가 됩니다.
+        </p>
+      </section>
+
+      <section className="flow">
+        <div className="wrap">
+          <div className="pre-grid">
+            <article className="pre-card accent">
+              <h3>중성선 미리 넣기</h3>
+              <p className="pre-price">
+                지금 <b>개소당 몇 천 원</b>
+              </p>
+              <p>
+                스마트 스위치는 대부분 중성선이 필요한데, 국내 아파트 스위치 박스에는 대개 없습니다. 전기 공사할 때
+                선 하나만 같이 넣어 두면 끝나는 일입니다.
+              </p>
+              <p className="pre-vs">
+                나중에 하면 <b>개소당 5~10만원 + 벽 해체 + 도배</b>
+                <br />
+                스위치 10개소 기준으로 지금 5만원, 나중에 50~100만원입니다.
+              </p>
+            </article>
+
+            <article className="pre-card">
+              <h3>조명 · 전기 설계 검토</h3>
+              <p className="pre-price">15만원</p>
+              <p>도면을 보고 스위치 · 센서 · 콘센트 위치와 회로 구성을 잡아 드립니다. 내놓는 것은 종이 네 장입니다.</p>
+              <ol className="pre-steps">
+                <li>평면도</li>
+                <li>제품 배치도</li>
+                <li>
+                  <b>배선도</b>
+                </li>
+                <li>설치 순서</li>
+              </ol>
+              <p className="pre-note">
+                인테리어 사장님은 커튼 전원 · 콘센트 위치 · 목공 준비를 알아야 하고, 전기팀은 중성선 · Driver · 채널 ·
+                병렬 연결을 알아야 합니다. <b>모두가 같은 그림을 보게 만드는 문서입니다.</b>
+              </p>
+            </article>
+
+            <article className="pre-card">
+              <h3>간접조명 · 다운라이트 구간 설계</h3>
+              <p className="pre-price">10만원</p>
+              <p>
+                간접조명은 등만 사서 되는 게 아닙니다. SMPS 용량과 Driver 채널, 조광 회로 분리를 먼저 정해야 천장을
+                닫을 수 있습니다.
+              </p>
+              <p className="pre-note">
+                이 부분은 공사가 끝난 뒤에 바꿀 수 없는 대표적인 항목입니다.
+              </p>
+            </article>
+
+            <article className="pre-card">
+              <h3>기기 사전 검수 · 라벨링</h3>
+              <p className="pre-price">12만원</p>
+              <p>
+                기기를 받는 즉시 검수하고, 가능한 것은 미리 페어링해 두고, <b>어느 방 어느 자리에 들어갈 것인지 라벨을
+                붙여</b> 다시 포장해 현장에 넘깁니다.
+              </p>
+              <p className="pre-note">
+                시공 당일에는 아무도 설명서를 읽을 시간이 없습니다. "안방 스위치 어디 있나요?" 한 번에 작업이
+                멈춥니다.
+              </p>
+            </article>
+
+            <article className="pre-card">
+              <h3>전기 시공 당일 입회</h3>
+              <p className="pre-price">20만원 / 1일</p>
+              <p>
+                배선도대로 시공되는지 현장에서 함께 봅니다. Driver 채널이 바뀌거나 병렬 연결이 다르게 들어가면 나중에
+                확인하기 어렵습니다.
+              </p>
+              <p className="pre-note">전기팀과 미리 배선도를 맞춰 두기 때문에 현장에서 다투는 일이 없습니다.</p>
+            </article>
+
+            <article className="pre-card small">
+              <h3>먼저 하나만 해보고 싶으시면</h3>
+              <p className="pre-price">7만 5천원 · 2시간</p>
+              <p>
+                <b>욕실 환풍기 자동화</b> — 들어가면 켜지고, 나가고 한 시간 뒤에 저절로 꺼집니다. 욕실 곰팡이는
+                환풍기를 안 켜서, 켜도 끄는 걸 잊어서 생깁니다.
+              </p>
+              <p className="pre-note">마음에 안 드시면 원래 스위치로 되돌려 드립니다.</p>
+            </article>
+          </div>
+
+          <p className="pkg-cta">
+            <Link to="/contact" className="btn btn-lg">
+              공사 일정부터 상담하기
+            </Link>
+          </p>
+        </div>
+      </section>
     </>
   )
 }

@@ -1209,3 +1209,75 @@ html.lab-on .foot { background: var(--navy); color: #7d92b3; border-top: 1px sol
   .lab-bar { grid-template-columns: 88px 1fr 44px; gap: 8px; }
   .lab-chore { flex-direction: column; gap: 0; }
 }
+
+
+/* ─────────────────────────────────────────────────────────────
+   공사 중에만 팔 수 있는 것들 (/packages 하단)
+   기기 패키지와 성격이 달라 카드 모양을 다르게 준다.
+   ───────────────────────────────────────────────────────────── */
+.pre-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  margin-bottom: 28px;
+}
+
+.pre-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pre-card.accent { border-color: var(--amber); border-width: 2px; }
+.pre-card.small { background: #fffaf0; border-color: var(--amber-2); }
+.pre-card h3 { font-size: 17px; letter-spacing: -0.01em; }
+.pre-card p { font-size: 14px; color: var(--ink-2); line-height: 1.65; margin: 0; }
+
+.pre-price {
+  font-size: 20px !important;
+  font-weight: 800;
+  color: var(--navy) !important;
+  letter-spacing: -0.02em;
+}
+.pre-price b { color: var(--amber-2); }
+
+.pre-vs {
+  background: #fff7e6;
+  border-left: 3px solid var(--amber);
+  padding: 12px 14px;
+  border-radius: 0 8px 8px 0;
+  font-size: 13.5px !important;
+}
+
+.pre-note {
+  font-size: 13px !important;
+  color: var(--muted) !important;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  margin-top: auto !important;
+}
+
+.pre-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  counter-reset: step;
+}
+.pre-steps li {
+  counter-increment: step;
+  font-size: 13px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+.pre-steps li::before {
+  content: counter(step) ". ";
+  color: var(--amber-2);
+  font-weight: 700;
+}
